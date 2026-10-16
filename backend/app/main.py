@@ -34,6 +34,8 @@ from app.routes.inventory_routes import router as inventory_router
 from app.routes.requests_routes import router as requests_router
 from app.routes.donations_routes import router as donations_router
 from app.routes.notifications_routes import router as notifications_router
+from app.routes.analytics_routes import router as analytics_router
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -105,6 +107,8 @@ app.include_router(inventory_router)
 app.include_router(requests_router)
 app.include_router(donations_router)
 app.include_router(notifications_router)
+app.include_router(analytics_router)
+
 
 
 
