@@ -1,84 +1,116 @@
 "use client";
 
-import { Database, Cpu, Radio, ShieldCheck, Code } from "lucide-react";
+import Link from "next/link";
+import { PhoneCall, Mail, ShieldCheck, Heart, MapPin } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-[#FFFFFF] border-t-[3px] border-black mt-auto">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pb-6 border-b-2 border-black">
-          {/* Col 1: Project Identity */}
-          <div className="md:col-span-2">
-            <div className="flex items-center gap-2 font-black text-xl tracking-tight mb-2">
-              <span className="w-6 h-6 bg-[#FF4D4D] border-2 border-black flex items-center justify-center text-white text-xs">✚</span>
-              <span>LIFEGRID SYSTEM</span>
-            </div>
-            <p className="text-sm font-medium text-neutral-700 max-w-md mb-3 leading-relaxed">
-              Academic & clinical implementation of an Intelligent Real-Time Emergency Blood Resource Mesh.
-              Built for <span className="font-bold underline decoration-2 decoration-[#FFE600]">CSE494 (Intelligent NoSQL Databases)</span>.
+    <footer className="bg-white border-t-[3px] border-black mt-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b-2 border-black">
+          {/* Brand Info */}
+          <div className="md:col-span-1 space-y-3">
+            <Link href="/" className="flex items-center gap-2">
+              <span className="w-8 h-8 bg-[#FF4D4D] border-2 border-black shadow-[2px_2px_0px_#000] flex items-center justify-center text-white font-black text-lg">
+                ✚
+              </span>
+              <span className="font-black text-xl tracking-tight text-black">LifeGrid</span>
+            </Link>
+            <p className="text-xs text-neutral-600 font-medium leading-relaxed">
+              India&apos;s real-time emergency blood network connecting voluntary lifesavers, certified hospital blood banks, and critical patients in minutes.
             </p>
-            <div className="flex flex-wrap gap-2 text-xs font-mono font-bold">
-              <span className="bg-[#FFE600] px-2 py-0.5 border border-black shadow-[2px_2px_0px_#000]">MongoDB 8.2</span>
-              <span className="bg-[#7CD4FF] px-2 py-0.5 border border-black shadow-[2px_2px_0px_#000]">Groq Cloud LLM</span>
-              <span className="bg-[#2EE59D] px-2 py-0.5 border border-black shadow-[2px_2px_0px_#000]">WebSockets / Streams</span>
-              <span className="bg-[#FF90C8] px-2 py-0.5 border border-black shadow-[2px_2px_0px_#000]">Next.js 15 App Router</span>
+            <div className="flex items-center gap-2 text-xs font-mono font-bold text-emerald-700 bg-emerald-50 border border-emerald-400 p-2 w-fit">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              Verified 24/7 Emergency Dispatch
             </div>
           </div>
 
-          {/* Col 2: MongoDB Internals */}
+          {/* For Patients & Requesters */}
           <div>
-            <div className="font-extrabold text-sm uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <Database className="w-4 h-4 text-[#2EE59D]" />
-              <span>Database Specs</span>
+            <div className="font-black text-sm uppercase tracking-wide text-black mb-3">
+              Find Blood
             </div>
-            <ul className="text-xs font-mono space-y-1.5 text-neutral-700">
-              <li>• Strict $jsonSchema (11 colls)</li>
-              <li>• 2dsphere Geospatial Index</li>
-              <li>• Compound Index (IXSCAN)</li>
-              <li>• Multi-Doc ACID Transactions</li>
-              <li>• $merge Materialized Views</li>
+            <ul className="text-xs font-bold space-y-2 text-neutral-700">
+              <li>
+                <Link href="/requests" className="hover:text-[#FF4D4D] transition-colors">
+                  Emergency Blood Request
+                </Link>
+              </li>
+              <li>
+                <Link href="/inventory" className="hover:text-[#FF4D4D] transition-colors">
+                  Hospital Blood Stock
+                </Link>
+              </li>
+              <li>
+                <Link href="/#how-it-works" className="hover:text-[#FF4D4D] transition-colors">
+                  How Matching Works
+                </Link>
+              </li>
+              <li>
+                <Link href="/#faq" className="hover:text-[#FF4D4D] transition-colors">
+                  Frequently Asked Questions
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Col 3: Quick Viva Links */}
+          {/* For Donors & Hospitals */}
           <div>
-            <div className="font-extrabold text-sm uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <Cpu className="w-4 h-4 text-[#FF4D4D]" />
-              <span>Viva Quick Lab</span>
+            <div className="font-black text-sm uppercase tracking-wide text-black mb-3">
+              Get Involved
             </div>
-            <ul className="text-xs font-bold space-y-1.5">
+            <ul className="text-xs font-bold space-y-2 text-neutral-700">
               <li>
-                <a href="/query-lab" className="hover:underline flex items-center gap-1 text-[#0066CC]">
-                  → Interactive Query Lab
-                </a>
+                <Link href="/#donors" className="hover:text-[#FF4D4D] transition-colors">
+                  Become a Voluntary Donor
+                </Link>
               </li>
               <li>
-                <a href="/analytics" className="hover:underline flex items-center gap-1 text-[#0066CC]">
-                  → 15 Aggregation Pipelines
-                </a>
+                <Link href="/#eligibility" className="hover:text-[#FF4D4D] transition-colors">
+                  Donor Eligibility Checker
+                </Link>
               </li>
               <li>
-                <a href="/ai" className="hover:underline flex items-center gap-1 text-[#0066CC]">
-                  → Groq Tool-Calling Agent
-                </a>
+                <Link href="/#hospitals" className="hover:text-[#FF4D4D] transition-colors">
+                  Register Your Blood Bank
+                </Link>
               </li>
               <li>
-                <a href="/requests" className="hover:underline flex items-center gap-1 text-[#0066CC]">
-                  → Live Emergency Dispatch
-                </a>
+                <Link href="/#impact" className="hover:text-[#FF4D4D] transition-colors">
+                  Network Lives Saved
+                </Link>
               </li>
             </ul>
+          </div>
+
+          {/* 24/7 Helpline & Contact */}
+          <div>
+            <div className="font-black text-sm uppercase tracking-wide text-black mb-3">
+              24/7 Emergency Helpline
+            </div>
+            <div className="space-y-2 text-xs font-mono">
+              <div className="p-3 bg-[#FFE600] border-2 border-black shadow-[2px_2px_0px_#000] font-bold">
+                <div className="text-[10px] text-neutral-700 uppercase">Toll-Free Dispatch</div>
+                <div className="text-base font-black text-black">1800-LIFE-GRID</div>
+                <div className="text-[10px] text-neutral-600">(1800-543-3474)</div>
+              </div>
+              <div className="flex items-center gap-1.5 text-neutral-600 font-sans font-medium pt-1">
+                <Mail className="w-3.5 h-3.5 text-neutral-800" />
+                <span>support@lifegrid.org</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Bottom Credits */}
-        <div className="pt-4 flex flex-col sm:flex-row items-center justify-between text-xs font-mono font-medium text-neutral-600 gap-2">
+        {/* Bottom Bar & Disclaimer */}
+        <div className="pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-medium text-neutral-500">
           <div>
-            MongoDB Cluster URI: <span className="font-bold text-black">mongodb://localhost:27017/lifegrid_db</span>
+            © {new Date().getFullYear()} LifeGrid Emergency Resource Network. All rights reserved.
           </div>
-          <div className="flex items-center gap-2">
-            <span>Production Grade Academic Release v1.0</span>
-            <span className="w-2 h-2 rounded-full bg-[#2EE59D] border border-black" />
+          <div className="flex items-center gap-6 font-bold text-neutral-700">
+            <a href="#privacy" className="hover:underline">Privacy Policy</a>
+            <a href="#terms" className="hover:underline">Terms of Service</a>
+            <a href="#medical-disclaimer" className="hover:underline">Medical Disclaimer</a>
           </div>
         </div>
       </div>
