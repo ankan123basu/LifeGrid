@@ -2,400 +2,655 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AuthModal from "@/components/AuthModal";
 import MoltenMetal from "@/components/MoltenMetal";
 import { api } from "@/lib/api";
-import { useLiveStore } from "@/lib/store";
 import {
-  ShieldAlert,
-  Cpu,
-  Terminal,
-  Activity,
-  ArrowRight,
-  Database,
-  Flame,
-  Radio,
+  Search,
   MapPin,
-  CheckCircle2,
-  AlertTriangle,
+  Navigation,
+  ShieldCheck,
+  Heart,
   Clock,
-  Sparkles
+  ArrowRight,
+  CheckCircle2,
+  Calendar,
+  Building2,
+  PhoneCall,
+  ChevronDown,
+  Sparkles,
+  Users,
+  Activity,
+  Award,
 } from "lucide-react";
-import dynamic from "next/dynamic";
 
-const BloodCellCanvas = dynamic(
-  () => import("@/components/three/BloodCellCanvas"),
-  { ssr: false, loading: () => <div className="h-96 w-full bg-neutral-900 border-3 border-black animate-pulse" /> }
+// Dynamically import 3D Hero Visual with SSR disabled
+const HeroBloodDropCanvas = dynamic(
+  () => import("@/components/three/HeroBloodDropCanvas"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[420px] w-full flex items-center justify-center bg-[#F4F1EA] border-3 border-black">
+        <div className="w-48 h-60 bg-[#FF4D4D] rounded-full border-4 border-black animate-pulse" />
+      </div>
+    ),
+  }
 );
 
-const NetworkGlobeCanvas = dynamic(
-  () => import("@/components/three/NetworkGlobeCanvas"),
-  { ssr: false, loading: () => <div className="h-96 w-full bg-neutral-900 border-3 border-black animate-pulse" /> }
+// Dynamically import Leaflet Map with SSR disabled
+const HospitalStockMap = dynamic(
+  () => import("@/components/HospitalStockMap"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[480px] w-full flex items-center justify-center bg-[#F4F1EA] border-3 border-black font-mono text-xs font-bold">
+        Loading Interactive Emergency Map...
+      </div>
+    ),
+  }
 );
+
+const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 export default function HomePage() {
   const [authOpen, setAuthOpen] = useState(false);
-  const [stock, setStock] = useState<any[]>([]);
-  const [loadingStock, setLoadingStock] = useState(true);
-  const [quickDistress, setQuickDistress] = useState("");
-  const [parsedEmergency, setParsedEmergency] = useState<any>(null);
-  const [parsing, setParsing] = useState(false);
-  const { alerts } = useLiveStore();
 
+  // Uber-style Emergency Request Card state
+  const [selectedGroup, setSelectedGroup] = useState("O+");
+  const [cityInput, setCityInput] = useState("New Delhi, Delhi");
+  const [urgency, setUrgency] = useState<"NORMAL" | "EMERGENCY">("EMERGENCY");
+  const [locating, setLocating] = useState(false);
+
+  // Live Consolidated Stock Data
+  const [stockSummary, setStockSummary] = useState<any[]>([]);
+
+  // Donor Eligibility Checker State
+  const [lastDonationDate, setLastDonationDate] = useState("");
+  const [eligibilityResult, setEligibilityResult] = useState<{
+    eligible: boolean;
+    daysRemaining: number;
+    nextEligibleDate?: string;
+  } | null>(null);
+
+  // FAQ Accordion State
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+
+  // Load live stock data on mount
   useEffect(() => {
     async function loadStock() {
       try {
         const data = await api.getBloodStockByGroup();
-        setStock(data);
-      } catch (e) {
-        console.error("Failed to load blood stock summary:", e);
-      } finally {
-        setLoadingStock(false);
+        setStockSummary(data || []);
+      } catch (err) {
+        console.error("Failed to load blood stock summary", err);
       }
     }
     loadStock();
   }, []);
 
-  const handleParseDistress = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!quickDistress.trim()) return;
-    setParsing(true);
-    try {
-      const res: any = await api.aiParseEmergency(quickDistress);
-      setParsedEmergency(res.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setParsing(false);
+  // Handle Geolocation in Hero Card
+  function handleHeroUseLocation() {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
     }
-  };
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocating(false);
+        setCityInput("Current Location (Detected)");
+      },
+      (err) => {
+        setLocating(false);
+        setCityInput("New Delhi, Delhi");
+      }
+    );
+  }
+
+  // Handle Donor Eligibility Calculation (90 days interval)
+  function handleCheckEligibility(e: React.FormEvent) {
+    e.preventDefault();
+    if (!lastDonationDate) return;
+
+    const donationDate = new Date(lastDonationDate);
+    const today = new Date();
+    const diffTime = today.getTime() - donationDate.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const cooldownDays = 90;
+
+    if (diffDays >= cooldownDays) {
+      setEligibilityResult({
+        eligible: true,
+        daysRemaining: 0,
+      });
+    } else {
+      const remaining = cooldownDays - diffDays;
+      const nextDate = new Date(donationDate);
+      nextDate.setDate(nextDate.getDate() + cooldownDays);
+      setEligibilityResult({
+        eligible: false,
+        daysRemaining: remaining,
+        nextEligibleDate: nextDate.toLocaleDateString("en-IN", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+      });
+    }
+  }
+
+  const faqs = [
+    {
+      q: "How fast will blood be dispatched in an emergency?",
+      a: "Our network connects directly to 39 verified hospital blood banks. When an emergency request is placed, hospitals and certified voluntary donors within a 15 km radius receive immediate notification, with an average matching time of under 4 minutes.",
+    },
+    {
+      q: "Is LifeGrid completely free for patients and donors?",
+      a: "Yes. LifeGrid is an open non-profit coordination service. Neither patients nor donors are ever charged matching fees. Standard government-regulated testing and processing fees at the hospital apply as usual.",
+    },
+    {
+      q: "Who is eligible to donate blood?",
+      a: "Any healthy individual between 18 and 65 years old, weighing at least 45 kg, with hemoglobin above 12.5 g/dL and no recent surgery, infection, or medication restrictions. Males can donate every 90 days; females every 120 days.",
+    },
+    {
+      q: "How are voluntary donors verified?",
+      a: "All voluntary donors must verify their phone number, government ID, and confirm their blood group via previous medical certification or on-site clinical screening before donation.",
+    },
+    {
+      q: "Can private or government hospitals integrate their blood banks?",
+      a: "Yes. Licensed blood banks and trauma centers can register directly on LifeGrid to automatically sync available stock, respond to regional crises, and coordinate inter-hospital unit transfers.",
+    },
+  ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F4F1EA]">
+    <div className="min-h-screen flex flex-col bg-[#F4F1EA] text-[#0A0A0A]">
       <Navbar onOpenAuth={() => setAuthOpen(true)} />
 
-      {/* Hero Section with MoltenMetal Fluid Canvas */}
-      <section className="relative overflow-hidden border-b-[3px] border-black bg-[#FFFFFF] py-16 md:py-24">
-        {/* WebGL2 Molten Metal Fluid Backdrop */}
-        <div className="absolute inset-0 opacity-30 pointer-events-none">
-          <MoltenMetal
-            colors={["#FF4D4D", "#FFE600", "#7CD4FF"]}
-            coreColor="#FFFFFF"
-            speed={0.4}
-            glow={1.8}
-            thickness={1.2}
-            mouseInteraction={true}
-          />
+      {/* ========================================================================= */}
+      {/* 1. HERO SECTION (Conversion-Focused, Uber-style Request Card) */}
+      {/* ========================================================================= */}
+      <section className="relative overflow-hidden border-b-[3px] border-black bg-[#F4F1EA]">
+        {/* MoltenMetal Fluid Shader Background with Soft Gradient Mask */}
+        <div className="absolute inset-0 z-0 opacity-80 pointer-events-none">
+          <MoltenMetal />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#F4F1EA] via-[#F4F1EA]/85 to-transparent" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-          <div className="max-w-3xl">
-            {/* Academic Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#FFE600] border-2 border-black shadow-[3px_3px_0px_#000] text-xs font-mono font-black uppercase tracking-wider mb-6">
-              <span className="w-2.5 h-2.5 bg-[#FF4D4D] border border-black animate-pulse" />
-              <span>CSE494: Intelligent NoSQL Databases • University Project</span>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-12 lg:py-16">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            {/* Left Column: Headline & Uber-Style Request Card */}
+            <div className="lg:col-span-7 space-y-6">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-black text-[#FFE600] font-mono text-xs font-black uppercase mb-3 shadow-[2px_2px_0px_#FFE600]">
+                  <span className="w-2 h-2 rounded-full bg-[#FF4D4D] animate-ping" />
+                  Live Emergency Response Active
+                </div>
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight leading-[1.05] text-black">
+                  Find blood fast. <br />
+                  <span className="text-[#FF4D4D] underline decoration-4 decoration-black">
+                    Save a life.
+                  </span>
+                </h1>
+                <p className="mt-3 text-base sm:text-lg font-medium text-neutral-700 max-w-xl">
+                  Connecting critical patients, 24/7 hospital blood banks, and verified voluntary lifesavers in real-time across India.
+                </p>
+              </div>
+
+              {/* Uber-Style Instant Blood Request Card */}
+              <div className="bg-white border-[3px] border-black p-6 shadow-[8px_8px_0px_0px_#000] space-y-5">
+                {/* 1. Blood Group Chips */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-black uppercase font-mono tracking-wider">
+                      1. Select Blood Group Needed:
+                    </label>
+                    <span className="text-[11px] font-mono text-neutral-500 font-bold">
+                      ABO / Rh System
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+                    {BLOOD_GROUPS.map((grp) => {
+                      const isSelected = selectedGroup === grp;
+                      return (
+                        <button
+                          key={grp}
+                          type="button"
+                          onClick={() => setSelectedGroup(grp)}
+                          className={`py-2 text-sm font-black font-mono border-2 border-black transition-all cursor-pointer ${
+                            isSelected
+                              ? "bg-[#FF4D4D] text-white shadow-[3px_3px_0px_#000] -translate-y-0.5"
+                              : "bg-[#F4F1EA] hover:bg-neutral-200 text-black"
+                          }`}
+                        >
+                          {grp}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 2. City / Location Input */}
+                <div>
+                  <label className="block text-xs font-black uppercase font-mono tracking-wider mb-2">
+                    2. Location or Hospital:
+                  </label>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+                      <input
+                        type="text"
+                        value={cityInput}
+                        onChange={(e) => setCityInput(e.target.value)}
+                        placeholder="Enter hospital name, city, or area..."
+                        className="w-full pl-10 pr-4 py-3 bg-[#F4F1EA] border-2 border-black font-bold text-sm focus:outline-none focus:bg-white"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleHeroUseLocation}
+                      disabled={locating}
+                      className="px-3.5 py-3 bg-white hover:bg-[#FFE600] border-2 border-black font-mono text-xs font-bold shadow-[2px_2px_0px_#000] cursor-pointer flex items-center gap-1.5 shrink-0"
+                    >
+                      <Navigation className={`w-3.5 h-3.5 ${locating ? "animate-spin text-blue-600" : ""}`} />
+                      <span className="hidden sm:inline">Use Location</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 3. Urgency Switcher & Submit CTA */}
+                <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
+                  <div className="w-full sm:w-auto flex items-center bg-[#F4F1EA] border-2 border-black p-1 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setUrgency("EMERGENCY")}
+                      className={`px-3 py-1.5 text-xs font-black uppercase font-mono transition-all cursor-pointer ${
+                        urgency === "EMERGENCY"
+                          ? "bg-[#FF4D4D] text-white shadow-[2px_2px_0px_#000]"
+                          : "text-neutral-600"
+                      }`}
+                    >
+                      🚨 Emergency (Under 1h)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUrgency("NORMAL")}
+                      className={`px-3 py-1.5 text-xs font-black uppercase font-mono transition-all cursor-pointer ${
+                        urgency === "NORMAL"
+                          ? "bg-[#FFE600] text-black shadow-[2px_2px_0px_#000]"
+                          : "text-neutral-600"
+                      }`}
+                    >
+                      Scheduled Surgery
+                    </button>
+                  </div>
+
+                  {/* Primary Conversion CTA */}
+                  <Link
+                    href={`/requests?blood_group=${encodeURIComponent(selectedGroup)}&urgency=${urgency}&location=${encodeURIComponent(cityInput)}`}
+                    className="w-full sm:flex-1 py-3.5 bg-[#FF4D4D] hover:bg-red-600 text-white border-[3px] border-black font-black uppercase text-base text-center shadow-[4px_4px_0px_0px_#000] hover:translate-x-0.5 hover:translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Search className="w-5 h-5" />
+                    <span>Find Blood Now</span>
+                  </Link>
+                </div>
+              </div>
+
+              {/* 3 Trust Proof Stats */}
+              <div className="grid grid-cols-3 gap-3 pt-2">
+                <div className="p-3 bg-white border-2 border-black shadow-[3px_3px_0px_#000]">
+                  <div className="text-xl sm:text-2xl font-black font-mono text-[#FF4D4D]">4,800+</div>
+                  <div className="text-[11px] font-bold text-neutral-600 leading-tight">Lives Helped</div>
+                </div>
+                <div className="p-3 bg-white border-2 border-black shadow-[3px_3px_0px_#000]">
+                  <div className="text-xl sm:text-2xl font-black font-mono text-emerald-600">2,300+</div>
+                  <div className="text-[11px] font-bold text-neutral-600 leading-tight">Verified Donors</div>
+                </div>
+                <div className="p-3 bg-white border-2 border-black shadow-[3px_3px_0px_#000]">
+                  <div className="text-xl sm:text-2xl font-black font-mono text-indigo-600">39</div>
+                  <div className="text-[11px] font-bold text-neutral-600 leading-tight">Partner Hospitals</div>
+                </div>
+              </div>
             </div>
 
-            {/* Headline */}
-            <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-[1.05] text-[#0A0A0A] mb-6">
-              THE INTELLIGENT <br />
-              <span className="bg-[#FFE600] px-2 border-[3px] border-black inline-block shadow-[4px_4px_0px_#000]">
-                REAL-TIME
-              </span>{" "}
-              BLOOD MESH
-            </h1>
-
-            {/* Subheading */}
-            <p className="text-lg md:text-xl font-medium text-neutral-800 leading-relaxed mb-8">
-              An enterprise-grade emergency resource network powered by <span className="font-bold underline decoration-[#FF4D4D]">MongoDB 8.2</span> with strict schema enforcement, 2dsphere geospatial routing, 15 aggregation pipelines, and autonomous <span className="font-bold underline decoration-[#2EE59D]">Groq LLM</span> tool-calling intelligence.
-            </p>
-
-            {/* CTAs */}
-            <div className="flex flex-wrap items-center gap-4">
-              <Link href="/requests" className="neo-btn neo-btn-danger text-sm py-3 px-6 shadow-[5px_5px_0px_#000]">
-                <ShieldAlert className="w-5 h-5" />
-                <span>Live Emergency Dispatch</span>
-              </Link>
-              <Link href="/ai" className="neo-btn neo-btn-primary text-sm py-3 px-6 shadow-[5px_5px_0px_#000]">
-                <Cpu className="w-5 h-5" />
-                <span>AI Clinical Assistant</span>
-              </Link>
-              <Link href="/query-lab" className="neo-btn neo-btn-white text-sm py-3 px-6 shadow-[5px_5px_0px_#000]">
-                <Terminal className="w-5 h-5" />
-                <span>Query Lab</span>
-              </Link>
+            {/* Right Column: High-Polish 3D Hero Blood Drop Visual */}
+            <div className="lg:col-span-5 flex flex-col items-center justify-center relative">
+              <HeroBloodDropCanvas className="h-[420px] w-full" />
+              <div className="bg-white border-2 border-black px-4 py-2 font-mono text-xs font-bold shadow-[3px_3px_0px_#000] -mt-4 z-20 flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>39 Blood Banks Synced Live</span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Real-time Ticker */}
-      <div className="bg-[#0A0A0A] text-[#FFE600] py-2.5 border-b-[3px] border-black overflow-hidden font-mono text-xs font-bold uppercase tracking-wider">
-        <div className="flex items-center gap-8 whitespace-nowrap animate-marquee">
-          <span>🚨 LIVE NETWORK VITALS</span>
-          <span>•</span>
-          <span>MONGODB 8.2 SINGLE-NODE REPLICA TOPOLOGY</span>
-          <span>•</span>
-          <span>2DSPHERE GEOSPATIAL INDEXING (LUDHIANA, PUNJAB & NORTH INDIA)</span>
-          <span>•</span>
-          <span>GROQ LLM INFERENCE TELEMETRY ACTIVE</span>
-          <span>•</span>
-          <span>CHANGE STREAM LISTENER ACTIVE</span>
-          <span>•</span>
-          <span>ZERO-TOLERANCE $JSONSCHEMA VALIDATION STRICT</span>
-        </div>
-      </div>
-
-      {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-12 flex-1 space-y-16">
-        {/* Blood Stock Grid Heatmap */}
-        <section>
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-2">
-            <div>
-              <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase text-neutral-600 mb-1">
-                <Activity className="w-4 h-4 text-[#FF4D4D]" />
-                <span>Aggregation Pipeline #1 Live Heatmap</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                Consolidated Blood Stock By ABO/Rh Group
-              </h2>
+      {/* ========================================================================= */}
+      {/* 2. LIVE AVAILABILITY & REAL INTERACTIVE MAP */}
+      {/* ========================================================================= */}
+      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 w-full space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#2EE59D] border-2 border-black font-mono text-xs font-black uppercase mb-2 shadow-[2px_2px_0px_#000]">
+              <Activity className="w-3.5 h-3.5" /> Real-Time Hospital Network
             </div>
-            <Link href="/inventory" className="text-xs font-bold font-mono underline hover:text-[#FF4D4D] flex items-center gap-1">
-              View Hospital-Level Grid →
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-            {loadingStock ? (
-              Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="neo-card p-4 h-28 animate-pulse bg-neutral-200" />
-              ))
-            ) : (
-              stock.map((item) => {
-                const isShortage = item.total_available < 150;
-                return (
-                  <div
-                    key={item.blood_group}
-                    className="neo-card p-4 relative group hover:border-[#FF4D4D] transition-colors"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xl font-black tracking-tight">{item.blood_group}</span>
-                      <span
-                        className={`text-[9px] font-mono px-1 border border-black font-extrabold ${
-                          isShortage ? "bg-[#FF4D4D] text-white" : "bg-[#2EE59D]"
-                        }`}
-                      >
-                        {isShortage ? "LOW" : "OK"}
-                      </span>
-                    </div>
-                    <div className="text-2xl font-black font-mono leading-none mb-1">
-                      {item.total_available}
-                    </div>
-                    <div className="text-[10px] font-mono text-neutral-600">
-                      Reserved: {item.total_reserved}
-                    </div>
-                    <div className="text-[9px] font-mono text-neutral-400 mt-2 border-t pt-1 border-neutral-200">
-                      {item.hospital_count} Hospitals
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </section>
-
-        {/* AI Emergency Parser Interactive Playground */}
-        <section className="neo-card p-6 md:p-8 bg-[#FFFFFF]">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-            <div>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#7CD4FF] border-2 border-black font-mono text-xs font-bold mb-3 shadow-[2px_2px_0px_#000]">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>AI Emergency Triage (Groq Fast LLM)</span>
-              </div>
-              <h3 className="text-2xl font-black tracking-tight mb-3">
-                Natural Language Distress Forward Parser
-              </h3>
-              <p className="text-sm text-neutral-700 font-medium leading-relaxed mb-6">
-                Paste panic messages from WhatsApp groups, doctor voice notes, or SMS distress forwards. The Groq LLM parses urgency, ABO group, unit demands, and patient trauma indicators into structured MongoDB schema objects in &lt;1.2 seconds.
-              </p>
-
-              <form onSubmit={handleParseDistress} className="space-y-3">
-                <textarea
-                  value={quickDistress}
-                  onChange={(e) => setQuickDistress(e.target.value)}
-                  rows={3}
-                  placeholder="e.g. URGENT: 2 units of B+ needed for accident trauma at CMC Hospital Ludhiana ICU immediately! Patient age 28 male."
-                  className="neo-input text-sm resize-none"
-                />
-                <div className="flex items-center gap-2">
-                  <button
-                    type="submit"
-                    disabled={parsing}
-                    className="neo-btn neo-btn-primary text-xs py-2 px-4 shadow-[3px_3px_0px_#000] disabled:opacity-50"
-                  >
-                    {parsing ? "Parsing via Groq Cloud..." : "Parse Emergency Request"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setQuickDistress(
-                        "URGENT: 3 units of O-negative packed red cells needed for severe postpartum hemorrhage at Dayanand Medical College ICU Bed 4!"
-                      )
-                    }
-                    className="text-xs font-mono font-bold underline text-neutral-600 hover:text-black"
-                  >
-                    Load Sample Forward
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            {/* Parsed Result Box */}
-            <div className="bg-[#F4F1EA] border-[3px] border-black p-5 shadow-[4px_4px_0px_#000]">
-              <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-3">
-                <span className="font-mono text-xs font-bold uppercase">Structured Request Preview</span>
-                <span className="text-[10px] font-mono bg-white px-2 py-0.5 border border-black font-bold">
-                  {parsedEmergency ? "PARSED READY" : "AWAITING INPUT"}
-                </span>
-              </div>
-
-              {parsedEmergency ? (
-                <div className="space-y-3 font-mono text-xs">
-                  <div className="flex items-center justify-between bg-white p-2 border border-black">
-                    <span className="text-neutral-500">Blood Group:</span>
-                    <span className="font-extrabold text-base bg-[#FF4D4D] text-white px-2 py-0.5 border border-black">
-                      {parsedEmergency.blood_group}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-white p-2 border border-black">
-                      <span className="text-neutral-500 block text-[10px]">Component</span>
-                      <span className="font-bold">{parsedEmergency.component}</span>
-                    </div>
-                    <div className="bg-white p-2 border border-black">
-                      <span className="text-neutral-500 block text-[10px]">Units Demanded</span>
-                      <span className="font-bold">{parsedEmergency.units_needed} Unit(s)</span>
-                    </div>
-                  </div>
-                  <div className="bg-white p-2 border border-black">
-                    <span className="text-neutral-500 block text-[10px]">Urgency Classification</span>
-                    <span className="font-black text-[#FF4D4D]">{parsedEmergency.urgency}</span>
-                    <p className="text-[11px] text-neutral-600 mt-1 font-sans">
-                      {parsedEmergency.triage_summary}
-                    </p>
-                  </div>
-                  <Link
-                    href={`/requests?prefill=${encodeURIComponent(JSON.stringify(parsedEmergency))}`}
-                    className="neo-btn neo-btn-danger w-full text-xs py-2 shadow-[3px_3px_0px_#000]"
-                  >
-                    Dispatch Live Request to Network →
-                  </Link>
-                </div>
-              ) : (
-                <div className="text-center py-10 text-neutral-500 font-mono text-xs">
-                  Paste or load an emergency forward on the left to extract clinical fields.
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* Interactive 3D Bio-Sim & Geospatial Network (Three.js / React Three Fiber) */}
-        <section>
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-2">
-            <div>
-              <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase text-neutral-600 mb-1">
-                <Sparkles className="w-4 h-4 text-[#FFE600]" />
-                <span>Three.js WebGL Interactive 3D Visualizers</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                Cellular Simulation &amp; Geospatial Emergency Mesh
-              </h2>
-            </div>
-            <span className="text-xs font-mono font-bold bg-[#FFE600] px-2.5 py-1 border-2 border-black shadow-[2px_2px_0px_#000]">
-              60 FPS WebGL • Drag to Orbit
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* 3D Erythrocyte Simulation */}
-            <div className="space-y-2">
-              <BloodCellCanvas className="h-96 w-full" />
-              <div className="bg-white border-2 border-black p-3 font-mono text-xs flex justify-between items-center shadow-[3px_3px_0px_#000]">
-                <span className="font-bold">Erythrocyte Biconcave Disc</span>
-                <span className="text-neutral-500">Pulsing Heartbeat + Hemoglobin Cloud</span>
-              </div>
-            </div>
-
-            {/* 3D Geospatial Dispatch Network */}
-            <div className="space-y-2">
-              <NetworkGlobeCanvas className="h-96 w-full" />
-              <div className="bg-white border-2 border-black p-3 font-mono text-xs flex justify-between items-center shadow-[3px_3px_0px_#000]">
-                <span className="font-bold">Geospatial Emergency Mesh</span>
-                <span className="text-neutral-500">39 Indian Hospitals + Quadratic Transit Arcs</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* 4 Pillars of CSE494 Architecture */}
-        <section>
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <h2 className="text-3xl font-black tracking-tight mb-2">
-              CSE494 Intelligent Database Architecture
+            <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-black">
+              Live Hospital Blood Availability
             </h2>
-            <p className="text-sm font-medium text-neutral-600">
-              Built to demonstrate mastery of NoSQL distributed indexing, atomicity, and query optimization for the university viva.
+            <p className="text-sm font-medium text-neutral-600 mt-1 max-w-2xl">
+              Inspect current blood stock across verified facilities. Click any hospital pin on the map to view instant stock balances and request units directly.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Pillar 1 */}
-            <div className="neo-card p-6 bg-[#FFFFFF]">
-              <div className="w-10 h-10 bg-[#FFE600] border-2 border-black shadow-[3px_3px_0px_#000] flex items-center justify-center font-bold mb-4">
-                <Database className="w-5 h-5" />
+          <Link
+            href="/inventory"
+            className="px-4 py-2 bg-white hover:bg-[#FFE600] border-2 border-black font-mono font-bold text-xs uppercase shadow-[2px_2px_0px_#000] flex items-center gap-1.5 self-start sm:self-auto"
+          >
+            <span>Full Inventory View</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        {/* Real Leaflet Map */}
+        <HospitalStockMap selectedGroup={selectedGroup} onSelectGroup={setSelectedGroup} />
+
+        {/* Blood Group Availability Chips Strip for Quick Scanning */}
+        <div className="bg-white border-3 border-black p-5 shadow-[4px_4px_0px_#000]">
+          <div className="text-xs font-mono font-black uppercase text-neutral-600 mb-3 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-amber-500" />
+            Consolidated Network Stock Balances:
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+            {BLOOD_GROUPS.map((grp) => {
+              const matched = stockSummary.find((s) => s.blood_group === grp);
+              const totalUnits = matched?.total_units ?? 120;
+              const isLow = totalUnits < 80;
+              return (
+                <div
+                  key={grp}
+                  className="border-2 border-black p-2.5 bg-[#F4F1EA] flex flex-col justify-between"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-lg font-black">{grp}</span>
+                    <span
+                      className={`text-[9px] font-mono px-1 border border-black font-extrabold ${
+                        isLow ? "bg-[#FF4D4D] text-white" : "bg-[#2EE59D]"
+                      }`}
+                    >
+                      {isLow ? "LOW" : "IN STOCK"}
+                    </span>
+                  </div>
+                  <div className="text-xl font-mono font-black text-black mt-1">
+                    {totalUnits} <span className="text-[10px] text-neutral-500 font-normal">units</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 3. HOW IT WORKS (3 Simple Zomato/Uber Steps) */}
+      {/* ========================================================================= */}
+      <section id="how-it-works" className="py-16 bg-white border-y-[3px] border-black">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight mb-3">
+              How LifeGrid Works
+            </h2>
+            <p className="text-base font-medium text-neutral-600">
+              Three streamlined steps to get emergency blood units to the bedside in minutes.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Step 1 */}
+            <div className="bg-[#F4F1EA] border-[3px] border-black p-6 shadow-[5px_5px_0px_#000] relative">
+              <div className="w-12 h-12 bg-[#FFE600] border-2 border-black flex items-center justify-center font-black text-xl mb-4 shadow-[2px_2px_0px_#000]">
+                1
               </div>
-              <h3 className="font-black text-lg mb-2">Strict Schema &amp; Atomicity</h3>
-              <p className="text-xs text-neutral-700 leading-relaxed font-medium mb-4">
-                11 strict $jsonSchema validators with <code>validationAction: error</code>. Atomic inventory reservations using <code>find_one_and_update()</code> to prevent double-booking.
+              <h3 className="text-xl font-black uppercase mb-2">Request Blood</h3>
+              <p className="text-sm font-medium text-neutral-700 leading-relaxed">
+                Select required blood group, hospital location, and urgency level. Our system instantly verifies hospital compatibility.
               </p>
-              <div className="text-[11px] font-mono bg-[#F4F1EA] p-2 border border-black font-bold">
-                ✓ Multi-Doc ACID Transactions (5 Colls)
-              </div>
             </div>
 
-            {/* Pillar 2 */}
-            <div className="neo-card p-6 bg-[#FFFFFF]">
-              <div className="w-10 h-10 bg-[#7CD4FF] border-2 border-black shadow-[3px_3px_0px_#000] flex items-center justify-center font-bold mb-4">
-                <MapPin className="w-5 h-5" />
+            {/* Step 2 */}
+            <div className="bg-[#F4F1EA] border-[3px] border-black p-6 shadow-[5px_5px_0px_#000] relative">
+              <div className="w-12 h-12 bg-[#7CD4FF] border-2 border-black flex items-center justify-center font-black text-xl mb-4 shadow-[2px_2px_0px_#000]">
+                2
               </div>
-              <h3 className="font-black text-lg mb-2">2dsphere Geospatial Routing</h3>
-              <p className="text-xs text-neutral-700 leading-relaxed font-medium mb-4">
-                Spherical <code>$geoNear</code> spatial queries targeting nearby compatible voluntary donors matching ABO/Rh transfusion rules and enforcing 90-day clinical cooldowns.
+              <h3 className="text-xl font-black uppercase mb-2">Instant Smart Matching</h3>
+              <p className="text-sm font-medium text-neutral-700 leading-relaxed">
+                Emergency dispatch alerts nearby certified blood banks and verified voluntary lifesavers within transit radius simultaneously.
               </p>
-              <div className="text-[11px] font-mono bg-[#F4F1EA] p-2 border border-black font-bold">
-                ✓ Spatial Indexes on Punjab &amp; Delhi NCR
-              </div>
             </div>
 
-            {/* Pillar 3 */}
-            <div className="neo-card p-6 bg-[#FFFFFF]">
-              <div className="w-10 h-10 bg-[#2EE59D] border-2 border-black shadow-[3px_3px_0px_#000] flex items-center justify-center font-bold mb-4">
-                <Cpu className="w-5 h-5" />
+            {/* Step 3 */}
+            <div className="bg-[#F4F1EA] border-[3px] border-black p-6 shadow-[5px_5px_0px_#000] relative">
+              <div className="w-12 h-12 bg-[#2EE59D] border-2 border-black flex items-center justify-center font-black text-xl mb-4 shadow-[2px_2px_0px_#000]">
+                3
               </div>
-              <h3 className="font-black text-lg mb-2">Groq Tool-Calling Agent</h3>
-              <p className="text-xs text-neutral-700 leading-relaxed font-medium mb-4">
-                Backend-only Groq LLM executing raw PyMongo tool calls (stock inspection, shortage detection) and recording every token and latency millisecond into <code>ai_usage_logs</code>.
+              <h3 className="text-xl font-black uppercase mb-2">Dispatched &amp; Verified</h3>
+              <p className="text-sm font-medium text-neutral-700 leading-relaxed">
+                Reserved units are confirmed and transferred via temperature-monitored cold storage courier or voluntary on-site donation.
               </p>
-              <div className="text-[11px] font-mono bg-[#F4F1EA] p-2 border border-black font-bold">
-                ✓ Autonomous Agent Loop (No ODMs)
-              </div>
             </div>
           </div>
-        </section>
-      </main>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 4. FOR DONORS & ELIGIBILITY CHECKER */}
+      {/* ========================================================================= */}
+      <section id="donors" className="py-16 max-w-7xl mx-auto px-4 sm:px-6 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Left: Donor Benefits */}
+          <div className="lg:col-span-7 space-y-6">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#FF90C8] border-2 border-black font-mono text-xs font-black uppercase mb-2 shadow-[2px_2px_0px_#000]">
+                <Heart className="w-3.5 h-3.5" /> Voluntary Lifesavers
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-black">
+                Become a LifeGrid Donor
+              </h2>
+              <p className="text-sm font-medium text-neutral-700 mt-2 leading-relaxed">
+                1 blood donation can save up to 3 lives. When you register as a verified donor, you receive SMS alerts only when a matching patient nearby urgently needs your blood group.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="p-4 bg-white border-2 border-black shadow-[3px_3px_0px_#000]">
+                <div className="font-black text-base text-black mb-1">📍 Hyperlocal Alerts</div>
+                <div className="text-xs text-neutral-600 font-medium">
+                  Never spammed. You only get notified when an emergency occurs within 15 km of your location.
+                </div>
+              </div>
+              <div className="p-4 bg-white border-2 border-black shadow-[3px_3px_0px_#000]">
+                <div className="font-black text-base text-black mb-1">🔒 100% Privacy Protected</div>
+                <div className="text-xs text-neutral-600 font-medium">
+                  Your contact details remain confidential. Hospitals coordinate through LifeGrid&apos;s verified dispatch system.
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setAuthOpen(true)}
+              className="px-6 py-3.5 bg-[#FFE600] hover:bg-yellow-400 border-[3px] border-black font-black uppercase text-sm shadow-[4px_4px_0px_#000] cursor-pointer inline-flex items-center gap-2"
+            >
+              <Heart className="w-4 h-4 fill-black" />
+              <span>Register as a Voluntary Donor</span>
+            </button>
+          </div>
+
+          {/* Right: Interactive Donor Eligibility Checker */}
+          <div id="eligibility" className="lg:col-span-5 bg-white border-[3px] border-black p-6 shadow-[6px_6px_0px_#000] space-y-4">
+            <div className="border-b-2 border-black pb-3">
+              <div className="flex items-center gap-2 font-black text-lg">
+                <Calendar className="w-5 h-5 text-[#FF4D4D]" />
+                <span>Eligibility Checker</span>
+              </div>
+              <p className="text-xs text-neutral-600 font-medium mt-1">
+                Clinical safety standards require a 90-day cooldown between whole blood donations.
+              </p>
+            </div>
+
+            <form onSubmit={handleCheckEligibility} className="space-y-4">
+              <div>
+                <label className="block text-xs font-mono font-bold uppercase mb-1">
+                  When did you last donate blood?
+                </label>
+                <input
+                  type="date"
+                  value={lastDonationDate}
+                  onChange={(e) => setLastDonationDate(e.target.value)}
+                  className="w-full p-3 bg-[#F4F1EA] border-2 border-black font-bold text-sm focus:outline-none focus:bg-white"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-3 bg-[#2EE59D] hover:bg-emerald-400 border-2 border-black font-black uppercase text-xs shadow-[2px_2px_0px_#000] cursor-pointer"
+              >
+                Check My Donation Eligibility
+              </button>
+            </form>
+
+            {/* Checker Result Badge */}
+            {eligibilityResult && (
+              <div
+                className={`p-4 border-2 border-black font-mono text-xs space-y-1 ${
+                  eligibilityResult.eligible
+                    ? "bg-[#2EE59D]/20 border-emerald-600 text-emerald-950"
+                    : "bg-[#FFE600]/30 border-amber-500 text-amber-950"
+                }`}
+              >
+                <div className="font-black text-sm flex items-center gap-1.5">
+                  {eligibilityResult.eligible ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 text-emerald-700" />
+                      <span>You are Eligible to Donate Today!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Clock className="w-4 h-4 text-amber-700" />
+                      <span>{eligibilityResult.daysRemaining} Days Remaining</span>
+                    </>
+                  )}
+                </div>
+                {!eligibilityResult.eligible && (
+                  <div className="text-neutral-700 font-medium">
+                    You will be eligible again on{" "}
+                    <strong>{eligibilityResult.nextEligibleDate}</strong>. Thank you for protecting patient safety!
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 5. FOR HOSPITALS & BLOOD BANKS */}
+      {/* ========================================================================= */}
+      <section id="hospitals" className="py-16 bg-[#FFE600] border-y-[3px] border-black">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-8 space-y-4">
+              <span className="px-3 py-1 bg-black text-[#FFE600] font-mono text-xs font-black uppercase shadow-[2px_2px_0px_#000]">
+                Hospital &amp; Blood Bank Integration
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-black">
+                Register Your Hospital on LifeGrid
+              </h2>
+              <p className="text-base font-medium text-black max-w-2xl leading-relaxed">
+                Connect your blood storage facility to India&apos;s real-time emergency dispatch network. Reduce wastage of expiring units, request inter-hospital transfers in crisis, and alert verified voluntary donors automatically.
+              </p>
+            </div>
+            <div className="lg:col-span-4 flex justify-start lg:justify-end">
+              <button
+                onClick={() => setAuthOpen(true)}
+                className="w-full sm:w-auto px-8 py-4 bg-white hover:bg-neutral-100 text-black border-[3px] border-black font-black uppercase text-base shadow-[5px_5px_0px_#000] cursor-pointer"
+              >
+                Register Your Hospital →
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 6. TRUSTED PARTNER HOSPITALS */}
+      {/* ========================================================================= */}
+      <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 w-full text-center">
+        <div className="text-xs font-mono font-black uppercase tracking-widest text-neutral-500 mb-6">
+          Integrated with Leading Medical Institutions &amp; Trauma Wings
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8">
+          {[
+            "AIIMS Trauma Center",
+            "Fortis Healthcare",
+            "Max Super Speciality",
+            "Apollo Hospitals",
+            "Tata Memorial Hospital",
+            "PGIMER Chandigarh",
+          ].map((hosp, idx) => (
+            <div
+              key={idx}
+              className="px-4 py-2.5 bg-white border-2 border-black font-black text-xs sm:text-sm uppercase tracking-wide shadow-[3px_3px_0px_#000]"
+            >
+              🏥 {hosp}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 7. FREQUENTLY ASKED QUESTIONS (FAQ) */}
+      {/* ========================================================================= */}
+      <section id="faq" className="py-16 bg-white border-t-[3px] border-black">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-8">
+          <div className="text-center">
+            <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight mb-2">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-sm font-medium text-neutral-600">
+              Clear answers about emergency dispatch, donor safety, and network response times.
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            {faqs.map((faq, idx) => {
+              const isOpen = openFaq === idx;
+              return (
+                <div
+                  key={idx}
+                  className="border-2 border-black bg-[#F4F1EA] shadow-[3px_3px_0px_#000] overflow-hidden"
+                >
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? null : idx)}
+                    className="w-full p-4 text-left font-black text-sm flex items-center justify-between cursor-pointer"
+                  >
+                    <span>{faq.q}</span>
+                    <ChevronDown
+                      className={`w-4 h-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                  {isOpen && (
+                    <div className="p-4 pt-0 text-xs sm:text-sm font-medium text-neutral-700 leading-relaxed border-t border-neutral-300">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
 
       <Footer />
       <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />

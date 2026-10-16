@@ -105,7 +105,7 @@ export default function Footer() {
         {/* Bottom Bar & Disclaimer */}
         <div className="pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-medium text-neutral-500">
           <div>
-            © {new Date().getFullYear()} LifeGrid Emergency Resource Network. All rights reserved.
+            © 2026 LifeGrid Emergency Resource Network. All rights reserved.
           </div>
           <div className="flex items-center gap-6 font-bold text-neutral-700">
             <a href="#privacy" className="hover:underline">Privacy Policy</a>
