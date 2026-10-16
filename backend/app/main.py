@@ -28,6 +28,12 @@ from app.middleware.error_handler import (
     global_exception_handler
 )
 from app.routes.auth_routes import router as auth_router
+from app.routes.users_routes import router as users_router
+from app.routes.hospitals_routes import router as hospitals_router
+from app.routes.inventory_routes import router as inventory_router
+from app.routes.requests_routes import router as requests_router
+from app.routes.donations_routes import router as donations_router
+from app.routes.notifications_routes import router as notifications_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -93,6 +99,13 @@ app.add_middleware(
 
 # Route Registration
 app.include_router(auth_router)
+app.include_router(users_router)
+app.include_router(hospitals_router)
+app.include_router(inventory_router)
+app.include_router(requests_router)
+app.include_router(donations_router)
+app.include_router(notifications_router)
+
 
 
 @app.get("/", tags=["Root"])

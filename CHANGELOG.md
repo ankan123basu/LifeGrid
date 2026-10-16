@@ -5,6 +5,17 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 
 ---
 
+## [0.3.0] - Phase 3: Raw PyMongo CRUD Operations & ACID Transactions
+### Added
+- Complete raw PyMongo controllers and REST endpoints for `users`, `hospitals`, `blood_inventory`, `blood_requests`, `donations`, and `notifications`.
+- Race-condition safe atomic inventory reservation using `find_one_and_update()` with `$inc` and `$set`.
+- Embedded array manipulation using `$push`, `$pull`, `$addToSet`, and `arrayFilters` for subdocument level updates (`expiry_batches.$[b].units` and `matched_donors.$[d].status`).
+- High performance batch inventory synchronization using `bulk_write(UpdateOne)`.
+- Full-text search on hospitals utilizing compound text index on `name` and `address.city`.
+- Multi-document ACID transactions committing all-or-nothing across 5 collections (`donations`, `blood_inventory`, `users`, `blood_requests`, and `notifications`).
+- Standalone viva demonstration scripts: `queries/crud_demo.py` and `queries/transactions_demo.py`.
+- Automated integration test suite in `tests/test_crud.py` with 100% pass rate.
+
 ## [0.2.0] - Phase 2: Authentication, Authorization (RBAC) & Security Middleware
 ### Added
 - Register and login endpoints with bcrypt password hashing using raw PyMongo persistence.
