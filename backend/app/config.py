@@ -33,8 +33,8 @@ class Settings(BaseSettings):
 
     # Groq AI Configuration
     GROQ_API_KEY: str = Field(default="", description="API Key for Groq Cloud")
-    GROQ_MODEL_CHAT: str = "llama-3.3-70b-versatile"
-    GROQ_MODEL_FAST: str = "llama-3.1-8b-instant"
+    GROQ_MODEL_CHAT: str = "openai/gpt-oss-120b"
+    GROQ_MODEL_FAST: str = "openai/gpt-oss-20b"
     GROQ_MODEL_WHISPER: str = "whisper-large-v3"
 
     @property

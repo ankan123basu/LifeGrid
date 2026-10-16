@@ -62,6 +62,27 @@ async def get_current_user(
     return serialize_doc(user)
 
 
+async def get_current_user_optional(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_scheme),
+    db: Database = Depends(get_db)
+) -> Optional[Dict[str, Any]]:
+    """Returns authenticated user if valid Bearer token is provided, otherwise None."""
+    if not credentials or not credentials.credentials:
+        return None
+    try:
+        payload = decode_access_token(credentials.credentials)
+        user_id = payload.get("sub")
+        if not user_id or not ObjectId.is_valid(user_id):
+            return None
+        user = db.users.find_one({"_id": ObjectId(user_id), "is_active": True})
+        if user:
+            from app.utils.serializers import serialize_doc
+            return serialize_doc(user)
+    except Exception:
+        pass
+    return None
+
+
 
 def require_roles(*allowed_roles: str) -> Callable:
     """
