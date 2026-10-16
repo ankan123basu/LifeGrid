@@ -67,3 +67,33 @@ def delete_notification(db: Database, notification_id: str, user_id: str) -> boo
         "user_id": ObjectId(user_id)
     })
     return res.deleted_count > 0
+
+
+def create_notification(
+    db: Database,
+    user_id: str,
+    title: str,
+    body: str,
+    notif_type: str = "INFO",
+    link: str = None
+) -> Dict[str, Any]:
+    """Inserts a notification document and dispatches real-time WebSocket event."""
+    from datetime import datetime, timezone
+    doc = {
+        "_id": ObjectId(),
+        "user_id": ObjectId(user_id),
+        "title": title,
+        "body": body,
+        "type": notif_type,
+        "link": link,
+        "read": False,
+        "created_at": datetime.now(timezone.utc)
+    }
+    db.notifications.insert_one(doc)
+    serialized = serialize_doc(doc)
+    try:
+        from app.realtime.stream_listener import stream_listener
+        stream_listener.emit_event("NEW_NOTIFICATION", serialized, room=f"user:{user_id}")
+    except Exception:
+        pass
+    return serialized

@@ -70,7 +70,13 @@ def create_blood_request(
 
     db.blood_requests.insert_one(doc)
     logger.info(f"Blood request created successfully with id {req_id}.")
-    return serialize_doc(doc)
+    serialized = serialize_doc(doc)
+    try:
+        from app.realtime.stream_listener import stream_listener
+        stream_listener.emit_event("EMERGENCY_REQUEST_CREATED", serialized)
+    except Exception:
+        pass
+    return serialized
 
 
 def list_blood_requests(
@@ -154,7 +160,14 @@ def update_request_status(
     )
 
     if res.modified_count > 0:
-        return get_blood_request_by_id(db, request_id)
+        updated = get_blood_request_by_id(db, request_id)
+        if updated:
+            try:
+                from app.realtime.stream_listener import stream_listener
+                stream_listener.emit_event("REQUEST_STATUS_UPDATED", updated)
+            except Exception:
+                pass
+        return updated
     return None
 
 
