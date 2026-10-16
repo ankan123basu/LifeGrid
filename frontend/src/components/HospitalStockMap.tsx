@@ -109,7 +109,7 @@ export default function HospitalStockMap({
       try {
         const [hospData, shortData] = await Promise.allSettled([
           api.listHospitals("", 70),
-          api.getCriticalShortages(10),
+          api.getCriticalShortages(5),
         ]);
 
         if (hospData.status === "fulfilled" && Array.isArray(hospData.value)) {
@@ -212,8 +212,9 @@ export default function HospitalStockMap({
       const hCity = getHospitalCity(h);
       const fullAddress = getHospitalAddress(h);
 
-      // Check if this hospital has critical shortage in backend
-      const isCriticalShortage = shortages.some((s) => s.hospital_id === hospId);
+      // Check if this hospital has critical shortages in backend
+      const hospitalShortages = shortages.filter((s) => s.hospital_id === hospId);
+      const hasCriticalDeficit = hospitalShortages.length > 0;
 
       // Determine stock status and realistic unit counts
       let stockLevel: "available" | "moderate" | "critical";
@@ -222,21 +223,22 @@ export default function HospitalStockMap({
       let textColor: string;
       let stockLabel: string;
 
-      if (isCriticalShortage || idx % 7 === 0) {
+      if (hasCriticalDeficit) {
         stockLevel = "critical";
-        unitsAvailable = 4 + (idx % 6); // 4-9 units (< 10)
+        const minUnits = hospitalShortages[0]?.units_available ?? 4;
+        unitsAvailable = Math.max(2, minUnits + (idx % 4));
         colorBg = "#FF4D4D";
         textColor = "#FFFFFF";
         stockLabel = "Critical Shortage";
-      } else if (idx % 3 === 0) {
+      } else if (idx % 2 === 0) {
         stockLevel = "moderate";
-        unitsAvailable = 15 + (idx % 15); // 15-29 units (10-30)
+        unitsAvailable = 15 + ((idx * 3) % 15);
         colorBg = "#FFE600";
         textColor = "#000000";
         stockLabel = "Moderate Stock";
       } else {
         stockLevel = "available";
-        unitsAvailable = 36 + (idx % 48); // 36-83 units (> 30)
+        unitsAvailable = 35 + ((idx * 7) % 45);
         colorBg = "#2EE59D";
         textColor = "#000000";
         stockLabel = "Well Stocked";
