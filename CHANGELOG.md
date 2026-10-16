@@ -5,7 +5,20 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 
 ---
 
-## [Unreleased] - Phase 1: Database Architecture, Validation & Seeding
+## [0.2.0] - Phase 2: Authentication, Authorization (RBAC) & Security Middleware
+### Added
+- Register and login endpoints with bcrypt password hashing using raw PyMongo persistence.
+- JWT access token generation (15 minutes expiry) with rotating refresh tokens (7 days).
+- In-memory brute-force defense locking out accounts after 5 consecutive failed attempts.
+- Single-use refresh token rotation with token-reuse theft detection and automatic session revocation.
+- Security headers middleware (CSP, X-Content-Type-Options, X-Frame-Options, HSTS).
+- NoSQL injection sanitizer actively rejecting `$`-prefixed operators in user payloads.
+- Centralized exception handlers enforcing uniform API envelope `{success, data, error, meta}`.
+- Immutable audit log controller in `app/controllers/audit_controller.py` recording sensitive events.
+- Role-Based Access Control (`require_roles("ADMIN", ...)`) and row-level ownership validation in `app/middleware/auth_deps.py`.
+- Automated test suite in `tests/test_auth.py` covering auth flows, RBAC restrictions, and injection defense.
+
+## [0.1.0] - Phase 1: Database Architecture, Validation & Seeding
 ### Added
 - Git initialization with strict `.gitignore` for Python, Next.js, env secrets, and MongoDB data directories.
 - Backend project structure following clean MVC separation: `app/db`, `app/models`, `app/controllers`, `app/routes`, `app/middleware`, `app/realtime`, `app/ai`, `app/utils`, `queries/`, `seed/`, `tests/`.
