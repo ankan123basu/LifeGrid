@@ -110,10 +110,11 @@ export default function HospitalStockMap({
     if (!mapInstanceRef.current || !markersLayerRef.current) return;
     markersLayerRef.current.clearLayers();
 
-    // Filter by city if selected
+    // Filter by city if selected with safe null checks
     const filtered = hospitals.filter((h) => {
+      if (!h || !h.location?.coordinates) return false;
       if (activeCity && activeCity !== "All") {
-        return h.city.toLowerCase() === activeCity.toLowerCase();
+        return (h.city || "").toLowerCase() === activeCity.toLowerCase();
       }
       return true;
     });
@@ -127,6 +128,7 @@ export default function HospitalStockMap({
       const stockLevel = idx % 5 === 0 ? "critical" : idx % 3 === 0 ? "moderate" : "good";
       const colorBg = stockLevel === "good" ? "#2EE59D" : stockLevel === "moderate" ? "#FFE600" : "#FF4D4D";
       const textColor = stockLevel === "critical" ? "#FFFFFF" : "#000000";
+      const displayName = (h.name || "Hospital").split(" ")[0] || "Hospital";
 
       // Custom Neo-Brutalist HTML Pin Marker
       const customIcon = L.divIcon({
@@ -147,7 +149,7 @@ export default function HospitalStockMap({
             white-space: nowrap;
             transform: translate(-50%, -100%);
           ">
-            <span>🏥 ${h.name.split(" ")[0]}</span>
+            <span>🏥 ${displayName}</span>
           </div>
         `,
         iconSize: [80, 30],
@@ -226,6 +228,24 @@ export default function HospitalStockMap({
     );
   }
 
+  const CITY_COORDS: Record<string, [number, number]> = {
+    Delhi: [28.6139, 77.209],
+    Mumbai: [19.076, 72.8777],
+    Bangalore: [12.9716, 77.5946],
+    Kolkata: [22.5726, 88.3639],
+  };
+
+  function handleCityChange(city: string) {
+    setActiveCity(city);
+    if (mapInstanceRef.current) {
+      if (CITY_COORDS[city]) {
+        mapInstanceRef.current.setView(CITY_COORDS[city], 11);
+      } else if (city === "All") {
+        mapInstanceRef.current.setView([22.5, 78.9], 5);
+      }
+    }
+  }
+
   return (
     <div className="relative border-3 border-black bg-white shadow-[6px_6px_0px_0px_#000] overflow-hidden">
       {/* Top Filter Bar */}
@@ -238,7 +258,7 @@ export default function HospitalStockMap({
           {["Delhi", "Mumbai", "Bangalore", "Kolkata", "All"].map((city) => (
             <button
               key={city}
-              onClick={() => setActiveCity(city)}
+              onClick={() => handleCityChange(city)}
               className={`px-2.5 py-1 text-xs font-bold font-mono border-2 border-black transition-all cursor-pointer ${
                 activeCity === city
                   ? "bg-[#FFE600] shadow-[2px_2px_0px_#000]"
