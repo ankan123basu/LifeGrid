@@ -5,6 +5,36 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 
 ---
 
+## [0.8.0] - Phase 8: Feature Screens & AI UI Suite
+### Added
+- Emergency Dispatch Dashboard in `src/app/requests/page.tsx`:
+  * Real-time emergency request table with status, urgency, and blood group filters.
+  * Embedded audit trail timeline inspector showing the exact lifecycle history embedded inside MongoDB documents.
+  * Modal for creating new emergency blood requests with instant optimistic dispatch.
+  * Interactive status transition controls (PENDING → MATCHED → IN_TRANSIT → FULFILLED).
+- Blood Bank Inventory Management in `src/app/inventory/page.tsx`:
+  * Hospital selector filtering across 39 seeded medical centers.
+  * 8-blood-group stock grid displaying units available, reserved, and critical stockout warning badges.
+  * Interactive atomic reservation tester directly exercising MongoDB `find_one_and_update()`.
+  * Real-time clinical expiry batch tracker with 7/14/30-day shelf-life countdown widgets.
+- Complete Clinical AI Suite in `src/app/ai/page.tsx`:
+  * Multi-turn clinical assistant with live visualizer for autonomous raw PyMongo database tool executions.
+  * Unstructured SOS distress message parser with 1-click live emergency dispatch action.
+  * Multilingual donor outreach generator producing English, Hindi, and Punjabi broadcasts with instant copy.
+  * Predictive shortage forecaster with 7-to-14 day horizon simulations and depletion alerts.
+  * Groq telemetry dashboard auditing operational token consumption and latency metrics.
+- Interactive Query Lab in `src/app/query-lab/page.tsx`:
+  * Natural language to MongoDB aggregation pipeline generator using Groq AI.
+  * Multi-stage pipeline JSON editor with pre-loaded graded presets and read-only safety guard.
+  * Real-time `.explain("executionStats")` visualizer highlighting `IXSCAN` (optimal indexed) vs `COLLSCAN` (unindexed) plans.
+  * One-click Viva Admin login button to facilitate frictionless examiner testing.
+- 15 Aggregation Pipelines Showcase in `src/app/analytics/page.tsx`:
+  * Showcase for all 15 university-grade pipelines with academic problem statements and stage sequence diagrams.
+  * Live PyMongo execution output viewer directly querying the backend.
+  * Metro demand vs supply ratio and hospital performance leaderboards.
+- Aligned and completed all 15 pipeline endpoints in `frontend/src/lib/api.ts`.
+- Validated complete Next.js 15 production build (`next build`) with 0 errors across all routes.
+
 ## [0.7.0] - Phase 7: Frontend Foundation (Next.js App Router, Neo-Brutalism & MoltenMetal)
 ### Added
 - Next.js 15 App Router project initialized in `frontend/` with TypeScript and Tailwind CSS.

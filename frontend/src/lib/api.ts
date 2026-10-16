@@ -83,59 +83,92 @@ class ApiClient {
     this.setToken(null);
   }
 
-  // --- Analytics & Aggregations ---
+  // --- Analytics & Aggregations (15 University-Grade Pipelines) ---
   async getBloodStockByGroup() {
-    const res: any = await this.request("/api/analytics/stock/by-group");
+    const res: any = await this.request("/api/analytics/blood-stock");
     return res.data || [];
   }
 
   async getCriticalShortages(threshold = 5) {
-    const res: any = await this.request(`/api/analytics/shortages/critical?threshold=${threshold}`);
+    const res: any = await this.request(`/api/analytics/shortages?threshold=${threshold}`);
     return res.data || [];
   }
 
   async getMonthlyDonationTrend() {
-    const res: any = await this.request("/api/analytics/donations/monthly-trend");
+    const res: any = await this.request("/api/analytics/monthly-trend");
     return res.data || [];
   }
 
   async getTopDonors(limit = 10) {
-    const res: any = await this.request(`/api/analytics/donors/top?limit=${limit}`);
+    const res: any = await this.request(`/api/analytics/top-donors?limit=${limit}`);
+    return res.data || [];
+  }
+
+  async getFulfilmentTime() {
+    const res: any = await this.request("/api/analytics/fulfilment-time");
+    return res.data || [];
+  }
+
+  async getNearestDonors(lng: number, lat: number, bloodGroup: string, radiusKm = 30, limit = 10) {
+    const res: any = await this.request(
+      `/api/analytics/nearest-donors?lng=${lng}&lat=${lat}&blood_group=${encodeURIComponent(bloodGroup)}&radius_km=${radiusKm}&limit=${limit}`
+    );
     return res.data || [];
   }
 
   async getRequestFunnel() {
-    const res: any = await this.request("/api/analytics/requests/funnel");
+    const res: any = await this.request("/api/analytics/request-funnel");
     return res.data || {};
   }
 
   async getHospitalLeaderboard(limit = 10) {
-    const res: any = await this.request(`/api/analytics/hospitals/leaderboard?limit=${limit}`);
-    return res.data || [];
-  }
-
-  async getCityDemandSupply() {
-    const res: any = await this.request("/api/analytics/demand-supply/by-city");
-    return res.data || [];
-  }
-
-  async getPeakHourHeatmap() {
-    const res: any = await this.request("/api/analytics/requests/peak-hours");
+    const res: any = await this.request(`/api/analytics/hospital-leaderboard?limit=${limit}`);
     return res.data || [];
   }
 
   async getExpiringBatches(days = 7) {
-    const res: any = await this.request(`/api/analytics/inventory/expiring-soon?days=${days}`);
+    const res: any = await this.request(`/api/analytics/expiring-batches?days=${days}`);
     return res.data || [];
   }
 
-  async executeQueryLab(collectionName: string, pipeline: any[], explain = false) {
+  async getCityDemandSupply() {
+    const res: any = await this.request("/api/analytics/demand-supply");
+    return res.data || [];
+  }
+
+  async getDonorRetention() {
+    const res: any = await this.request("/api/analytics/donor-retention");
+    return res.data || [];
+  }
+
+  async getPeakHourHeatmap() {
+    const res: any = await this.request("/api/analytics/peak-hours");
+    return res.data || [];
+  }
+
+  async getComponentShare() {
+    const res: any = await this.request("/api/analytics/component-share");
+    return res.data || [];
+  }
+
+  async materializeDailySummary() {
+    const res: any = await this.request("/api/analytics/materialize-daily", { method: "POST" });
+    return res.data || {};
+  }
+
+  async getAiUsage() {
+    const res: any = await this.request("/api/analytics/ai-usage");
+    return res.data || [];
+  }
+
+  async executeQueryLab(collectionName: string, pipeline: any[], explain = false, sandbox = false) {
     return this.request("/api/analytics/query-lab/execute", {
       method: "POST",
       body: JSON.stringify({
         collection_name: collectionName,
         pipeline,
         explain,
+        sandbox,
       }),
     });
   }
