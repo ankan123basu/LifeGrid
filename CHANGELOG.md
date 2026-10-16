@@ -5,6 +5,30 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 
 ---
 
+## [0.4.0] - Phase 4: Advanced Aggregation Pipelines & Query Lab
+### Added
+- Implemented all 15 university-grade MongoDB Aggregation Pipelines in `app/controllers/analytics_controller.py`:
+  1. Blood stock by group across all hospitals (`$group`, `$project`, `$sort`)
+  2. Critical shortage detector (`$match`, `$lookup`, `$unwind`, `$project`)
+  3. Monthly donation trend with cumulative running total (`$setWindowFields`)
+  4. Top 10 donors leaderboard with milestone badge tiers (`$switch`)
+  5. Average emergency fulfilment response time from timeline arrays (`$arrayElemAt`)
+  6. Nearest eligible compatible donors with 90-day cooldown filter (`$geoNear`)
+  7. Multi-dimensional request funnel parallel sub-reports (`$facet`)
+  8. Hospital network performance leaderboard with fulfilment rate (`$lookup`, `$filter`)
+  9. Clinical batches expiring within 7 days (`$unwind` on embedded arrays)
+  10. City-wise demand vs supply ratio with correlated subquery (`$lookup` let/pipeline)
+  11. Donor retention and repeat donation cohort analysis
+  12. Peak-hour emergency request heatmap (`$dayOfWeek` x `$hour`)
+  13. Component-wise usage share breakdown (whole blood, RBC, platelets, plasma)
+  14. Materialized daily analytical summary view (`$merge` into `analytics_daily`)
+  15. Groq AI LLM inference telemetry & token usage report (`ai_usage_logs`)
+- Exposed all 15 analytical endpoints and interactive Query Lab runner at `/api/analytics/*`.
+- Built safe interactive Query Lab sandbox supporting pipeline execution with `explain("executionStats")` and read-only enforcement.
+- Created 15 standalone viva demonstration scripts in `backend/queries/aggregations/` (01 to 15).
+- Created index explainability analyzer in `backend/queries/index_explain_demo.py` proving IXSCAN execution.
+- Added comprehensive integration test suite in `tests/test_aggregations.py` (17 tests, 100% pass).
+
 ## [0.3.0] - Phase 3: Raw PyMongo CRUD Operations & ACID Transactions
 ### Added
 - Complete raw PyMongo controllers and REST endpoints for `users`, `hospitals`, `blood_inventory`, `blood_requests`, `donations`, and `notifications`.
