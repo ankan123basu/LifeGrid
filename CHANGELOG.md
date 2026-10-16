@@ -5,6 +5,31 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 
 ---
 
+## [0.6.0] - Phase 6: AI Backend (Groq Integration & Tool Calling)
+### Added
+- Official Groq Python SDK client wrapper in `app/ai/client.py` with automatic latency measurement, retry logic, and token tracking into `ai_usage_logs` collection.
+- Autonomous AI agent execution loop in `app/ai/agent.py` supporting multi-turn conversations, conversation persistence in `ai_conversations`, and tool execution iterations.
+- MongoDB function calling tools in `app/ai/tools/db_tools.py`:
+  * `check_blood_stock` (live inventory query)
+  * `find_nearest_donors` (geospatial 2dsphere search with clinical cooldown)
+  * `get_hospital_capacity` (hospital bed and blood bank contacts)
+  * `get_critical_shortages` (acute deficit alerts)
+- Specialized clinical and database system prompts in `app/ai/prompts/`:
+  * `assistant_prompt.py`: Clinical triage & CSE494 viva guidance tutor
+  * `parser_prompt.py`: Emergency text/WhatsApp distress message parser
+  * `query_gen_prompt.py`: Natural language to MongoDB aggregation pipeline generator
+  * `forecast_prompt.py`: 7-14 day inventory shortage predictor
+  * `outreach_prompt.py`: Multilingual donor mobilization (English, Hindi, Punjabi)
+- Complete REST endpoints in `app/routes/ai_routes.py`:
+  * `POST /api/ai/chat` (Multi-turn tool-calling assistant)
+  * `POST /api/ai/parse-emergency` (Unstructured text to structured BloodRequestCreate)
+  * `POST /api/ai/query-lab/generate` (Natural language to MongoDB aggregation pipeline)
+  * `POST /api/ai/forecast` (Predictive shortage analysis)
+  * `POST /api/ai/outreach` (Multilingual donor call-to-action messages)
+  * `GET /api/ai/telemetry` (Aggregated token usage and latency audit)
+- Standalone live demonstration script in `backend/queries/ai_demo.py`.
+- Comprehensive integration test suite in `tests/test_ai.py` (11 tests, 100% pass rate).
+
 ## [0.5.0] - Phase 5: Real-time WebSockets & MongoDB Change Streams
 ### Added
 - Real-time WebSocket connection manager in `app/realtime/connection_manager.py` with multi-room pub/sub routing:
