@@ -2,22 +2,33 @@
 LifeGrid - FastAPI Application Entrypoint
 CSE494: Intelligent NoSQL Databases
 
-Main FastAPI application with CORS middleware, lifespan events,
-database healthchecks, and route registration.
+Main FastAPI application with CORS middleware, security headers,
+centralized exception handlers, lifespan database events, and router registration.
 """
 
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from pymongo.errors import OperationFailure
 
 from app.config import settings
 from app.db.client import get_db, check_connection, close_db_client
 from app.db.validators import apply_validators
 from app.db.indexes import create_indexes
+from app.middleware.security import SecurityHeadersMiddleware
+from app.middleware.error_handler import (
+    http_exception_handler,
+    validation_exception_handler,
+    mongo_exception_handler,
+    value_error_handler,
+    global_exception_handler
+)
+from app.routes.auth_routes import router as auth_router
 
-# Configure structured logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
@@ -63,7 +74,15 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# CORS Middleware configuration
+# Exception Handlers Registration
+app.add_exception_handler(StarletteHTTPException, http_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(OperationFailure, mongo_exception_handler)
+app.add_exception_handler(ValueError, value_error_handler)
+app.add_exception_handler(Exception, global_exception_handler)
+
+# Middleware Pipeline
+app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
@@ -71,6 +90,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Route Registration
+app.include_router(auth_router)
 
 
 @app.get("/", tags=["Root"])
