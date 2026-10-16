@@ -163,3 +163,28 @@
   background: #FFE600;
   border: 2px solid #000000;
 }
+
+/* Leaflet Neo-Brutalist Tooltip Overrides */
+.leaflet-tooltip.lifegrid-neo-tooltip {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.leaflet-tooltip-top.lifegrid-neo-tooltip:before,
+.leaflet-tooltip-bottom.lifegrid-neo-tooltip:before,
+.leaflet-tooltip-left.lifegrid-neo-tooltip:before,
+.leaflet-tooltip-right.lifegrid-neo-tooltip:before {
+  display: none !important;
+}
+
+.lifegrid-map-dot {
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s ease;
+}
+
+.lifegrid-map-dot:hover {
+  transform: scale(1.4) !important;
+  box-shadow: 3px 3px 0px #000000 !important;
+  z-index: 9999 !important;
+}
