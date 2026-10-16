@@ -23,6 +23,17 @@ import {
   Clock,
   Sparkles
 } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const BloodCellCanvas = dynamic(
+  () => import("@/components/three/BloodCellCanvas"),
+  { ssr: false, loading: () => <div className="h-96 w-full bg-neutral-900 border-3 border-black animate-pulse" /> }
+);
+
+const NetworkGlobeCanvas = dynamic(
+  () => import("@/components/three/NetworkGlobeCanvas"),
+  { ssr: false, loading: () => <div className="h-96 w-full bg-neutral-900 border-3 border-black animate-pulse" /> }
+);
 
 export default function HomePage() {
   const [authOpen, setAuthOpen] = useState(false);
@@ -287,6 +298,44 @@ export default function HomePage() {
                   Paste or load an emergency forward on the left to extract clinical fields.
                 </div>
               )}
+            </div>
+          </div>
+        </section>
+
+        {/* Interactive 3D Bio-Sim & Geospatial Network (Three.js / React Three Fiber) */}
+        <section>
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-2">
+            <div>
+              <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase text-neutral-600 mb-1">
+                <Sparkles className="w-4 h-4 text-[#FFE600]" />
+                <span>Three.js WebGL Interactive 3D Visualizers</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                Cellular Simulation &amp; Geospatial Emergency Mesh
+              </h2>
+            </div>
+            <span className="text-xs font-mono font-bold bg-[#FFE600] px-2.5 py-1 border-2 border-black shadow-[2px_2px_0px_#000]">
+              60 FPS WebGL • Drag to Orbit
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* 3D Erythrocyte Simulation */}
+            <div className="space-y-2">
+              <BloodCellCanvas className="h-96 w-full" />
+              <div className="bg-white border-2 border-black p-3 font-mono text-xs flex justify-between items-center shadow-[3px_3px_0px_#000]">
+                <span className="font-bold">Erythrocyte Biconcave Disc</span>
+                <span className="text-neutral-500">Pulsing Heartbeat + Hemoglobin Cloud</span>
+              </div>
+            </div>
+
+            {/* 3D Geospatial Dispatch Network */}
+            <div className="space-y-2">
+              <NetworkGlobeCanvas className="h-96 w-full" />
+              <div className="bg-white border-2 border-black p-3 font-mono text-xs flex justify-between items-center shadow-[3px_3px_0px_#000]">
+                <span className="font-bold">Geospatial Emergency Mesh</span>
+                <span className="text-neutral-500">39 Indian Hospitals + Quadratic Transit Arcs</span>
+              </div>
             </div>
           </div>
         </section>

@@ -5,6 +5,26 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 
 ---
 
+## [0.9.0] - Phase 9: Three.js Interactive 3D Visualizations
+### Added
+- Interactive 3D Erythrocyte Cellular Simulation in `src/components/three/BloodCellCanvas.tsx`:
+  * Parametric mathematical biconcave disc geometry deformed from cylindrical coordinates.
+  * Systolic/diastolic dual-beat heartbeat pulsation formula (`Math.sin(3.5t) * Math.sin(7t)`).
+  * Surrounding orbiting cloud of 50 hemoglobin micro-particles with additive blending.
+  * Deep biological crimson clearcoat physical material with orbit controls.
+- 3D Geospatial Dispatch Network Globe in `src/components/three/NetworkGlobeCanvas.tsx`:
+  * Textured wireframe sphere with latitude and longitude equatorial rings.
+  * 39 Indian medical centers projected from GPS coordinates (Delhi, Mumbai, Bangalore, Kolkata, Chennai, Hyderabad).
+  * Quadratic Bezier flight arcs visualizing active blood transit routes with neon glowing trajectories.
+- 3D Clinical Unit Packet Inspector in `src/components/three/BloodBagCanvas.tsx`:
+  * Polymer IV pouch with physical transmission (`transmission: 0.7, thickness: 0.4`), eyelet hanger, and exit tubing ports.
+  * Internal liquid blood volume with real-time sloshing oscillation in `useFrame`.
+  * Neo-brutalist clinical label with dynamic blood group sticker, volume specs, and barcode stripes.
+  * Interactive ABO/Rh switcher pills for instant live preview.
+- Integrated `BloodCellCanvas` and `NetworkGlobeCanvas` into Homepage (`src/app/page.tsx`).
+- Integrated `BloodBagCanvas` into Hospital Inventory Management (`src/app/inventory/page.tsx`).
+- Verified 60 FPS performance and SSR compatibility via `next/dynamic`.
+
 ## [0.8.0] - Phase 8: Feature Screens & AI UI Suite
 ### Added
 - Emergency Dispatch Dashboard in `src/app/requests/page.tsx`:
