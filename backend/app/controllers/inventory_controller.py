@@ -82,7 +82,15 @@ def atomic_reserve_units(
 
     if updated_doc:
         logger.info(f"Atomic reservation successful: {units} units of {blood_group} ({component}) reserved at hospital {hospital_id}.")
-        return serialize_doc(updated_doc)
+        serialized = serialize_doc(updated_doc)
+        try:
+            from app.realtime.stream_listener import stream_listener
+            stream_listener.emit_event("INVENTORY_UPDATED", serialized, room=f"hospital:{hospital_id}")
+            if serialized.get("units_available", 0) < 5:
+                stream_listener.emit_event("CRITICAL_SHORTAGE_ALERT", serialized)
+        except Exception:
+            pass
+        return serialized
     else:
         logger.warning(f"Atomic reservation rejected: Insufficient available units for {blood_group} ({component}) at hospital {hospital_id}.")
         return None

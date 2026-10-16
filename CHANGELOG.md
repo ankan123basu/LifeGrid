@@ -5,6 +5,23 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 
 ---
 
+## [0.5.0] - Phase 5: Real-time WebSockets & MongoDB Change Streams
+### Added
+- Real-time WebSocket connection manager in `app/realtime/connection_manager.py` with multi-room pub/sub routing:
+  * Global emergency channel (`global`)
+  * Hospital staff private channel (`hospital:{hospital_id}`)
+  * User private notification channel (`user:{user_id}`)
+  * Role-based dispatch (`role:ADMIN`, `role:STAFF`, `role:DONOR`, `role:REQUESTER`)
+- Real-time MongoDB Change Stream listener in `app/realtime/stream_listener.py`:
+  * Supports native MongoDB replica set Change Streams with resume token checkpointing (`watch()`)
+  * Gracefully fails over to reactive event emission & polling in standalone local MongoDB environments
+  * Watches `blood_requests`, `blood_inventory`, and `notifications`
+- Bidirectional WebSocket endpoint `/ws/live` supporting JWT query token authentication, dynamic room join/leave commands, and heartbeat ping/pong protocol.
+- Real-time telemetry REST endpoint `GET /api/realtime/stats` returning active sockets, room distribution, and broadcast counters.
+- Reactive event emission hooks in `requests_controller.py`, `inventory_controller.py`, and `notifications_controller.py`.
+- Standalone viva demonstration script in `backend/queries/realtime_demo.py`.
+- Automated test suite in `tests/test_realtime.py` (6 tests, 100% pass rate).
+
 ## [0.4.0] - Phase 4: Advanced Aggregation Pipelines & Query Lab
 ### Added
 - Implemented all 15 university-grade MongoDB Aggregation Pipelines in `app/controllers/analytics_controller.py`:
