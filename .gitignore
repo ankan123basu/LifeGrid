@@ -38,6 +38,7 @@ out/
 .turbo/
 .vercel/
 npm-debug.log*
+PROJECT_REPORT.md
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
