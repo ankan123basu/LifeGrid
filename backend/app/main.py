@@ -6,6 +6,7 @@ Main FastAPI application with CORS middleware, security headers,
 centralized exception handlers, lifespan database events, and router registration.
 """
 
+import asyncio
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, status
@@ -19,6 +20,7 @@ from app.config import settings
 from app.db.client import get_db, check_connection, close_db_client
 from app.db.validators import apply_validators
 from app.db.indexes import create_indexes
+from app.realtime.stream_listener import stream_listener
 from app.middleware.security import SecurityHeadersMiddleware
 from app.middleware.error_handler import (
     http_exception_handler,
@@ -35,6 +37,7 @@ from app.routes.requests_routes import router as requests_router
 from app.routes.donations_routes import router as donations_router
 from app.routes.notifications_routes import router as notifications_router
 from app.routes.analytics_routes import router as analytics_router
+from app.routes.ws_routes import router as ws_router
 
 
 logging.basicConfig(
@@ -51,7 +54,8 @@ async def lifespan(app: FastAPI):
     1. Verifies database connectivity.
     2. Enforces schema validation rules.
     3. Builds performance and constraint indexes.
-    4. Cleanly closes connection pool on shutdown.
+    4. Starts MongoDB Change Streams / Realtime event listener.
+    5. Cleanly closes connection pool on shutdown.
     """
     logger.info("Starting LifeGrid API Server...")
     health = check_connection()
@@ -67,9 +71,14 @@ async def lifespan(app: FastAPI):
     else:
         logger.warning(f"MongoDB connection check failed: {health.get('error')}. API running in degraded state.")
 
+    # Start Realtime Stream Listener
+    loop = asyncio.get_running_loop()
+    stream_listener.start(loop)
+
     yield
 
     logger.info("Shutting down LifeGrid API Server...")
+    stream_listener.stop()
     close_db_client()
 
 
@@ -108,6 +117,7 @@ app.include_router(requests_router)
 app.include_router(donations_router)
 app.include_router(notifications_router)
 app.include_router(analytics_router)
+app.include_router(ws_router)
 
 
 
