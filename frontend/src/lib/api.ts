@@ -1,6 +1,5 @@
 /**
  * LifeGrid - Unified Backend API Client
- * CSE494: Intelligent NoSQL Databases
  */
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";

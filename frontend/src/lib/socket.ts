@@ -1,6 +1,5 @@
 /**
  * LifeGrid - Real-time WebSocket Client
- * CSE494: Intelligent NoSQL Databases
  */
 
 import { api } from "./api";

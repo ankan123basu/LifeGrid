@@ -1,6 +1,5 @@
 /**
  * LifeGrid - Zustand State Management Stores
- * CSE494: Intelligent NoSQL Databases
  */
 
 import { create } from "zustand";

@@ -223,25 +223,25 @@ export default function AiSuitePage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-black text-[#FFE600] font-mono text-xs font-black uppercase mb-2">
-              <Zap className="w-3.5 h-3.5" /> Groq AI Accelerated Engine
+              <Zap className="w-3.5 h-3.5" /> Emergency Care AI Assistant
             </div>
             <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-black">
-              Clinical AI Intelligence Hub
+              Clinical Intelligence Hub
             </h1>
             <p className="text-black font-medium mt-1">
-              Autonomous MongoDB tool-calling agent, unstructured SOS parser, multilingual broadcaster, & predictive shortage forecasting.
+              Automated donor matching, unstructured SOS distress parser, multilingual broadcast generator, and predictive shortage forecaster.
             </p>
           </div>
 
           {/* Quick Telemetry Capsule */}
           <div className="bg-white border-3 border-black p-3 shadow-[3px_3px_0px_0px_#000] flex items-center gap-4">
             <div>
-              <div className="text-[10px] font-mono uppercase text-gray-600 font-bold">Total AI Logs</div>
+              <div className="text-[10px] font-mono uppercase text-gray-600 font-bold">Total Operations</div>
               <div className="text-xl font-black font-mono">{telemetry?.total_logs ?? "..."}</div>
             </div>
             <div className="border-r-2 border-black h-8" />
             <div>
-              <div className="text-[10px] font-mono uppercase text-gray-600 font-bold">Tokens Used</div>
+              <div className="text-[10px] font-mono uppercase text-gray-600 font-bold">Processed</div>
               <div className="text-xl font-black font-mono text-emerald-600">
                 {telemetry?.total_tokens ? telemetry.total_tokens.toLocaleString() : "..."}
               </div>
@@ -260,11 +260,11 @@ export default function AiSuitePage() {
       {/* Tabs Navigation */}
       <div className="flex flex-wrap gap-2 mb-6">
         {[
-          { id: "chat", label: "Autonomous Agent", icon: Bot, color: "bg-[#7CD4FF]" },
+          { id: "chat", label: "Care Assistant", icon: Bot, color: "bg-[#7CD4FF]" },
           { id: "parser", label: "SOS Distress Parser", icon: AlertTriangle, color: "bg-[#FF90C8]" },
           { id: "outreach", label: "Multilingual Broadcaster", icon: Share2, color: "bg-[#2EE59D]" },
-          { id: "forecast", label: "Predictive Forecaster", icon: Activity, color: "bg-[#FFE600]" },
-          { id: "telemetry", label: "Groq Telemetry & Audit", icon: Cpu, color: "bg-white" },
+          { id: "forecast", label: "Shortage Forecaster", icon: Activity, color: "bg-[#FFE600]" },
+          { id: "telemetry", label: "System Telemetry", icon: Cpu, color: "bg-white" },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -290,14 +290,14 @@ export default function AiSuitePage() {
       {/* ========================================================================= */}
       {activeTab === "chat" && (
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Quick Viva Prompts Sidebar */}
+          {/* Quick Clinical Prompts Sidebar */}
           <div className="lg:col-span-1 space-y-4">
             <div className="bg-white border-3 border-black p-4 shadow-[4px_4px_0px_0px_#000]">
               <div className="flex items-center gap-2 font-black uppercase text-sm mb-3">
-                <Sparkles className="w-4 h-4 text-amber-500" /> Viva Test Queries
+                <Sparkles className="w-4 h-4 text-amber-500" /> Quick Clinical Prompts
               </div>
               <p className="text-xs text-gray-700 font-medium mb-3">
-                Click any prompt to witness the agent autonomously select and execute raw PyMongo tools:
+                Click any prompt to check blood bank stock, donor matching, and compatibility:
               </p>
               <div className="space-y-2">
                 {[

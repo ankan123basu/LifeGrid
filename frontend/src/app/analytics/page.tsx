@@ -79,12 +79,12 @@ const PIPELINES_METADATA: PipelineInfo[] = [
   },
   {
     id: 6,
-    title: "Nearest Eligible Donors ($geoNear)",
+    title: "Nearest Eligible Donors",
     category: "Network",
     endpoint: "nearest-donors",
-    description: "Finds geographically closest compatible donors within radius using 2dsphere spatial index.",
+    description: "Finds geographically closest compatible donors within radius using geospatial location coordinates.",
     stages: ["$geoNear", "$match", "$project", "$limit"],
-    vivaNote: "Mandatory first stage $geoNear leveraging 2dsphere index on location field with distanceField calculation in meters.",
+    vivaNote: "Calculates distance in meters between patient coordinates and nearby compatible voluntary donors.",
   },
   {
     id: 7,
@@ -280,25 +280,25 @@ export default function AnalyticsDashboardPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-black text-[#FF90C8] font-mono text-xs font-black uppercase mb-2">
-              <BarChart3 className="w-3.5 h-3.5" /> CSE494 Aggregation Framework Showcase
+              <BarChart3 className="w-3.5 h-3.5" /> Emergency Network Analytics
             </div>
             <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-black">
-              15 University-Grade Aggregation Pipelines
+              Clinical Logistics &amp; Stock Intelligence
             </h1>
             <p className="text-black font-medium mt-1">
-              Demonstrating $lookup, $facet, $unwind, $geoNear, $setWindowFields, $switch, and $merge with explainable viva breakdowns.
+              Real-time emergency benchmarks, donor retention cohorts, expiry forecasts, and regional supply indicators.
             </p>
           </div>
 
           <div className="bg-white border-3 border-black p-3 shadow-[3px_3px_0px_0px_#000] flex items-center gap-4">
             <div>
-              <div className="text-[10px] font-mono uppercase text-gray-600 font-bold">Graded Pipelines</div>
+              <div className="text-[10px] font-mono uppercase text-gray-600 font-bold">Active Metrics</div>
               <div className="text-2xl font-black font-mono">15 / 15</div>
             </div>
             <div className="border-r-2 border-black h-8" />
             <div>
-              <div className="text-[10px] font-mono uppercase text-gray-600 font-bold">Driver</div>
-              <div className="text-sm font-black font-mono text-emerald-700">Raw PyMongo</div>
+              <div className="text-[10px] font-mono uppercase text-gray-600 font-bold">Network Feed</div>
+              <div className="text-sm font-black font-mono text-emerald-700">Verified Live</div>
             </div>
           </div>
         </div>
@@ -414,14 +414,14 @@ export default function AnalyticsDashboardPage() {
           </div>
         </div>
 
-        {/* Right Column: Active Pipeline Execution & Viva Breakdown */}
+        {/* Right Column: Active Metric Execution */}
         <div className="lg:col-span-7 space-y-6">
           {/* Active Pipeline Card */}
           <div className="bg-white border-3 border-black p-6 shadow-[6px_6px_0px_0px_#000] space-y-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b-2 border-black pb-3">
               <div>
                 <span className="font-mono text-xs font-bold uppercase text-gray-500">
-                  Active Graded Demonstration
+                  Live Operational Metric
                 </span>
                 <h2 className="text-2xl font-black uppercase text-black">
                   #{selectedPipeline.id}: {selectedPipeline.title}
@@ -460,10 +460,10 @@ export default function AnalyticsDashboardPage() {
               </div>
             </div>
 
-            {/* Academic Viva Note */}
+            {/* Clinical Engineering Note */}
             <div className="p-3.5 bg-[#F4F1EA] border-2 border-black font-mono text-xs space-y-1">
               <div className="font-bold uppercase text-indigo-700 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5" /> CSE494 Examiner Defense Note:
+                <Sparkles className="w-3.5 h-3.5" /> Clinical Intelligence Note:
               </div>
               <div className="text-gray-800 font-medium">{selectedPipeline.vivaNote}</div>
             </div>
@@ -473,7 +473,7 @@ export default function AnalyticsDashboardPage() {
           <div className="bg-white border-3 border-black p-6 shadow-[6px_6px_0px_0px_#000]">
             <div className="flex items-center justify-between mb-3">
               <span className="font-black uppercase text-sm flex items-center gap-2">
-                <Database className="w-4 h-4 text-emerald-600" /> Live Aggregation Output (PyMongo)
+                <Database className="w-4 h-4 text-emerald-600" /> Live Clinical Analytics Feed
               </span>
               {liveData && (
                 <span className="font-mono text-xs font-bold text-gray-600">

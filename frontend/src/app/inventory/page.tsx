@@ -246,9 +246,9 @@ export default function InventoryPage() {
             <div className="flex items-center gap-2 border-b-2 border-black pb-2">
               <Lock className="w-5 h-5 text-[#FFE600]" />
               <div>
-                <h3 className="font-black text-lg">Atomic Inventory Reservation</h3>
+                <h3 className="font-black text-lg">Direct Unit Reservation</h3>
                 <span className="text-[11px] font-mono text-neutral-500 block">
-                  Demonstrates <code>find_one_and_update()</code> with race condition protection
+                  Lock blood units instantly for an emergency patient
                 </span>
               </div>
             </div>
@@ -256,7 +256,7 @@ export default function InventoryPage() {
             {/* 3D Blood Bag Unit Inspector */}
             <div className="space-y-1">
               <div className="text-[10px] font-mono uppercase text-gray-500 font-bold">
-                Interactive 3D Clinical Unit Inspector
+                Clinical Unit Specification
               </div>
               <BloodBagCanvas className="h-64 w-full" initialGroup={reserveGroup} />
             </div>
@@ -320,16 +320,16 @@ export default function InventoryPage() {
                 disabled={reserving}
                 className="neo-btn neo-btn-primary w-full py-2.5 text-xs shadow-[3px_3px_0px_#000] disabled:opacity-50 mt-2"
               >
-                {reserving ? "Executing Atomic Update..." : "Reserve Units Atomically"}
+                {reserving ? "Processing Reservation..." : "Reserve Units Now"}
               </button>
 
               <div className="text-[10px] text-neutral-500 font-mono mt-2 leading-relaxed">
-                ℹ️ The atomic filter checks <code>units_available &gt;= units</code> and decrements unreserved while incrementing reserved in a single atomic transaction.
+                ℹ️ Reserved units are immediately held in the hospital dispatch queue for this patient.
               </div>
             </form>
           </div>
 
-          {/* Expiring Batches Countdown ($unwind on embedded batches) */}
+          {/* Expiring Batches Countdown */}
           <div className="lg:col-span-7 neo-card p-6 bg-white space-y-4">
             <div className="flex items-center justify-between border-b-2 border-black pb-2">
               <div className="flex items-center gap-2">
@@ -337,7 +337,7 @@ export default function InventoryPage() {
                 <div>
                   <h3 className="font-black text-lg">Clinical Expiry Countdown</h3>
                   <span className="text-[11px] font-mono text-neutral-500 block">
-                    Aggregation Pipeline #9: <code>$unwind</code> on <code>expiry_batches</code> array
+                    Monitoring units approaching shelf-life limits across batches
                   </span>
                 </div>
               </div>

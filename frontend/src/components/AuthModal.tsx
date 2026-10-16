@@ -102,14 +102,14 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             disabled={loading}
             className="neo-btn neo-btn-primary w-full py-2.5 text-sm mt-2 disabled:opacity-50"
           >
-            {loading ? "Authenticating..." : "Sign In via JWT"}
+            {loading ? "Authenticating..." : "Sign In"}
           </button>
         </form>
 
-        {/* Viva Quick Pre-fills */}
+        {/* Quick Demo Pre-fills */}
         <div className="mt-5 pt-4 border-t-2 border-black">
           <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-2">
-            Viva Evaluator Pre-fills (One-Click):
+            Quick Role Accounts (One-Click):
           </div>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <button
