@@ -5,6 +5,21 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 
 ---
 
+## [0.7.0] - Phase 7: Frontend Foundation (Next.js App Router, Neo-Brutalism & MoltenMetal)
+### Added
+- Next.js 15 App Router project initialized in `frontend/` with TypeScript and Tailwind CSS.
+- Neo-Brutalist design system established in `src/app/globals.css`:
+  * Saturated high-contrast palette (`#FFE600`, `#FF90C8`, `#2EE59D`, `#7CD4FF`, `#FF4D4D`, `#F4F1EA`)
+  * Hard offset drop shadows (`4px 4px 0px #000`, `6px 6px 0px #000`, active states `2px 2px 0px #000`)
+  * 3px solid ink borders and interactive tactile buttons (`.neo-btn`, `.neo-card`, `.neo-badge`, `.neo-input`)
+  * Space Grotesk (headings) and JetBrains Mono (metrics, badges, query code) typography via `next/font/google`.
+- Integrated user-provided `MoltenMetal.jsx` & `MoltenMetal.css` WebGL2 fluid shader component into the hero canvas.
+- Built unified API client in `src/lib/api.ts` connecting Next.js to FastAPI backend (`http://localhost:8000`) with JWT storage and typed endpoints.
+- Built real-time browser WebSocket client in `src/lib/socket.ts` with auto-reconnection and room pub/sub support.
+- Configured Zustand state management in `src/lib/store.ts` for authentication and real-time live alerts.
+- Created core layout components: `Navbar.tsx` (with live WebSocket indicator), `Footer.tsx` (with database specs), and `AuthModal.tsx` (with one-click viva role pre-fills).
+- Built Homepage in `src/app/page.tsx` featuring the fluid shader hero, real-time blood stock heatmap, AI emergency forward parser playground, and database architecture showcase.
+
 ## [0.6.0] - Phase 6: AI Backend (Groq Integration & Tool Calling)
 ### Added
 - Official Groq Python SDK client wrapper in `app/ai/client.py` with automatic latency measurement, retry logic, and token tracking into `ai_usage_logs` collection.
