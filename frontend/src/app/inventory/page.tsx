@@ -18,6 +18,12 @@ import {
   ShieldCheck,
   Zap
 } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const BloodBagCanvas = dynamic(
+  () => import("@/components/three/BloodBagCanvas"),
+  { ssr: false, loading: () => <div className="h-64 w-full bg-neutral-900 border-2 border-black animate-pulse" /> }
+);
 
 export default function InventoryPage() {
   const [authOpen, setAuthOpen] = useState(false);
@@ -245,6 +251,14 @@ export default function InventoryPage() {
                   Demonstrates <code>find_one_and_update()</code> with race condition protection
                 </span>
               </div>
+            </div>
+
+            {/* 3D Blood Bag Unit Inspector */}
+            <div className="space-y-1">
+              <div className="text-[10px] font-mono uppercase text-gray-500 font-bold">
+                Interactive 3D Clinical Unit Inspector
+              </div>
+              <BloodBagCanvas className="h-64 w-full" initialGroup={reserveGroup} />
             </div>
 
             {reserveResult && (
