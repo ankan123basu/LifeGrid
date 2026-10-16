@@ -14,10 +14,12 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500", "700", "800"],
 });
 
+import AskLifeGridChat from "@/components/AskLifeGridChat";
+
 export const metadata: Metadata = {
-  title: "LifeGrid | Intelligent Blood & Emergency Network (CSE494)",
-  description: "Real-time AI-assisted blood inventory and emergency dispatch network powered by MongoDB and Groq AI.",
-  keywords: ["Blood Bank", "Emergency Response", "MongoDB", "NoSQL", "Groq AI", "LifeGrid", "CSE494"],
+  title: "LifeGrid | Real-Time Blood & Emergency Network",
+  description: "Connect instantly with verified hospital blood banks and voluntary lifesavers in real time across India.",
+  keywords: ["Blood Bank", "Emergency Response", "LifeGrid", "Blood Donation", "Hospital Blood Stock"],
 };
 
 export default function RootLayout({
@@ -32,6 +34,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-sans bg-[#F4F1EA] text-[#0A0A0A]">
         {children}
+        <AskLifeGridChat />
       </body>
     </html>
   );
