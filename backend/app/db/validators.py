@@ -470,6 +470,42 @@ ANALYTICS_DAILY_SCHEMA: Dict[str, Any] = {
     }
 }
 
+# ----------------------------------------------------------------------
+# 12. ELIGIBILITY_CHECKS COLLECTION VALIDATOR (ANONYMOUS & STRICT)
+# ----------------------------------------------------------------------
+ELIGIBILITY_CHECKS_SCHEMA: Dict[str, Any] = {
+    "$jsonSchema": {
+        "bsonType": "object",
+        "required": ["status", "rule_ids_triggered", "rules_version", "created_at"],
+        "properties": {
+            "_id": {"bsonType": "objectId"},
+            "status": {
+                "enum": ["ELIGIBLE", "ELIGIBLE_LATER", "NOT_ELIGIBLE", "CONSULT_DOCTOR"],
+                "description": "Deterministic eligibility status"
+            },
+            "rule_ids_triggered": {
+                "bsonType": "array",
+                "items": {"bsonType": "string"}
+            },
+            "age_band": {
+                "bsonType": ["string", "null"]
+            },
+            "sex_band": {
+                "bsonType": ["string", "null"]
+            },
+            "city": {
+                "bsonType": ["string", "null"]
+            },
+            "rules_version": {
+                "bsonType": "string"
+            },
+            "created_at": {
+                "bsonType": "date"
+            }
+        }
+    }
+}
+
 ALL_COLLECTION_SCHEMAS: Dict[str, Dict[str, Any]] = {
     "users": USERS_SCHEMA,
     "hospitals": HOSPITALS_SCHEMA,
@@ -482,6 +518,7 @@ ALL_COLLECTION_SCHEMAS: Dict[str, Dict[str, Any]] = {
     "ai_conversations": AI_CONVERSATIONS_SCHEMA,
     "ai_usage_logs": AI_USAGE_LOGS_SCHEMA,
     "analytics_daily": ANALYTICS_DAILY_SCHEMA,
+    "eligibility_checks": ELIGIBILITY_CHECKS_SCHEMA,
 }
 
 

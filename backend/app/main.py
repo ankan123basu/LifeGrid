@@ -39,6 +39,7 @@ from app.routes.notifications_routes import router as notifications_router
 from app.routes.analytics_routes import router as analytics_router
 from app.routes.ws_routes import router as ws_router
 from app.routes.ai_routes import router as ai_router
+from app.routes.eligibility_routes import router as eligibility_router
 
 
 logging.basicConfig(
@@ -120,6 +121,7 @@ app.include_router(notifications_router)
 app.include_router(analytics_router)
 app.include_router(ws_router)
 app.include_router(ai_router)
+app.include_router(eligibility_router)
 
 
 

@@ -205,4 +205,16 @@ def create_indexes(db: Database) -> None:
         name="idx_analytics_daily_date_unique"
     )
 
+    # 12. eligibility_checks indexes
+    # TTL Index: 90 days retention for anonymous privacy compliance
+    db.eligibility_checks.create_index(
+        [("created_at", ASCENDING)],
+        expireAfterSeconds=90 * 24 * 60 * 60,
+        name="idx_eligibility_checks_created_at_ttl_90d"
+    )
+    db.eligibility_checks.create_index(
+        [("status", ASCENDING), ("created_at", DESCENDING)],
+        name="idx_eligibility_checks_status_created_compound"
+    )
+
     logger.info("All collection indexes created successfully.")
