@@ -56,11 +56,64 @@ PASSWORD_STAFF = "StaffPassword@123"
 PASSWORD_DONOR = "DonorPassword@123"
 PASSWORD_REQUESTER = "RequesterPassword@123"
 
-# Indian hospital naming components
-HOSPITAL_PREFIXES = ["Apollo", "Fortis", "Max Super Speciality", "Medanta", "CMC", "DMC & Hospital",
-                     "Civil Hospital", "AIIMS", "Manipal", "Narayana Health", "Care Hospital",
-                     "Guru Nanak Mission", "Patel Hospital", "Satguru Pratap Singh (SPS)",
-                     "Postgraduate Institute (PGI)", "Ivy Hospital", "Fortis Escorts"]
+# Culturally authentic, 100% fictional unique hospital names (no real brands, no duplicates, no branches)
+FICTIONAL_HOSPITAL_CATALOG = [
+    # Ludhiana (6)
+    {"name": "Riverside General Hospital & Trauma Centre", "city": "Ludhiana", "street": "Brown Road, Civil Lines"},
+    {"name": "Sunrise Multi-Speciality Medical Care", "city": "Ludhiana", "street": "Ferozepur Road, Sarabha Nagar"},
+    {"name": "Oakwood Memorial Blood Bank", "city": "Ludhiana", "street": "Model Town Main Road"},
+    {"name": "Cedar Valley Health Institute", "city": "Ludhiana", "street": "GT Road, Near Clock Tower"},
+    {"name": "Heritage Community Hospital", "city": "Ludhiana", "street": "Chandigarh Road, Sector 32"},
+    {"name": "Northstar Emergency Hospital", "city": "Ludhiana", "street": "Pakhowal Road, Daad"},
+
+    # Chandigarh (6)
+    {"name": "Capitol Trauma & Surgical Centre", "city": "Chandigarh", "street": "Madhya Marg, Sector 12"},
+    {"name": "Pinecrest Regional Hospital", "city": "Chandigarh", "street": "Jan Marg, Sector 17"},
+    {"name": "Silverline Emergency Care", "city": "Chandigarh", "street": "Himalaya Marg, Sector 22"},
+    {"name": "Green Valley Memorial Blood Bank", "city": "Chandigarh", "street": "Dakshin Marg, Sector 32"},
+    {"name": "Highland Care Institute", "city": "Chandigarh", "street": "Vikas Marg, Sector 44"},
+    {"name": "Trillium Community Hospital", "city": "Chandigarh", "street": "Sector 19 Commercial Enclave"},
+
+    # Delhi (6)
+    {"name": "National Capital Health Pavilion", "city": "Delhi", "street": "Ring Road, Safdarjung Enclave"},
+    {"name": "Metro Life Trauma Hospital", "city": "Delhi", "street": "Barakhamba Road, Connaught Place"},
+    {"name": "Lotus Valley Medical Institute", "city": "Delhi", "street": "Press Enclave Road, Saket"},
+    {"name": "Horizon Emergency Blood Centre", "city": "Delhi", "street": "Okhla Industrial Area Phase II"},
+    {"name": "Grandview Surgical Hospital", "city": "Delhi", "street": "Pusa Road, Rajendra Place"},
+    {"name": "Evergreen Memorial Health Centre", "city": "Delhi", "street": "Mall Road, Civil Lines"},
+
+    # Mumbai (6)
+    {"name": "Coastal City General Hospital", "city": "Mumbai", "street": "Dr. E. Borges Road, Parel"},
+    {"name": "Marine Drive Medical Institute", "city": "Mumbai", "street": "Maharshi Karve Road, Churchgate"},
+    {"name": "Western Ghats Emergency Care", "city": "Mumbai", "street": "Hill Road, Bandra West"},
+    {"name": "Palmview Trauma Hospital", "city": "Mumbai", "street": "Link Road, Andheri West"},
+    {"name": "Arabian Sea Memorial Blood Bank", "city": "Mumbai", "street": "LBS Marg, Bhandup"},
+    {"name": "Harborview Multi-Speciality Clinic", "city": "Mumbai", "street": "Annie Besant Road, Worli"},
+
+    # Bengaluru (6)
+    {"name": "Silicon Plateau Hospital", "city": "Bengaluru", "street": "Hosur Road, Dairy Circle"},
+    {"name": "Garden City Emergency Clinic", "city": "Bengaluru", "street": "Residency Road, Ashok Nagar"},
+    {"name": "Apex Valley Trauma Centre", "city": "Bengaluru", "street": "100 Feet Road, Koramangala 4th Block"},
+    {"name": "Tech Corridor Medical Institute", "city": "Bengaluru", "street": "ITPL Main Road, Whitefield"},
+    {"name": "Crestview General Blood Bank", "city": "Bengaluru", "street": "9th Main, Jayanagar 4th Block"},
+    {"name": "Indiranagar Surgical Wing", "city": "Bengaluru", "street": "12th Main Road, HAL 2nd Stage"},
+
+    # Amritsar (6)
+    {"name": "Golden Valley Care Hospital", "city": "Amritsar", "street": "Majitha Road, Near Circuit House"},
+    {"name": "Ranjit Avenue Emergency Care", "city": "Amritsar", "street": "A-Block, Ranjit Avenue"},
+    {"name": "Heritage City Memorial Hospital", "city": "Amritsar", "street": "Mall Road, Civil Lines"},
+    {"name": "Amritsar Trauma & Surgical Wing", "city": "Amritsar", "street": "Batala Road, Vijay Nagar"},
+    {"name": "Sutlej Valley Health Centre", "city": "Amritsar", "street": "Tarn Taran Road"},
+    {"name": "Harmandir Enclave Blood Centre", "city": "Amritsar", "street": "Circular Road"},
+
+    # Jalandhar (6)
+    {"name": "Doaba Regional Medical Centre", "city": "Jalandhar", "street": "Mahavir Marg, Civil Lines"},
+    {"name": "Model Town Health Pavilion", "city": "Jalandhar", "street": "Link Road, Model Town"},
+    {"name": "Grand Trunk Trauma Hospital", "city": "Jalandhar", "street": "GT Road, Cantt Railway Crossing"},
+    {"name": "Punjab Life Emergency Hospital", "city": "Jalandhar", "street": "Ladowali Road, Near Bus Stand"},
+    {"name": "Greenfield Community Blood Bank", "city": "Jalandhar", "street": "Nakodar Road, Bhargo Camp"},
+    {"name": "City Care Multi-Speciality Wing", "city": "Jalandhar", "street": "Kapoor Pind Road"}
+]
 
 
 def generate_seed_data(reset: bool = True):
@@ -74,7 +127,7 @@ def generate_seed_data(reset: bool = True):
         console.print("[bold red]🧹 Dropping existing collections (--reset active)...[/bold red]")
         for coll_name in ["users", "hospitals", "blood_inventory", "blood_requests",
                           "donations", "notifications", "audit_logs", "refresh_tokens",
-                          "ai_conversations", "ai_usage_logs", "analytics_daily"]:
+                          "ai_conversations", "ai_usage_logs", "analytics_daily", "eligibility_checks"]:
             db[coll_name].delete_many({})
         # Re-apply validators and indexes on clean slate
         init_database()
@@ -84,8 +137,8 @@ def generate_seed_data(reset: bool = True):
     hashed_donor_pwd = hash_password(PASSWORD_DONOR)
     hashed_requester_pwd = hash_password(PASSWORD_REQUESTER)
 
-    cities_list = list(INDIAN_CITIES.keys())
     now = datetime.datetime.now(datetime.timezone.utc)
+    cities_list = list(INDIAN_CITIES.keys())
 
     with Progress(
         SpinnerColumn(),
@@ -96,76 +149,56 @@ def generate_seed_data(reset: bool = True):
     ) as progress:
 
         # -------------------------------------------------------------
-        # 1. HOSPITALS (~40)
+        # 1. HOSPITALS (42 Unique Fictional Hospitals)
         # -------------------------------------------------------------
-        task_hospitals = progress.add_task("[cyan]Generating ~40 Hospitals...", total=42)
+        task_hospitals = progress.add_task("[cyan]Generating 42 Unique Hospitals...", total=len(FICTIONAL_HOSPITAL_CATALOG))
         hospitals = []
         hospital_ids = []
 
-        # Default flagship hospital: CMC Ludhiana
+        # Flagship hospital (Riverside General Hospital & Trauma Centre)
         cmc_lng, cmc_lat = 75.8615, 30.9085
         cmc_hospital_id = ObjectId()
-        cmc_hospital = {
-            "_id": cmc_hospital_id,
-            "name": "Christian Medical College & Hospital (CMC)",
-            "registration_no": "PB-MED-1953-CMC",
-            "address": {
-                "street": "Brown Road, Naulakha Garden Colony",
-                "city": "Ludhiana",
-                "state": "Punjab",
-                "pincode": "141008"
-            },
-            "location": make_geojson_point(cmc_lng, cmc_lat),
-            "contact": {
-                "phone": "+911612115000",
-                "email": "contact@cmcludhiana.in"
-            },
-            "facilities": ["24/7 Blood Bank", "Platelet Apheresis", "Trauma Care Level-1", "Component Separation"],
-            "rating": 4.8,
-            "verified": True,
-            "created_at": now - datetime.timedelta(days=730)
-        }
-        hospitals.append(cmc_hospital)
-        hospital_ids.append(cmc_hospital_id)
-        progress.advance(task_hospitals)
 
-        h_idx = 1
-        for city in cities_list:
-            city_count = 6 if city in ["Ludhiana", "Delhi", "Chandigarh"] else 5
-            for c_i in range(city_count):
-                prefix = random.choice(HOSPITAL_PREFIXES)
-                h_name = f"{prefix} Hospital ({city} Branch {c_i + 1})"
-                reg_no = f"REG-{city[:3].upper()}-{2000 + h_idx:04d}-{random.randint(100, 999)}"
-                lng, lat, c_name, st_name, pincode = random_city_coordinate(city, radius_km=14.0)
-
+        for idx, entry in enumerate(FICTIONAL_HOSPITAL_CATALOG):
+            h_city = entry["city"]
+            h_name = entry["name"]
+            
+            if idx == 0:
+                h_id = cmc_hospital_id
+                lng, lat = cmc_lng, cmc_lat
+                c_name, st_name, pincode = "Ludhiana", "Punjab", "141001"
+            else:
                 h_id = ObjectId()
-                h_doc = {
-                    "_id": h_id,
-                    "name": h_name,
-                    "registration_no": reg_no,
-                    "address": {
-                        "street": f"Sector {random.randint(1, 70)}, GT Road",
-                        "city": c_name,
-                        "state": st_name,
-                        "pincode": pincode
-                    },
-                    "location": make_geojson_point(lng, lat),
-                    "contact": {
-                        "phone": f"+91{random.randint(7000000000, 9999999999)}",
-                        "email": f"bloodbank.{city.lower()}{c_i+1}@hospitalnetwork.in"
-                    },
-                    "facilities": random.sample(
-                        ["24/7 Blood Bank", "Cryo Storage", "Apheresis Unit", "Emergency Care", "Component Separation", "Ambulance Network"],
-                        k=random.randint(3, 5)
-                    ),
-                    "rating": round(random.uniform(3.8, 4.9), 1),
-                    "verified": True,
-                    "created_at": now - datetime.timedelta(days=random.randint(180, 1000))
-                }
-                hospitals.append(h_doc)
-                hospital_ids.append(h_id)
-                h_idx += 1
-                progress.advance(task_hospitals)
+                lng, lat, c_name, st_name, pincode = random_city_coordinate(h_city, radius_km=14.0)
+
+            reg_no = f"REG-{h_city[:3].upper()}-{2024:04d}-{idx + 101}"
+
+            h_doc = {
+                "_id": h_id,
+                "name": h_name,
+                "registration_no": reg_no,
+                "address": {
+                    "street": entry["street"],
+                    "city": c_name,
+                    "state": st_name,
+                    "pincode": pincode
+                },
+                "location": make_geojson_point(lng, lat),
+                "contact": {
+                    "phone": f"+91{random.randint(7000000000, 9999999999)}",
+                    "email": f"bloodbank.{idx+1}@lifegrid-hospitals.in"
+                },
+                "facilities": random.sample(
+                    ["24/7 Blood Bank", "Cryo Storage", "Apheresis Unit", "Emergency Care", "Component Separation", "Ambulance Network"],
+                    k=random.randint(3, 5)
+                ),
+                "rating": round(random.uniform(4.0, 4.9), 1),
+                "verified": True,
+                "created_at": now - datetime.timedelta(days=random.randint(300, 1000))
+            }
+            hospitals.append(h_doc)
+            hospital_ids.append(h_id)
+            progress.advance(task_hospitals)
 
         db.hospitals.insert_many(hospitals)
 
@@ -200,11 +233,11 @@ def generate_seed_data(reset: bool = True):
         users.append(admin_doc)
         progress.advance(task_users)
 
-        # 2b. Hospital Staff account (CMC Ludhiana)
+        # 2b. Hospital Staff account (Riverside General Hospital)
         staff_doc = {
             "_id": ObjectId(),
-            "name": "Nurse Simran Kaur (CMC Staff)",
-            "email": "staff@cmcludhiana.in",
+            "name": "Nurse Simran Kaur (Hospital Staff)",
+            "email": "staff@riversidehospital.in",
             "password_hash": hashed_staff_pwd,
             "role": "HOSPITAL_STAFF",
             "phone": "+919814012345",
@@ -349,21 +382,42 @@ def generate_seed_data(reset: bool = True):
         task_inventory = progress.add_task("[magenta]Generating Blood Inventory & Batches...", total=len(hospital_ids))
         inventory_docs = []
 
-        for h_id in hospital_ids:
+        GROUP_SUPPLY_SPEC = {
+            "O+": {"batches": (3, 6), "unit_range": (4, 10)},
+            "B+": {"batches": (3, 5), "unit_range": (3, 9)},
+            "A+": {"batches": (2, 5), "unit_range": (3, 8)},
+            "AB+": {"batches": (2, 4), "unit_range": (2, 5)},
+            "O-": {"batches": (1, 3), "unit_range": (1, 3)},
+            "B-": {"batches": (1, 3), "unit_range": (1, 3)},
+            "A-": {"batches": (1, 2), "unit_range": (1, 2)},
+            "AB-": {"batches": (1, 2), "unit_range": (1, 2)},
+        }
+
+        for h_idx_seed, h_id in enumerate(hospital_ids):
+            is_hospital_stressed = (h_idx_seed % 5 == 0)
+
             for bg in BLOOD_GROUPS:
+                spec = GROUP_SUPPLY_SPEC[bg]
                 for comp in COMPONENTS:
-                    # Generate realistic shelf batches
-                    batch_count = random.randint(2, 5)
+                    # In stressed hospitals, negative groups and platelets have critical shortages (< 5 units)
+                    if is_hospital_stressed and (bg.endswith("-") or comp == "platelets"):
+                        batch_count = 1
+                        min_u, max_u = 1, 2
+                    else:
+                        batch_count = random.randint(spec["batches"][0], spec["batches"][1])
+                        min_u, max_u = spec["unit_range"]
+                        if comp == "platelets":
+                            min_u = max(1, min_u // 2)
+                            max_u = max(2, max_u // 2)
+
                     batches = []
                     total_units = 0
 
                     for b_i in range(batch_count):
-                        b_units = random.randint(2, 8)
+                        b_units = random.randint(min_u, max_u)
                         total_units += b_units
-                        # Blood shelf life: Whole/RBC = 35-42 days, Platelets = 5-7 days, Plasma = 1 year
                         shelf_days = 5 if comp == "platelets" else (365 if comp == "plasma" else 35)
                         collected_days_ago = random.randint(1, shelf_days - 1)
-                        # Some batches deliberately near expiry (1 to 6 days remaining) to test shortage pipeline #9
                         collected_on = now - datetime.timedelta(days=collected_days_ago)
                         expires_on = collected_on + datetime.timedelta(days=shelf_days)
 
@@ -374,8 +428,8 @@ def generate_seed_data(reset: bool = True):
                             "expires_on": expires_on
                         })
 
-                    reserved = random.randint(0, min(3, total_units))
-                    available = total_units - reserved
+                    reserved = random.randint(0, min(2, total_units // 2)) if total_units > 2 else 0
+                    available = max(1 if total_units > 0 else 0, total_units - reserved)
 
                     inventory_docs.append({
                         "_id": ObjectId(),
