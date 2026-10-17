@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import Link from "next/link";
-import { Navigation, RefreshCw, Building2, CheckCircle2, AlertTriangle, ShieldCheck } from "lucide-react";
+import { Navigation, RefreshCw, Building2, CheckCircle2, AlertTriangle, ShieldCheck, ArrowRight, MapPin } from "lucide-react";
 import { api } from "@/lib/api";
 
 interface Hospital {
@@ -37,6 +37,7 @@ interface ActiveHospitalCardData extends Hospital {
   stockLevel: "available" | "moderate" | "critical";
   colorBg: string;
   bloodGroups: string[];
+  distanceKm?: number;
 }
 
 const CITY_COORDS: Record<string, { center: [number, number]; zoom: number }> = {
@@ -62,7 +63,7 @@ function getHospitalAddress(h: Hospital): string {
     const parts = [h.address.street, h.address.city, h.address.state, h.address.pincode].filter(Boolean);
     return parts.join(", ");
   }
-  return "Main Medical Enclave, Trauma Center";
+  return "Main Medical Enclave, Trauma Wing";
 }
 
 function getHospitalId(h: Hospital): string {
@@ -83,6 +84,20 @@ function cityMatches(hCity: string, active: string): boolean {
   return c1.includes(c2) || c2.includes(c1);
 }
 
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371; // Earth radius in km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 export default function HospitalStockMap({
   selectedGroup = "ALL",
   onSelectGroup,
@@ -94,15 +109,17 @@ export default function HospitalStockMap({
   const mapInstanceRef = useRef<any>(null);
   const markersLayerRef = useRef<any>(null);
   const userCircleRef = useRef<any>(null);
+  const markerMapRef = useRef<Map<string, any>>(new Map());
 
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [shortages, setShortages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCity, setActiveCity] = useState("Delhi");
   const [locating, setLocating] = useState(false);
+  const [userCoords, setUserCoords] = useState<[number, number] | null>(null);
   const [activeHospital, setActiveHospital] = useState<ActiveHospitalCardData | null>(null);
 
-  // Load Hospitals & Shortages from Backend API
+  // Load Hospitals & Shortages
   useEffect(() => {
     async function loadData() {
       setLoading(true);
@@ -127,7 +144,7 @@ export default function HospitalStockMap({
     loadData();
   }, []);
 
-  // Initialize Leaflet Map
+  // Initialize Leaflet Map with CARTO Positron Tiles
   useEffect(() => {
     if (typeof window === "undefined" || !mapContainerRef.current) return;
 
@@ -137,18 +154,19 @@ export default function HospitalStockMap({
 
       if (!mapInstanceRef.current && mapContainerRef.current) {
         const map = L.map(mapContainerRef.current, {
-          center: [28.6139, 77.209], // Default Delhi
+          center: [28.6139, 77.209],
           zoom: 11,
           zoomControl: false,
         });
 
-        // Add Zoom Control at bottom right
         L.control.zoom({ position: "bottomright" }).addTo(map);
 
-        // OpenStreetMap Carto Tiles
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-          maxZoom: 18,
+        // CARTO Positron Ultra-clean Tiles
+        L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          subdomains: "abcd",
+          maxZoom: 19,
         }).addTo(map);
 
         markersLayerRef.current = L.layerGroup().addTo(map);
@@ -166,37 +184,80 @@ export default function HospitalStockMap({
     };
   }, [hospitals, shortages]);
 
-  // Update Markers when filter or city changes
+  // Update Markers on filter changes
   useEffect(() => {
     if (typeof window === "undefined" || !mapInstanceRef.current) return;
     import("leaflet").then((leafletModule) => {
       const L = leafletModule.default || leafletModule;
       renderMarkers(L);
     });
-  }, [selectedGroup, activeCity, hospitals, shortages]);
+  }, [selectedGroup, activeCity, hospitals, shortages, userCoords]);
+
+  // Process and sort hospitals for side panel
+  const processedHospitals: ActiveHospitalCardData[] = useMemo(() => {
+    const referenceCenter = userCoords || CITY_COORDS[activeCity]?.center || [28.6139, 77.209];
+
+    return hospitals
+      .filter((h) => {
+        if (!h || !h.location?.coordinates || h.location.coordinates.length < 2) return false;
+        return cityMatches(getHospitalCity(h), activeCity);
+      })
+      .map((h, idx) => {
+        const [lng, lat] = h.location.coordinates;
+        const hospId = getHospitalId(h);
+        const hospitalShortages = shortages.filter((s) => s.hospital_id === hospId);
+        const hasCritical = hospitalShortages.length > 0;
+
+        let stockLevel: "available" | "moderate" | "critical" = "available";
+        let unitsAvailable = 45 + ((idx * 7) % 35);
+        let colorBg = "#10B981"; // emerald
+
+        if (hasCritical) {
+          stockLevel = "critical";
+          unitsAvailable = Math.max(2, (hospitalShortages[0]?.units_available ?? 4) + (idx % 3));
+          colorBg = "#E23744"; // red
+        } else if (idx % 3 === 0) {
+          stockLevel = "moderate";
+          unitsAvailable = 14 + ((idx * 3) % 12);
+          colorBg = "#F59E0B"; // amber
+        }
+
+        const allGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+        const bloodGroups =
+          stockLevel === "critical"
+            ? ["O+", "B+"]
+            : stockLevel === "moderate"
+            ? ["O+", "A+", "B+", "AB+"]
+            : allGroups;
+
+        const distanceKm = calculateDistance(referenceCenter[0], referenceCenter[1], lat, lng);
+
+        return {
+          ...h,
+          computedCity: getHospitalCity(h),
+          computedAddress: getHospitalAddress(h),
+          unitsAvailable,
+          stockLevel,
+          colorBg,
+          bloodGroups,
+          distanceKm,
+        };
+      })
+      .sort((a, b) => (a.distanceKm ?? 999) - (b.distanceKm ?? 999));
+  }, [hospitals, shortages, activeCity, userCoords]);
 
   function renderMarkers(L: any) {
     if (!mapInstanceRef.current || !markersLayerRef.current) return;
     markersLayerRef.current.clearLayers();
+    markerMapRef.current.clear();
 
-    // Safe filtering by city
-    const filtered = hospitals.filter((h) => {
-      if (!h || !h.location?.coordinates || h.location.coordinates.length < 2) return false;
-      const hCity = getHospitalCity(h);
-      return cityMatches(hCity, activeCity);
-    });
-
-    // Collision avoidance tracking: detect overlapping coordinates and add micro-jitter
     const coordBuckets = new Map<string, number>();
 
-    filtered.forEach((h, idx) => {
+    processedHospitals.forEach((h, idx) => {
       const [origLng, origLat] = h.location.coordinates;
-      if (isNaN(origLat) || isNaN(origLng)) return;
-
       let lat = origLat;
       let lng = origLng;
 
-      // Micro-jitter to prevent overlapping dots in crowded metro centers
       const bucketKey = `${lat.toFixed(3)},${lng.toFixed(3)}`;
       const count = coordBuckets.get(bucketKey) || 0;
       coordBuckets.set(bucketKey, count + 1);
@@ -209,142 +270,94 @@ export default function HospitalStockMap({
       }
 
       const hospId = getHospitalId(h);
-      const hCity = getHospitalCity(h);
-      const fullAddress = getHospitalAddress(h);
 
-      // Check if this hospital has critical shortages in backend
-      const hospitalShortages = shortages.filter((s) => s.hospital_id === hospId);
-      const hasCriticalDeficit = hospitalShortages.length > 0;
-
-      // Determine stock status and realistic unit counts
-      let stockLevel: "available" | "moderate" | "critical";
-      let unitsAvailable: number;
-      let colorBg: string;
-      let textColor: string;
-      let stockLabel: string;
-
-      if (hasCriticalDeficit) {
-        stockLevel = "critical";
-        const minUnits = hospitalShortages[0]?.units_available ?? 4;
-        unitsAvailable = Math.max(2, minUnits + (idx % 4));
-        colorBg = "#FF4D4D";
-        textColor = "#FFFFFF";
-        stockLabel = "Critical Shortage";
-      } else if (idx % 2 === 0) {
-        stockLevel = "moderate";
-        unitsAvailable = 15 + ((idx * 3) % 15);
-        colorBg = "#FFE600";
-        textColor = "#000000";
-        stockLabel = "Moderate Stock";
-      } else {
-        stockLevel = "available";
-        unitsAvailable = 35 + ((idx * 7) % 45);
-        colorBg = "#2EE59D";
-        textColor = "#000000";
-        stockLabel = "Well Stocked";
-      }
-
-      // Determine available blood groups
-      const allGroups = ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"];
-      const availableGroups =
-        stockLevel === "critical"
-          ? ["O+", "B+"]
-          : stockLevel === "moderate"
-          ? ["O+", "A+", "B+", "AB+"]
-          : allGroups;
-
-      // Custom circular dot marker with neo-brutalist 2.5px ink border
-      const dotIcon = L.divIcon({
-        className: "lifegrid-dot-icon-container",
-        html: `
-          <div class="lifegrid-map-dot" style="
-            width: 16px;
-            height: 16px;
+      // Custom circular marker with count badge
+      const markerHtml = `
+        <div style="
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          cursor: pointer;
+        ">
+          <div style="
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            background-color: ${colorBg};
-            border: 2.5px solid #000000;
-            box-shadow: 2px 2px 0px #000000;
-            cursor: pointer;
-          "></div>
-        `,
-        iconSize: [16, 16],
-        iconAnchor: [8, 8],
-        tooltipAnchor: [0, -10],
+            background: #FFFFFF;
+            border: 2px solid ${h.colorBg};
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+            color: #0F172A;
+            transition: transform 0.2s;
+          ">
+            ${h.unitsAvailable}
+          </div>
+          <span style="
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: ${h.colorBg};
+            border: 1.5px solid #FFFFFF;
+          "></span>
+        </div>
+      `;
+
+      const dotIcon = L.divIcon({
+        className: "lifegrid-count-badge-marker",
+        html: markerHtml,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
       });
 
       const marker = L.marker([lat, lng], { icon: dotIcon });
 
-      // Rich Neo-Brutalist Hover Tooltip
       const tooltipContent = `
         <div style="
           background: #FFFFFF;
-          border: 3px solid #000000;
-          box-shadow: 4px 4px 0px #000000;
-          padding: 10px 14px;
-          font-family: monospace;
-          min-width: 210px;
-          max-width: 260px;
-          pointer-events: none;
+          border-radius: 12px;
+          border: 1px solid #E2E8F0;
+          box-shadow: 0 10px 24px rgba(0,0,0,0.1);
+          padding: 10px 12px;
+          font-family: inherit;
+          min-width: 200px;
         ">
-          <div style="font-weight: 900; font-size: 13px; color: #000000; line-height: 1.25; margin-bottom: 3px;">
-            ${h.name}
-          </div>
-          <div style="font-size: 10px; color: #555555; text-transform: uppercase; font-weight: 700; margin-bottom: 8px;">
-            📍 ${hCity} • ${h.verified ? "Verified 24/7" : "Hospital"}
-          </div>
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1.5px dashed #DDDDDD;">
-            <span style="font-size: 11px; font-weight: 800; color: #111111;">Availability:</span>
-            <span style="background: ${colorBg}; color: ${textColor}; padding: 2px 6px; font-size: 10px; font-weight: 900; border: 1.5px solid #000000; text-transform: uppercase;">
-              ${stockLabel}
-            </span>
-          </div>
-          <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: #222222; margin-bottom: 6px;">
-            <span>Stock Balance:</span>
-            <span style="font-weight: 900; font-size: 12px; color: #000000;">${unitsAvailable} units</span>
-          </div>
-          <div style="font-size: 10px; font-weight: 800; color: #666666; text-transform: uppercase; margin-bottom: 4px;">
-            In-Stock Groups:
-          </div>
-          <div style="display: flex; flex-wrap: wrap; gap: 3px;">
-            ${availableGroups
-              .map(
-                (bg) =>
-                  `<span style="background: #F4F1EA; border: 1px solid #000000; font-size: 9px; font-weight: 900; padding: 1px 5px; color: #000000;">${bg}</span>`
-              )
-              .join("")}
-          </div>
-          <div style="margin-top: 8px; font-size: 9px; color: #0066CC; font-weight: 800; text-align: center; border-top: 1px solid #000000; padding-top: 5px;">
-            👉 Click dot to inspect & request
-          </div>
+          <div style="font-weight: 800; font-size: 12px; color: #0F172A;">${h.name}</div>
+          <div style="font-size: 11px; color: #64748B; margin-top: 2px;">📍 ${h.computedCity} • ${h.unitsAvailable} units in stock</div>
         </div>
       `;
 
       marker.bindTooltip(tooltipContent, {
         direction: "top",
-        offset: [0, -10],
+        offset: [0, -12],
         opacity: 1,
-        className: "lifegrid-neo-tooltip",
       });
 
-      // Click to select & pan
       marker.on("click", () => {
-        setActiveHospital({
-          ...h,
-          computedCity: hCity,
-          computedAddress: fullAddress,
-          unitsAvailable,
-          stockLevel,
-          colorBg,
-          bloodGroups: availableGroups,
-        });
+        setActiveHospital(h);
         mapInstanceRef.current.panTo([lat, lng]);
       });
 
       markersLayerRef.current.addLayer(marker);
+      markerMapRef.current.set(hospId, marker);
     });
   }
 
-  // Handle "Use My Location"
+  function handleSelectHospitalFromList(h: ActiveHospitalCardData) {
+    setActiveHospital(h);
+    const [lng, lat] = h.location.coordinates;
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.flyTo([lat, lng], 13, { duration: 0.8 });
+    }
+  }
+
   function handleUseLocation() {
     if (!navigator.geolocation) {
       alert("Geolocation is not supported by your browser");
@@ -355,6 +368,7 @@ export default function HospitalStockMap({
       (pos) => {
         const { latitude, longitude } = pos.coords;
         setLocating(false);
+        setUserCoords([latitude, longitude]);
 
         if (mapInstanceRef.current) {
           import("leaflet").then((leafletModule) => {
@@ -365,32 +379,30 @@ export default function HospitalStockMap({
               userCircleRef.current.remove();
             }
 
-            // User location pin
             const userIcon = L.divIcon({
               className: "user-loc-pin",
               html: `
                 <div style="
-                  width: 20px;
-                  height: 20px;
-                  background-color: #0066CC;
+                  width: 18px;
+                  height: 18px;
+                  background-color: #E23744;
                   border: 3px solid #FFFFFF;
-                  box-shadow: 0 0 0 2px #000000;
+                  box-shadow: 0 0 0 2px #E23744;
                   border-radius: 50%;
                 "></div>
               `,
-              iconSize: [20, 20],
-              iconAnchor: [10, 10],
+              iconSize: [18, 18],
+              iconAnchor: [9, 9],
             });
 
             L.marker([latitude, longitude], { icon: userIcon }).addTo(mapInstanceRef.current);
 
-            // Radius circle (5 km)
             userCircleRef.current = L.circle([latitude, longitude], {
               radius: 5000,
-              color: "#0066CC",
-              fillColor: "#0066CC",
-              fillOpacity: 0.12,
-              weight: 2,
+              color: "#E23744",
+              fillColor: "#E23744",
+              fillOpacity: 0.1,
+              weight: 1.5,
             }).addTo(mapInstanceRef.current);
           });
         }
@@ -398,7 +410,6 @@ export default function HospitalStockMap({
       (err) => {
         setLocating(false);
         console.warn("Location error:", err);
-        alert("Unable to retrieve location. Defaulting to Delhi NCR.");
       }
     );
   }
@@ -407,32 +418,29 @@ export default function HospitalStockMap({
     setActiveCity(city);
     if (mapInstanceRef.current && CITY_COORDS[city]) {
       const target = CITY_COORDS[city];
-      mapInstanceRef.current.flyTo(target.center, target.zoom, {
-        duration: 1.0,
-      });
+      mapInstanceRef.current.flyTo(target.center, target.zoom, { duration: 1.0 });
     }
   }
 
   const citiesList = ["Delhi", "Mumbai", "Bengaluru", "Kolkata", "Chandigarh", "Ludhiana", "All"];
 
   return (
-    <div className="relative border-3 border-black bg-white shadow-[6px_6px_0px_0px_#000] overflow-hidden">
+    <div className="rounded-3xl overflow-hidden bg-white border border-slate-200/80 shadow-2xl">
       {/* Top Filter Bar */}
-      <div className="p-4 bg-[#F4F1EA] border-b-3 border-black flex flex-wrap items-center justify-between gap-3">
-        {/* City Filter Buttons */}
+      <div className="p-4 bg-slate-50/90 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-xs font-mono font-bold uppercase text-neutral-600 mr-1 flex items-center gap-1">
-            <Building2 className="w-3.5 h-3.5" /> Metro:
+          <span className="text-xs font-bold uppercase text-slate-500 mr-1 flex items-center gap-1">
+            <Building2 className="w-3.5 h-3.5 text-slate-400" /> Metro:
           </span>
           {citiesList.map((city) => (
             <button
               key={city}
               id={`map-city-filter-${city.toLowerCase()}`}
               onClick={() => handleCityChange(city)}
-              className={`px-2.5 py-1 text-xs font-bold font-mono border-2 border-black transition-all cursor-pointer ${
+              className={`px-3 py-1.5 text-xs font-bold rounded-full transition-all cursor-pointer ${
                 activeCity === city
-                  ? "bg-[#FFE600] shadow-[2px_2px_0px_#000]"
-                  : "bg-white hover:bg-neutral-100"
+                  ? "bg-slate-900 text-white shadow-sm font-extrabold"
+                  : "bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/80"
               }`}
             >
               {city}
@@ -440,19 +448,18 @@ export default function HospitalStockMap({
           ))}
         </div>
 
-        {/* Right Status Indicators & Location Trigger */}
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-3 text-[11px] font-mono font-bold">
+          <div className="hidden sm:flex items-center gap-3 text-xs font-semibold text-slate-600">
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full bg-[#2EE59D] border-2 border-black shadow-[1px_1px_0px_#000] inline-block" />
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />
               <span>Available (&gt;30)</span>
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full bg-[#FFE600] border-2 border-black shadow-[1px_1px_0px_#000] inline-block" />
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block" />
               <span>Moderate (10-30)</span>
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full bg-[#FF4D4D] border-2 border-black shadow-[1px_1px_0px_#000] inline-block" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#E23744] inline-block" />
               <span>Critical (&lt;10)</span>
             </span>
           </div>
@@ -461,102 +468,104 @@ export default function HospitalStockMap({
             id="map-use-location-btn"
             onClick={handleUseLocation}
             disabled={locating}
-            className="flex items-center gap-1 px-3 py-1.5 bg-white hover:bg-[#FFE600] border-2 border-black text-xs font-bold shadow-[2px_2px_0px_#000] cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 rounded-full shadow-sm cursor-pointer transition-all"
           >
-            <Navigation className={`w-3.5 h-3.5 ${locating ? "animate-spin text-blue-600" : "text-black"}`} />
+            <Navigation className={`w-3.5 h-3.5 ${locating ? "animate-spin text-[#E23744]" : "text-slate-500"}`} />
             <span>{locating ? "Locating..." : "Use My Location"}</span>
           </button>
         </div>
       </div>
 
-      {/* Map Container */}
-      <div className="relative h-[480px] w-full">
-        {loading && (
-          <div className="absolute inset-0 z-20 bg-neutral-100/80 flex flex-col items-center justify-center font-mono text-xs font-bold gap-2">
-            <RefreshCw className="w-6 h-6 animate-spin text-black" />
-            Loading Verified Hospital Network...
+      {/* 2-Column Desktop Grid / Mobile Stack with Synchronized Side Panel */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[500px]">
+        {/* Map View */}
+        <div className="lg:col-span-8 relative h-[380px] lg:h-[520px] w-full border-b lg:border-b-0 lg:border-r border-slate-200/80">
+          {loading && (
+            <div className="absolute inset-0 z-20 bg-slate-50/80 backdrop-blur-sm flex flex-col items-center justify-center text-xs font-semibold text-slate-600 gap-2">
+              <RefreshCw className="w-6 h-6 animate-spin text-[#E23744]" />
+              Loading Verified Hospital Network...
+            </div>
+          )}
+          <div ref={mapContainerRef} className="w-full h-full z-10" />
+        </div>
+
+        {/* Side Panel: Hospital List with Distance & Quick Request */}
+        <div className="lg:col-span-4 h-[320px] lg:h-[520px] overflow-y-auto bg-slate-50/50 p-4 space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-200/60">
+            <span className="text-xs font-extrabold uppercase tracking-wider text-slate-700">
+              Nearby Blood Banks ({processedHospitals.length})
+            </span>
+            <span className="text-[11px] font-semibold text-slate-400">
+              Syncing Live
+            </span>
           </div>
-        )}
 
-        <div ref={mapContainerRef} className="w-full h-full z-10" />
-
-        {/* Selected Hospital Slide-over Card */}
-        {activeHospital && (
-          <div
-            id="map-selected-hospital-card"
-            className="absolute bottom-4 left-4 right-4 sm:right-auto sm:w-96 z-30 bg-white border-3 border-black p-4 shadow-[5px_5px_0px_#000] space-y-3"
-          >
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <div className="flex items-center gap-1.5 mb-1">
-                  <span className="text-[10px] font-mono font-bold uppercase text-neutral-600 bg-neutral-100 border border-black px-1.5 py-0.5">
-                    {activeHospital.computedCity}
-                  </span>
-                  <span className="text-[10px] font-mono font-bold uppercase text-emerald-800 bg-emerald-100 border border-black px-1.5 py-0.5 flex items-center gap-0.5">
-                    <ShieldCheck className="w-3 h-3 text-emerald-700" /> 24/7 Blood Bank
-                  </span>
-                </div>
-                <h4 className="text-base font-black text-black leading-tight">
-                  {activeHospital.name}
-                </h4>
-              </div>
-              <button
-                id="map-close-card-btn"
-                onClick={() => setActiveHospital(null)}
-                className="text-neutral-600 hover:text-black font-mono font-bold text-sm px-2 py-0.5 border-2 border-black bg-neutral-100 shadow-[1px_1px_0px_#000] cursor-pointer"
+          {processedHospitals.map((h) => {
+            const isSelected = activeHospital && getHospitalId(activeHospital) === getHospitalId(h);
+            return (
+              <div
+                key={getHospitalId(h)}
+                onClick={() => handleSelectHospitalFromList(h)}
+                className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
+                  isSelected
+                    ? "bg-white border-[#E23744] shadow-md ring-2 ring-red-100"
+                    : "bg-white hover:bg-slate-50 border-slate-200/80"
+                }`}
               >
-                ✕
-              </button>
-            </div>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1">
+                    <h5 className="font-extrabold text-xs text-slate-900 leading-snug">
+                      {h.name}
+                    </h5>
+                    <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-1">
+                      <span className="flex items-center gap-0.5">
+                        <MapPin className="w-3 h-3 text-slate-400" />
+                        {h.distanceKm ? `${h.distanceKm.toFixed(1)} km` : h.computedCity}
+                      </span>
+                      <span>•</span>
+                      <span
+                        className="font-bold text-[10px] px-1.5 py-0.5 rounded-full"
+                        style={{
+                          backgroundColor: `${h.colorBg}15`,
+                          color: h.colorBg,
+                        }}
+                      >
+                        {h.unitsAvailable} units
+                      </span>
+                    </div>
+                  </div>
 
-            <div className="text-xs text-neutral-600 font-medium">
-              📍 {activeHospital.computedAddress}
-            </div>
-
-            {/* Live Stock Status Banner */}
-            <div className="flex items-center justify-between p-2 bg-[#F4F1EA] border-2 border-black">
-              <span className="text-xs font-mono font-bold text-neutral-700">Stock Availability:</span>
-              <span
-                className="px-2 py-0.5 text-xs font-mono font-black border border-black"
-                style={{ backgroundColor: activeHospital.colorBg }}
-              >
-                {activeHospital.unitsAvailable} Units Available
-              </span>
-            </div>
-
-            {/* Quick blood group badges */}
-            <div>
-              <span className="text-[10px] font-mono font-bold uppercase text-neutral-600 block mb-1">
-                Live In-Stock Groups:
-              </span>
-              <div className="flex flex-wrap gap-1 font-mono text-[11px] font-black">
-                {activeHospital.bloodGroups.map((grp) => (
-                  <span
-                    key={grp}
-                    className={`px-2 py-0.5 border border-black ${
-                      selectedGroup === grp
-                        ? "bg-[#FFE600] font-black shadow-[1px_1px_0px_#000]"
-                        : "bg-white text-black"
+                  <Link
+                    href={`/requests?hospital_id=${getHospitalId(h)}${
+                      selectedGroup && selectedGroup !== "ALL" ? `&blood_group=${encodeURIComponent(selectedGroup)}` : ""
                     }`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="px-2.5 py-1.5 bg-slate-100 hover:bg-[#E23744] hover:text-white text-slate-700 rounded-lg text-[10px] font-bold tracking-wide transition-colors shrink-0"
                   >
-                    {grp}
-                  </span>
-                ))}
-              </div>
-            </div>
+                    Request
+                  </Link>
+                </div>
 
-            {/* Action CTA */}
-            <Link
-              id="map-request-blood-cta"
-              href={`/requests?hospital_id=${getHospitalId(activeHospital)}${
-                selectedGroup && selectedGroup !== "ALL" ? `&blood_group=${encodeURIComponent(selectedGroup)}` : ""
-              }`}
-              className="block text-center w-full py-2.5 bg-[#FF4D4D] text-white hover:bg-red-600 border-2 border-black font-black uppercase text-xs shadow-[2px_2px_0px_#000]"
-            >
-              Request Blood From This Hospital →
-            </Link>
-          </div>
-        )}
+                {/* Stock Group Chips */}
+                <div className="flex flex-wrap gap-1 mt-2.5">
+                  {h.bloodGroups.slice(0, 5).map((grp) => (
+                    <span
+                      key={grp}
+                      className="px-1.5 py-0.5 bg-slate-100 rounded text-[9px] font-bold text-slate-600"
+                    >
+                      {grp}
+                    </span>
+                  ))}
+                  {h.bloodGroups.length > 5 && (
+                    <span className="px-1 py-0.5 text-[9px] font-semibold text-slate-400">
+                      +{h.bloodGroups.length - 5}
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
