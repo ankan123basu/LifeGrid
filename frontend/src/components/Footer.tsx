@@ -1,25 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { PhoneCall, Mail, ShieldCheck, Heart, MapPin } from "lucide-react";
+import { PhoneCall, Mail, ShieldCheck, Heart, MapPin, CheckCircle2, ArrowRight } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-white border-t-[3px] border-black mt-auto">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b-2 border-black">
+    <footer className="bg-slate-900 text-slate-300 border-t border-slate-800 mt-auto">
+      {/* Container with pb-28 to guarantee floating chat widget never covers any links */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-14 pb-28 sm:pb-24">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-slate-800">
           {/* Brand Info */}
-          <div className="md:col-span-1 space-y-3">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="w-8 h-8 bg-[#FF4D4D] border-2 border-black shadow-[2px_2px_0px_#000] flex items-center justify-center text-white font-black text-lg">
+          <div className="md:col-span-1 space-y-3.5">
+            <Link href="/" className="flex items-center gap-2.5">
+              <span className="w-9 h-9 rounded-xl bg-[#E23744] shadow-md shadow-red-500/25 flex items-center justify-center text-white font-extrabold text-lg">
                 ✚
               </span>
-              <span className="font-black text-xl tracking-tight text-black">LifeGrid</span>
+              <span className="font-extrabold text-xl tracking-tight text-white">LifeGrid</span>
             </Link>
-            <p className="text-xs text-neutral-600 font-medium leading-relaxed">
-              India&apos;s real-time emergency blood network connecting voluntary lifesavers, certified hospital blood banks, and critical patients in minutes.
+            <p className="text-xs text-slate-400 font-normal leading-relaxed">
+              India&apos;s real-time emergency blood network connecting voluntary lifesavers, certified hospital blood banks, and critical patients in real-time.
             </p>
-            <div className="flex items-center gap-2 text-xs font-mono font-bold text-emerald-700 bg-emerald-50 border border-emerald-400 p-2 w-fit">
+            <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-3 py-1.5 rounded-full w-fit">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               Verified 24/7 Emergency Dispatch
             </div>
@@ -27,27 +28,27 @@ export default function Footer() {
 
           {/* For Patients & Requesters */}
           <div>
-            <div className="font-black text-sm uppercase tracking-wide text-black mb-3">
+            <div className="font-bold text-xs uppercase tracking-wider text-white mb-4">
               Find Blood
             </div>
-            <ul className="text-xs font-bold space-y-2 text-neutral-700">
+            <ul className="text-xs space-y-2.5 text-slate-400">
               <li>
-                <Link href="/requests" className="hover:text-[#FF4D4D] transition-colors">
+                <Link href="/requests" className="hover:text-white transition-colors">
                   Emergency Blood Request
                 </Link>
               </li>
               <li>
-                <Link href="/inventory" className="hover:text-[#FF4D4D] transition-colors">
+                <Link href="/inventory" className="hover:text-white transition-colors">
                   Hospital Blood Stock
                 </Link>
               </li>
               <li>
-                <Link href="/#how-it-works" className="hover:text-[#FF4D4D] transition-colors">
+                <Link href="/#how-it-works" className="hover:text-white transition-colors">
                   How Matching Works
                 </Link>
               </li>
               <li>
-                <Link href="/#faq" className="hover:text-[#FF4D4D] transition-colors">
+                <Link href="/#faq" className="hover:text-white transition-colors">
                   Frequently Asked Questions
                 </Link>
               </li>
@@ -56,28 +57,29 @@ export default function Footer() {
 
           {/* For Donors & Hospitals */}
           <div>
-            <div className="font-black text-sm uppercase tracking-wide text-black mb-3">
+            <div className="font-bold text-xs uppercase tracking-wider text-white mb-4">
               Get Involved
             </div>
-            <ul className="text-xs font-bold space-y-2 text-neutral-700">
+            <ul className="text-xs space-y-2.5 text-slate-400">
               <li>
-                <Link href="/#donors" className="hover:text-[#FF4D4D] transition-colors">
+                <Link href="/donate/eligibility" className="text-rose-400 hover:text-rose-300 font-semibold flex items-center gap-1 transition-colors">
+                  <span>Check Donation Eligibility</span>
+                  <ArrowRight className="w-3 h-3" />
+                </Link>
+              </li>
+              <li>
+                <Link href="/#donors" className="hover:text-white transition-colors">
                   Become a Voluntary Donor
                 </Link>
               </li>
               <li>
-                <Link href="/#eligibility" className="hover:text-[#FF4D4D] transition-colors">
-                  Donor Eligibility Checker
-                </Link>
-              </li>
-              <li>
-                <Link href="/#hospitals" className="hover:text-[#FF4D4D] transition-colors">
+                <Link href="/#hospitals" className="hover:text-white transition-colors">
                   Register Your Blood Bank
                 </Link>
               </li>
               <li>
-                <Link href="/#impact" className="hover:text-[#FF4D4D] transition-colors">
-                  Network Lives Saved
+                <Link href="/requests" className="hover:text-white transition-colors">
+                  Live Dispatch Feed
                 </Link>
               </li>
             </ul>
@@ -85,32 +87,40 @@ export default function Footer() {
 
           {/* 24/7 Helpline & Contact */}
           <div>
-            <div className="font-black text-sm uppercase tracking-wide text-black mb-3">
-              24/7 Emergency Helpline
+            <div className="font-bold text-xs uppercase tracking-wider text-white mb-4">
+              Emergency Contact
             </div>
-            <div className="space-y-2 text-xs font-mono">
-              <div className="p-3 bg-[#FFE600] border-2 border-black shadow-[2px_2px_0px_#000] font-bold">
-                <div className="text-[10px] text-neutral-700 uppercase">Toll-Free Dispatch</div>
-                <div className="text-base font-black text-black">1800-LIFE-GRID</div>
-                <div className="text-[10px] text-neutral-600">(1800-543-3474)</div>
+            <div className="space-y-3 text-xs">
+              <div className="p-4 bg-rose-950/40 rounded-2xl border border-rose-800/60 space-y-1.5">
+                <div className="text-[10px] text-rose-300 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <PhoneCall className="w-3 h-3 text-rose-400" />
+                  National Emergency Service
+                </div>
+                <div className="text-base sm:text-lg font-black text-white tracking-wide">
+                  Emergency? Call 112
+                </div>
+                <div className="text-[11px] text-slate-400 leading-snug">
+                  Toll-free 24/7 national emergency response across India.
+                </div>
               </div>
-              <div className="flex items-center gap-1.5 text-neutral-600 font-sans font-medium pt-1">
-                <Mail className="w-3.5 h-3.5 text-neutral-800" />
+              <div className="flex items-center gap-2 text-slate-400 text-xs pt-1">
+                <Mail className="w-3.5 h-3.5 text-slate-400" />
                 <span>support@lifegrid.org</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom Bar & Disclaimer */}
-        <div className="pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-medium text-neutral-500">
+        {/* Bottom Bar & Non-Clipped Disclaimer */}
+        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-normal text-slate-500">
           <div>
             © 2026 LifeGrid Emergency Resource Network. All rights reserved.
           </div>
-          <div className="flex items-center gap-6 font-bold text-neutral-700">
-            <a href="#privacy" className="hover:underline">Privacy Policy</a>
-            <a href="#terms" className="hover:underline">Terms of Service</a>
-            <a href="#medical-disclaimer" className="hover:underline">Medical Disclaimer</a>
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-slate-400 text-xs">
+            <Link href="/donate/eligibility" className="hover:text-white transition-colors">Eligibility Guidelines</Link>
+            <a href="#privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+            <a href="#terms" className="hover:text-white transition-colors">Terms of Service</a>
+            <a href="#medical-disclaimer" className="hover:text-white transition-colors">Medical Disclaimer</a>
           </div>
         </div>
       </div>

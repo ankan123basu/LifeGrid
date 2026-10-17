@@ -7,6 +7,7 @@ import { useAuthStore, useLiveStore } from "@/lib/store";
 import { socketClient } from "@/lib/socket";
 import {
   Search,
+  Heart,
   HeartHandshake,
   Building2,
   HelpCircle,
@@ -57,7 +58,8 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
   // Public Consumer Navigation Links
   const publicLinks = [
     { href: "/requests", label: "Find Blood", icon: Search },
-    { href: "/#donors", label: "Donate", icon: HeartHandshake },
+    { href: "/donate/eligibility", label: "Check Eligibility", icon: HeartHandshake },
+    { href: "/#donors", label: "Donate", icon: Heart },
     { href: "/inventory", label: "Hospitals", icon: Building2 },
     { href: "/#how-it-works", label: "How It Works", icon: HelpCircle },
   ];
@@ -74,25 +76,28 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-[#F4F1EA] border-b-[3px] border-black">
+      <header className="sticky top-0 z-50 bg-white/85 backdrop-blur-xl border-b border-slate-200/80 transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between">
           {/* Consumer Brand Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 bg-[#FF4D4D] border-[3px] border-black shadow-[3px_3px_0px_#000] flex items-center justify-center font-black text-white text-2xl group-hover:-translate-y-0.5 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-600 to-red-500 shadow-md shadow-red-500/25 flex items-center justify-center font-bold text-white text-xl group-hover:scale-105 transition-all">
               ✚
             </div>
             <div className="flex flex-col">
-              <span className="font-black text-2xl tracking-tight leading-none text-black">
-                LifeGrid
-              </span>
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-600">
-                Blood &amp; Emergency Network
+              <div className="flex items-center gap-1.5">
+                <span className="font-extrabold text-xl tracking-tight leading-none text-slate-900">
+                  LifeGrid
+                </span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              </div>
+              <span className="text-[11px] font-semibold text-slate-500 tracking-tight">
+                Emergency Blood Network
               </span>
             </div>
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1 lg:gap-2">
+          <nav className="hidden md:flex items-center gap-1 bg-slate-100/70 p-1.5 rounded-full border border-slate-200/60">
             {currentLinks.map((link) => {
               const Icon = link.icon;
               const isActive = pathname === link.href;
@@ -100,13 +105,13 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
                 <Link
                   key={link.label}
                   href={link.href}
-                  className={`flex items-center gap-1.5 px-3.5 py-2 font-bold text-sm border-2 transition-all ${
+                  className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
                     isActive
-                      ? "bg-[#FFE600] border-black shadow-[3px_3px_0px_#000] -translate-y-0.5"
-                      : "border-transparent hover:border-black hover:bg-white"
+                      ? "bg-white text-slate-900 shadow-sm font-extrabold"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
                   }`}
                 >
-                  <Icon className="w-4 h-4 text-black" />
+                  <Icon className={`w-3.5 h-3.5 ${isActive ? "text-rose-600" : "text-slate-400"}`} />
                   <span>{link.label}</span>
                 </Link>
               );
@@ -121,12 +126,12 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
                 {/* Notification Bell */}
                 <Link
                   href="/requests"
-                  className="relative p-2.5 bg-white border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#FFE600] transition-colors cursor-pointer"
+                  className="relative p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-full transition-colors cursor-pointer text-slate-600 hover:text-slate-900"
                   title="Notifications"
                 >
-                  <Bell className="w-4 h-4 text-black" />
+                  <Bell className="w-4 h-4" />
                   {unreadNotifications > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#FF4D4D] border-2 border-black rounded-full text-white font-mono text-[10px] font-black flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-600 rounded-full text-white font-mono text-[9px] font-bold flex items-center justify-center animate-pulse">
                       {unreadNotifications}
                     </span>
                   )}
@@ -136,38 +141,38 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
                 <div className="relative">
                   <button
                     onClick={() => setAvatarMenuOpen(!avatarMenuOpen)}
-                    className="flex items-center gap-2 bg-white px-3 py-1.5 border-2 border-black shadow-[3px_3px_0px_#000] hover:bg-neutral-50 cursor-pointer"
+                    className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 border border-slate-200 rounded-full transition-colors cursor-pointer"
                   >
-                    <div className="w-7 h-7 rounded-full bg-[#7CD4FF] border border-black flex items-center justify-center font-black text-xs">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
                       {user.name.charAt(0).toUpperCase()}
                     </div>
-                    <div className="text-left text-xs font-bold leading-tight">
-                      <div className="truncate max-w-[100px]">{user.name}</div>
-                      <div className="text-[10px] text-neutral-500 font-mono capitalize">
+                    <div className="text-left text-xs font-semibold leading-tight">
+                      <div className="truncate max-w-[100px] text-slate-900">{user.name}</div>
+                      <div className="text-[10px] text-slate-500 capitalize">
                         {user.role.toLowerCase()}
                       </div>
                     </div>
-                    <ChevronDown className="w-3.5 h-3.5 text-neutral-600" />
+                    <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                   </button>
 
-                  {/* Dropdown Drawer */}
+                  {/* Dropdown Menu */}
                   {avatarMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white border-3 border-black shadow-[4px_4px_0px_#000] py-1 z-50">
-                      <div className="px-4 py-2 border-b-2 border-black bg-[#F4F1EA]">
-                        <p className="text-xs font-black truncate">{user.name}</p>
-                        <p className="text-[10px] font-mono text-neutral-600 truncate">{user.email}</p>
+                    <div className="absolute right-0 mt-2 w-52 bg-white border border-slate-200 rounded-2xl shadow-xl py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
+                      <div className="px-4 py-2.5 border-b border-slate-100 bg-slate-50/70 rounded-t-2xl">
+                        <p className="text-xs font-bold text-slate-900 truncate">{user.name}</p>
+                        <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
                       </div>
                       <Link
                         href="/requests"
                         onClick={() => setAvatarMenuOpen(false)}
-                        className="block px-4 py-2 text-xs font-bold hover:bg-[#FFE600] transition-colors"
+                        className="block px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
                       >
                         My Requests
                       </Link>
                       <Link
                         href="/inventory"
                         onClick={() => setAvatarMenuOpen(false)}
-                        className="block px-4 py-2 text-xs font-bold hover:bg-[#FFE600] transition-colors"
+                        className="block px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
                       >
                         Inventory &amp; Donors
                       </Link>
@@ -176,7 +181,7 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
                           setAvatarMenuOpen(false);
                           logout();
                         }}
-                        className="w-full text-left px-4 py-2 text-xs font-black text-[#FF4D4D] hover:bg-[#FF4D4D] hover:text-white transition-colors border-t border-neutral-200 flex items-center gap-2"
+                        className="w-full text-left px-4 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors border-t border-slate-100 flex items-center gap-2"
                       >
                         <LogOut className="w-3.5 h-3.5" /> Log Out
                       </button>
@@ -187,23 +192,23 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
                 {/* Primary CTA */}
                 <Link
                   href="/requests"
-                  className="px-5 py-2.5 bg-[#FF4D4D] text-white hover:bg-red-600 border-[3px] border-black font-black text-sm uppercase tracking-wide shadow-[3px_3px_0px_#000] hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+                  className="px-5 py-2.5 bg-[#E23744] hover:bg-red-700 text-white rounded-full font-bold text-xs uppercase tracking-wider shadow-md shadow-red-500/20 transition-all transform hover:-translate-y-0.5"
                 >
                   Request Blood
                 </Link>
               </div>
             ) : (
               /* Logged Out State */
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={onOpenAuth}
-                  className="px-4 py-2 bg-white hover:bg-[#FFE600] border-2 border-black font-bold text-sm shadow-[2px_2px_0px_#000] cursor-pointer transition-all"
+                  className="px-4 py-2 text-slate-700 hover:text-slate-900 font-bold text-xs rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
                 >
-                  Log In
+                  Sign In
                 </button>
                 <Link
                   href="/requests"
-                  className="px-5 py-2.5 bg-[#FF4D4D] text-white hover:bg-red-600 border-[3px] border-black font-black text-sm uppercase tracking-wide shadow-[3px_3px_0px_#000] hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+                  className="px-5 py-2.5 bg-[#E23744] hover:bg-red-700 text-white rounded-full font-bold text-xs uppercase tracking-wider shadow-md shadow-red-500/20 transition-all transform hover:-translate-y-0.5"
                 >
                   Request Blood
                 </Link>
@@ -215,98 +220,72 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
           <div className="flex md:hidden items-center gap-2">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 bg-white border-2 border-black shadow-[2px_2px_0px_#000] cursor-pointer"
+              className="p-2 text-slate-700 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-colors"
               aria-label="Toggle Navigation"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6 text-slate-900" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Drawer Menu */}
+        {/* Mobile Slide-down Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t-2 border-black bg-[#F4F1EA] p-4 space-y-3">
-            <nav className="flex flex-col gap-2">
+          <div className="md:hidden border-t border-slate-200/80 bg-white px-4 py-4 space-y-3 shadow-lg">
+            <nav className="flex flex-col gap-1">
               {currentLinks.map((link) => {
                 const Icon = link.icon;
+                const isActive = pathname === link.href;
                 return (
                   <Link
                     key={link.label}
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 p-3 bg-white border-2 border-black font-bold text-sm shadow-[2px_2px_0px_#000]"
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-sm ${
+                      isActive ? "bg-slate-100 text-rose-600" : "text-slate-700 hover:bg-slate-50"
+                    }`}
                   >
-                    <Icon className="w-4 h-4 text-black" />
+                    <Icon className="w-4 h-4 text-slate-500" />
                     <span>{link.label}</span>
                   </Link>
                 );
               })}
             </nav>
 
-            <div className="pt-2 border-t-2 border-black space-y-2">
-              {user ? (
-                <>
-                  <div className="p-3 bg-white border-2 border-black flex items-center justify-between">
-                    <div>
-                      <div className="font-black text-sm">{user.name}</div>
-                      <div className="text-[10px] font-mono text-neutral-500 capitalize">{user.role.toLowerCase()}</div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        logout();
-                        setMobileMenuOpen(false);
-                      }}
-                      className="px-3 py-1 bg-[#FF4D4D] text-white text-xs font-bold border border-black"
-                    >
-                      Log Out
-                    </button>
-                  </div>
-                  <Link
-                    href="/requests"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block text-center w-full py-3 bg-[#FF4D4D] text-white border-3 border-black font-black uppercase text-sm shadow-[3px_3px_0px_#000]"
-                  >
-                    Request Blood Now
-                  </Link>
-                </>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  <button
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      onOpenAuth?.();
-                    }}
-                    className="w-full py-2.5 bg-white border-2 border-black font-bold text-sm shadow-[2px_2px_0px_#000]"
-                  >
-                    Log In
-                  </button>
-                  <Link
-                    href="/requests"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block text-center w-full py-3 bg-[#FF4D4D] text-white border-3 border-black font-black uppercase text-sm shadow-[3px_3px_0px_#000]"
-                  >
-                    Request Blood Now
-                  </Link>
-                </div>
+            <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
+              {!user && (
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenAuth?.();
+                  }}
+                  className="w-full py-2.5 rounded-xl text-slate-800 bg-slate-100 font-bold text-sm"
+                >
+                  Sign In
+                </button>
               )}
+              <Link
+                href="/requests"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full py-3 text-center bg-rose-600 text-white rounded-xl font-bold text-sm shadow-md"
+              >
+                Request Blood Now
+              </Link>
             </div>
           </div>
         )}
       </header>
 
-      {/* Mobile Sticky Bottom Emergency Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 p-3 bg-white border-t-[3px] border-black shadow-[0_-4px_0px_0px_rgba(0,0,0,0.1)] flex items-center justify-between gap-3">
-        <div className="flex flex-col">
-          <span className="text-[10px] font-mono font-bold uppercase text-red-600 flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-red-600 animate-ping inline-block" /> Need Blood Urgently?
-          </span>
-          <span className="text-xs font-black text-black">Average match: 4 mins</span>
+      {/* Sticky Bottom Emergency Bar for Mobile */}
+      <div className="sm:hidden fixed bottom-3 left-3 right-3 z-40 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-xl p-2.5 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 pl-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
+          <span className="text-xs font-bold text-slate-800">24/7 Dispatch</span>
         </div>
         <Link
           href="/requests"
-          className="px-5 py-2 bg-[#FF4D4D] text-white border-2 border-black font-black text-xs uppercase shadow-[2px_2px_0px_#000]"
+          className="px-4 py-2 bg-rose-600 text-white font-bold text-xs rounded-xl shadow-md"
         >
-          Request Now
+          Request Blood →
         </Link>
       </div>
     </>

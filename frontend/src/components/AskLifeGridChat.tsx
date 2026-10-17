@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { MessageSquare, X, Send, Sparkles, RefreshCw, Bot, User, ShieldCheck } from "lucide-react";
+import { MessageSquare, X, Send, Sparkles, RefreshCw, Bot, User, ShieldCheck, PhoneCall } from "lucide-react";
 import { api } from "@/lib/api";
 
 export default function AskLifeGridChat() {
@@ -55,7 +55,7 @@ export default function AskLifeGridChat() {
         {
           id: (Date.now() + 1).toString(),
           role: "assistant",
-          content: "Sorry, I had trouble connecting. For immediate critical blood emergencies, please call our 24/7 helpline at 1800-LIFE-GRID.",
+          content: "Sorry, I had trouble connecting. For immediate life-threatening blood emergencies, please dial 112 immediately.",
         },
       ]);
     } finally {
@@ -64,57 +64,72 @@ export default function AskLifeGridChat() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
-      {/* Floating Toggle Button */}
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
+      {/* Floating White Pill with Red Icon & Green Online Dot */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="flex items-center gap-2.5 px-4 py-3 bg-[#FFE600] hover:bg-yellow-400 border-[3px] border-black font-black uppercase text-xs tracking-wider shadow-[4px_4px_0px_#000] cursor-pointer hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+          className="flex items-center gap-2.5 px-4 sm:px-5 py-3 bg-white hover:bg-slate-50 text-slate-900 font-bold text-xs uppercase tracking-wider rounded-full shadow-xl shadow-slate-900/10 border border-slate-200/90 cursor-pointer hover:scale-105 active:scale-95 transition-all"
         >
-          <span className="w-2.5 h-2.5 rounded-full bg-[#FF4D4D] animate-ping" />
-          <MessageSquare className="w-4 h-4 text-black" />
-          <span>Ask LifeGrid</span>
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+          </span>
+          <div className="w-5 h-5 rounded-full bg-red-50 flex items-center justify-center">
+            <MessageSquare className="w-3.5 h-3.5 text-[#E23744]" />
+          </div>
+          <span className="font-extrabold tracking-normal text-slate-800">Ask LifeGrid</span>
         </button>
       )}
 
-      {/* Expanded Chat Drawer */}
+      {/* Expanded Modern Chat Drawer */}
       {isOpen && (
-        <div className="w-[360px] sm:w-[420px] h-[540px] bg-white border-[3px] border-black shadow-[8px_8px_0px_#000] flex flex-col overflow-hidden">
+        <div className="w-[calc(100vw-32px)] sm:w-[400px] h-[500px] max-h-[85vh] bg-white rounded-3xl border border-slate-200/90 shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           {/* Header */}
-          <div className="p-3.5 bg-[#FF4D4D] text-white border-b-[3px] border-black flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 bg-white text-black border-2 border-black flex items-center justify-center font-black text-sm">
+          <div className="p-4 bg-gradient-to-r from-[#E23744] via-rose-600 to-[#E23744] text-white flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center font-bold text-sm">
                 ✚
               </div>
               <div>
-                <div className="font-black text-sm uppercase leading-tight tracking-wide">
-                  Ask LifeGrid
+                <div className="font-extrabold text-sm leading-tight flex items-center gap-1.5">
+                  <span>LifeGrid Assistant</span>
+                  <span className="w-2 h-2 rounded-full bg-emerald-300" />
                 </div>
-                <div className="text-[10px] font-mono text-white/90">
-                  Instant Emergency Assistant
+                <div className="text-[11px] text-white/90 font-medium">
+                  24/7 Support • Emergency? Call 112
                 </div>
               </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-1 bg-white text-black hover:bg-neutral-200 border-2 border-black font-bold text-xs cursor-pointer"
+              className="p-1.5 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              aria-label="Close chat"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
+          {/* Emergency Alert Banner */}
+          <div className="px-3.5 py-1.5 bg-rose-50 border-b border-rose-100 flex items-center justify-between text-[11px] text-rose-800 font-semibold">
+            <span className="flex items-center gap-1">
+              <PhoneCall className="w-3 h-3 text-rose-600" /> Critical emergency?
+            </span>
+            <a href="tel:112" className="text-[#E23744] font-black underline">Dial 112</a>
+          </div>
+
           {/* Messages Body */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-[#F4F1EA]">
+          <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50/70">
             {messages.map((m) => (
               <div
                 key={m.id}
                 className={`flex flex-col ${m.role === "user" ? "items-end" : "items-start"}`}
               >
                 <div
-                  className={`max-w-[85%] p-3 text-xs font-medium border-2 border-black ${
+                  className={`max-w-[85%] p-3 text-xs rounded-2xl ${
                     m.role === "user"
-                      ? "bg-[#FFE600] text-black shadow-[2px_2px_0px_#000]"
-                      : "bg-white text-neutral-800 shadow-[2px_2px_0px_#000]"
+                      ? "bg-[#E23744] text-white font-semibold rounded-br-sm shadow-sm"
+                      : "bg-white text-slate-800 font-medium rounded-bl-sm border border-slate-200/80 shadow-sm"
                   }`}
                 >
                   <p className="whitespace-pre-wrap leading-relaxed">{m.content}</p>
@@ -122,25 +137,25 @@ export default function AskLifeGridChat() {
               </div>
             ))}
             {loading && (
-              <div className="flex items-center gap-2 p-2.5 bg-white border-2 border-black w-fit font-mono text-xs font-bold animate-pulse">
-                <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Checking hospital network...
+              <div className="flex items-center gap-2 p-2.5 bg-white rounded-2xl border border-slate-200 text-xs font-semibold text-slate-600 w-fit animate-pulse">
+                <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#E23744]" /> Consulting medical database...
               </div>
             )}
             <div ref={chatEndRef} />
           </div>
 
           {/* Quick Prompts Chips */}
-          <div className="p-2 bg-white border-t-2 border-black flex items-center gap-1.5 overflow-x-auto">
+          <div className="p-2.5 bg-white border-t border-slate-100 flex items-center gap-1.5 overflow-x-auto">
             {[
-              "Where is O- blood available in Delhi?",
-              "Can A+ donate to AB+?",
-              "How to donate?",
+              "Where is O- blood available?",
+              "Am I eligible to donate?",
+              "How fast is dispatch?",
             ].map((prompt, idx) => (
               <button
                 key={idx}
                 onClick={() => handleSend(prompt)}
                 disabled={loading}
-                className="whitespace-nowrap px-2.5 py-1 bg-[#F4F1EA] hover:bg-[#FFE600] border border-black font-mono text-[10px] font-bold cursor-pointer"
+                className="whitespace-nowrap px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full text-[11px] font-semibold cursor-pointer transition-colors"
               >
                 {prompt}
               </button>
@@ -148,19 +163,20 @@ export default function AskLifeGridChat() {
           </div>
 
           {/* Input Box */}
-          <div className="p-3 bg-white border-t-2 border-black flex gap-2">
+          <div className="p-3 bg-white border-t border-slate-100 flex gap-2 items-center">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
               placeholder="Ask a question..."
-              className="flex-1 px-3 py-2 border-2 border-black font-mono text-xs focus:outline-none focus:bg-[#FFE600]/10"
+              className="flex-1 px-4 py-2 bg-slate-100/80 border border-slate-200 rounded-full text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-rose-500/20 focus:border-[#E23744] transition-all"
             />
             <button
               onClick={() => handleSend()}
               disabled={loading || !input.trim()}
-              className="px-3.5 py-2 bg-[#FF4D4D] hover:bg-red-600 text-white border-2 border-black font-bold text-xs shadow-[2px_2px_0px_#000] cursor-pointer disabled:opacity-50"
+              className="p-2.5 bg-[#E23744] hover:bg-rose-700 text-white rounded-full shadow-md shadow-rose-500/25 cursor-pointer disabled:opacity-40 transition-all"
+              aria-label="Send message"
             >
               <Send className="w-3.5 h-3.5" />
             </button>
