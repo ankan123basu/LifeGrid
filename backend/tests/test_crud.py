@@ -46,7 +46,7 @@ def test_hospitals_crud_and_text_search(admin_token):
     # 1. Create hospital as admin
     reg_no = f"REG-TEST-{int(time.time())}"
     hosp_payload = {
-        "name": "Apollo Super Speciality Ludhiana North",
+        "name": "Northwind Super Speciality Trauma Centre",
         "registration_no": reg_no,
         "address": {
             "street": "NH-1 Bypass Road",
@@ -55,7 +55,7 @@ def test_hospitals_crud_and_text_search(admin_token):
             "pincode": "141005"
         },
         "location": {"type": "Point", "coordinates": [75.8600, 30.9100]},
-        "contact": {"phone": "+911612223344", "email": "info@apolloludhiana.in"},
+        "contact": {"phone": "+911612223344", "email": "info@northwindtrauma.in"},
         "facilities": ["24/7 Blood Bank", "Platelet Apheresis"],
         "rating": 4.9,
         "verified": True
@@ -65,7 +65,7 @@ def test_hospitals_crud_and_text_search(admin_token):
     hosp_id = create_res.json()["data"]["id"]
 
     # 2. Text search matching name
-    search_res = client.get("/api/hospitals?search=Apollo%20North")
+    search_res = client.get("/api/hospitals?search=Northwind%20Trauma")
     assert search_res.status_code == 200
     assert any(h["id"] == hosp_id for h in search_res.json()["data"])
 
@@ -73,6 +73,11 @@ def test_hospitals_crud_and_text_search(admin_token):
     near_res = client.get("/api/hospitals/nearby?lng=75.8573&lat=30.9010&radius_km=10")
     assert near_res.status_code == 200
     assert len(near_res.json()["data"]) > 0
+
+    # Cleanup created test hospital so test database stays pristine
+    db = get_db()
+    from bson import ObjectId
+    db.hospitals.delete_one({"_id": ObjectId(hosp_id)})
 
 
 def test_inventory_atomic_reservation(donor_token):

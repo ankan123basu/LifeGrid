@@ -49,7 +49,7 @@ def run_realtime_demo():
     with TestClient(app) as client:
         # 1. Login to obtain access token for Staff
         login_res = client.post("/api/auth/login", json={
-            "email": "staff@cmcludhiana.in",
+            "email": "staff@riversidehospital.in",
             "password": "StaffPassword@123"
         })
         token = login_res.json()["data"]["access_token"]

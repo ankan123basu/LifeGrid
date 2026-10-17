@@ -712,9 +712,9 @@ def generate_seed_data(reset: bool = True):
     console.print("\n[bold green]✅ Seed data generation completed successfully![/bold green]")
     console.print("[bold yellow]Default Test Accounts:[/bold yellow]")
     console.print("  • [cyan]ADMIN[/cyan]:          admin@lifegrid.in     | Password: AdminPassword@123")
-    console.print("  • [cyan]HOSPITAL_STAFF[/cyan]: staff@cmcludhiana.in  | Password: StaffPassword@123")
-    console.print("  • [cyan]DONOR[/cyan]:           donor@lifegrid.in     | Password: DonorPassword@123")
-    console.print("  • [cyan]REQUESTER[/cyan]:       requester@lifegrid.in | Password: RequesterPassword@123")
+    console.print("  • [cyan]HOSPITAL_STAFF[/cyan]: staff@riversidehospital.in | Password: StaffPassword@123")
+    console.print("  • [cyan]DONOR[/cyan]:           donor@lifegrid.in           | Password: DonorPassword@123")
+    console.print("  • [cyan]REQUESTER[/cyan]:       requester@lifegrid.in       | Password: RequesterPassword@123")
 
 
 if __name__ == "__main__":
