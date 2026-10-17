@@ -3,59 +3,143 @@
 
 @layer base {
   :root {
-    --neo-cream: #F4F1EA;
-    --neo-yellow: #FFE600;
-    --neo-pink: #FF90C8;
-    --neo-cyan: #7CD4FF;
-    --neo-green: #2EE59D;
-    --neo-red: #FF4D4D;
-    --neo-black: #0A0A0A;
-    --neo-white: #FFFFFF;
+    --brand-red: #E23744;
+    --brand-red-hover: #D32735;
+    --brand-dark: #0F172A;
+    --brand-slate: #1E293B;
+    --brand-emerald: #10B981;
+    --brand-amber: #F59E0B;
+    --canvas-bg: #F8FAFC;
   }
 
   body {
-    background-color: var(--neo-cream);
-    color: var(--neo-black);
-    font-family: var(--font-space-grotesk), system-ui, -apple-system, sans-serif;
+    background-color: var(--canvas-bg);
+    color: var(--brand-dark);
+    font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+    letter-spacing: 0;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2 {
+    letter-spacing: -0.02em;
+  }
+
+  nav, p, button, input {
+    letter-spacing: 0;
   }
 
   code, pre, .font-mono {
-    font-family: var(--font-jetbrains-mono), monospace;
+    font-family: var(--font-mono), monospace;
   }
 }
 
-/* Neo-Brutalist Component Tokens */
+/* Consumer UI Elevation & Card Standards (Uber/Zomato/Apple style) */
+.consumer-card {
+  background-color: #FFFFFF;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.consumer-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px -6px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+  border-color: rgba(203, 213, 225, 0.95);
+}
+
+.consumer-card-elevated {
+  background-color: #FFFFFF;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(241, 245, 249, 1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.09), 0 8px 16px -4px rgba(0, 0, 0, 0.04);
+}
+
+.consumer-glass {
+  background-color: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.06);
+}
+
+/* Modern Pill Buttons */
+.uber-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #E23744;
+  color: #FFFFFF;
+  font-weight: 700;
+  border-radius: 9999px;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 4px 14px 0 rgba(226, 55, 68, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.uber-btn-primary:hover {
+  background-color: #D32735;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px 0 rgba(226, 55, 68, 0.45);
+}
+
+.uber-btn-primary:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 8px 0 rgba(226, 55, 68, 0.3);
+}
+
+.uber-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #FFFFFF;
+  color: #0F172A;
+  border: 1px solid #E2E8F0;
+  font-weight: 700;
+  border-radius: 9999px;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.uber-btn-secondary:hover {
+  background-color: #F8FAFC;
+  border-color: #CBD5E1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* Backwards compatibility tokens (elevated with rounded edges and soft depth) */
 .neo-border {
-  border: 3px solid #000000;
+  border: 1px solid #E2E8F0;
+  border-radius: 1rem;
 }
 
 .neo-border-sm {
-  border: 2px solid #000000;
+  border: 1px solid #E2E8F0;
+  border-radius: 0.75rem;
 }
 
-.neo-shadow {
-  box-shadow: 6px 6px 0px #000000;
-}
-
-.neo-shadow-sm {
-  box-shadow: 4px 4px 0px #000000;
-}
-
-.neo-shadow-lg {
-  box-shadow: 8px 8px 0px #000000;
+.neo-shadow, .neo-shadow-sm, .neo-shadow-lg {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
 }
 
 .neo-card {
   background-color: #FFFFFF;
-  border: 3px solid #000000;
-  box-shadow: 6px 6px 0px #000000;
-  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 1.25rem;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
 }
 
 .neo-card:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 8px 8px 0px #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
 }
 
 .neo-btn {
@@ -63,108 +147,53 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border: 3px solid #000000;
-  box-shadow: 4px 4px 0px #000000;
+  border-radius: 0.85rem;
   font-weight: 700;
   cursor: pointer;
   padding: 0.65rem 1.25rem;
-  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
 }
 
 .neo-btn:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px #000000;
-}
-
-.neo-btn:active {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0px #000000;
+  transform: translateY(-1px);
 }
 
 .neo-btn-primary {
-  background-color: #FFE600;
-  color: #000000;
-}
-
-.neo-btn-danger {
-  background-color: #FF4D4D;
+  background-color: #E23744;
   color: #FFFFFF;
-}
-
-.neo-btn-accent {
-  background-color: #FF90C8;
-  color: #000000;
-}
-
-.neo-btn-info {
-  background-color: #7CD4FF;
-  color: #000000;
-}
-
-.neo-btn-success {
-  background-color: #2EE59D;
-  color: #000000;
-}
-
-.neo-btn-white {
-  background-color: #FFFFFF;
-  color: #000000;
+  box-shadow: 0 4px 12px rgba(226, 55, 68, 0.3);
 }
 
 .neo-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.2rem 0.6rem;
-  border: 2px solid #000000;
-  box-shadow: 2px 2px 0px #000000;
-  font-family: var(--font-jetbrains-mono), monospace;
-  font-weight: 800;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-weight: 700;
   font-size: 0.75rem;
-  text-transform: uppercase;
 }
 
-.neo-input {
-  width: 100%;
-  padding: 0.65rem 0.9rem;
-  border: 3px solid #000000;
-  box-shadow: 4px 4px 0px #000000;
-  background-color: #FFFFFF;
-  font-family: inherit;
-  font-weight: 500;
-  outline: none;
-  transition: box-shadow 0.15s ease;
-}
-
-.neo-input:focus {
-  box-shadow: 6px 6px 0px #FFE600;
-  border-color: #000000;
-}
-
-/* Custom Scrollbar for Neo-brutalism */
+/* Custom Scrollbar for Smooth Consumer Experience */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F4F1EA;
-  border-left: 2px solid #000000;
+  background: #F8FAFC;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #000000;
-  border: 2px solid #F4F1EA;
+  background: #CBD5E1;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #FFE600;
-  border: 2px solid #000000;
+  background: #94A3B8;
 }
 
-/* Leaflet Neo-Brutalist Tooltip Overrides */
+/* Leaflet Consumer Tooltip Overrides */
 .leaflet-tooltip.lifegrid-neo-tooltip {
   background: transparent !important;
   border: none !important;
@@ -180,11 +209,11 @@
 }
 
 .lifegrid-map-dot {
-  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s ease;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
 }
 
 .lifegrid-map-dot:hover {
-  transform: scale(1.4) !important;
-  box-shadow: 3px 3px 0px #000000 !important;
+  transform: scale(1.45) !important;
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.3) !important;
   z-index: 9999 !important;
 }

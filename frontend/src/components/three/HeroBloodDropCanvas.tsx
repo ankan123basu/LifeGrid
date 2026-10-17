@@ -37,7 +37,7 @@ function TeardropMesh() {
   return (
     <mesh ref={meshRef} geometry={geometry}>
       <meshPhysicalMaterial
-        color="#FF2E4D"
+        color="#FF4D4D"
         emissive="#590012"
         emissiveIntensity={0.6}
         roughness={0.12}
