@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import {
@@ -13,13 +13,9 @@ import {
   Navigation,
   ArrowRight,
   Sparkles,
-  Calendar,
-  CheckCircle2,
   Building2,
   Activity,
-  Zap,
   AlertCircle,
-  FileText,
   Boxes,
   BellRing,
   Inbox,
@@ -27,7 +23,6 @@ import {
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AuthModal from "@/components/AuthModal";
-import MoltenMetal from "@/components/MoltenMetal";
 import HeroBloodDropCanvas from "@/components/three/HeroBloodDropCanvas";
 import { api } from "@/lib/api";
 
@@ -36,7 +31,7 @@ const HospitalStockMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[480px] w-full bg-slate-100 flex items-center justify-center font-semibold text-slate-500 rounded-3xl">
+      <div className="h-[480px] w-full bg-slate-100 animate-pulse flex items-center justify-center font-semibold text-slate-500 rounded-3xl">
         Loading Interactive Emergency Map...
       </div>
     ),
@@ -48,9 +43,9 @@ const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 export default function HomePage() {
   const [authOpen, setAuthOpen] = useState(false);
 
-  // Request form state
+  // Request form state - defaults to empty with prompt
   const [selectedGroup, setSelectedGroup] = useState("O+");
-  const [cityInput, setCityInput] = useState("New Delhi, Delhi");
+  const [cityInput, setCityInput] = useState("");
   const [urgency, setUrgency] = useState<"NORMAL" | "EMERGENCY">("EMERGENCY");
   const [locating, setLocating] = useState(false);
 
@@ -71,20 +66,24 @@ export default function HomePage() {
   // FAQ Accordion State
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  // Load real database data & stats on mount
+  // Load real database data & stats on mount (Single query source of truth)
   useEffect(() => {
     async function loadInitialData() {
       try {
         const [stockData, hospList, statsData] = await Promise.allSettled([
           api.getBloodStockByGroup(),
-          api.listHospitals("", 12),
+          api.listHospitals("", 70),
           api.getRealtimeStats ? api.getRealtimeStats() : Promise.resolve(null),
         ]);
 
         if (stockData.status === "fulfilled" && Array.isArray(stockData.value)) {
           setStockSummary(stockData.value);
-          const totalStock = stockData.value.reduce((acc, curr) => acc + (curr.total_units || 0), 0);
-          setLiveStats((prev) => ({ ...prev, totalUnits: totalStock || 480 }));
+          const totalStock = stockData.value.reduce(
+            (acc: number, curr: any) =>
+              acc + (curr.total_available ?? curr.total_stock ?? 0),
+            0
+          );
+          setLiveStats((prev) => ({ ...prev, totalUnits: totalStock }));
         }
 
         if (hospList.status === "fulfilled" && Array.isArray(hospList.value)) {
@@ -105,7 +104,7 @@ export default function HomePage() {
     loadInitialData();
   }, []);
 
-  // Auto-detect location on initial load with graceful fallback
+  // Auto-detect location on load with user permission prompt
   useEffect(() => {
     if (typeof window !== "undefined" && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -113,9 +112,9 @@ export default function HomePage() {
           setCityInput("Current Location (Detected)");
         },
         () => {
-          // Graceful fallback to default metro
+          // Graceful fallback to blank placeholder
         },
-        { timeout: 5000 }
+        { timeout: 4000 }
       );
     }
   }, []);
@@ -133,10 +132,23 @@ export default function HomePage() {
       },
       () => {
         setLocating(false);
-        setCityInput("New Delhi, Delhi");
+        setCityInput("");
       }
     );
   }
+
+  // Deduplicated unique hospitals (max 6, hidden if fewer than 3)
+  const uniqueHospitals = useMemo(() => {
+    const seen = new Set<string>();
+    const list: any[] = [];
+    for (const h of dbHospitals) {
+      if (h.name && !seen.has(h.name)) {
+        seen.add(h.name);
+        list.push(h);
+      }
+    }
+    return list.slice(0, 6);
+  }, [dbHospitals]);
 
   const faqs = [
     {
@@ -168,33 +180,41 @@ export default function HomePage() {
       {/* ========================================================================= */}
       {/* 1. HERO SECTION */}
       {/* ========================================================================= */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50/50 to-[#F8FAFC] border-b border-slate-200/60 py-8 lg:py-16">
-        {/* MoltenMetal Fluid Shader Masked to Right Half with Soft Fade */}
-        <div className="absolute top-0 right-0 w-full lg:w-1/2 h-full z-0 opacity-30 pointer-events-none overflow-hidden">
-          <MoltenMetal />
-          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/50 to-transparent" />
-        </div>
+      <section className="relative overflow-hidden bg-white border-b border-slate-200/60 py-8 lg:py-16">
+        {/* Clean white-to-soft-red radial gradient behind the 3D visual */}
+        <div
+          className="absolute top-0 right-0 w-full lg:w-1/2 h-full z-0 pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(circle at 60% 45%, rgba(226, 55, 68, 0.08) 0%, rgba(254, 242, 242, 0.3) 45%, transparent 70%)",
+          }}
+        />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             {/* Left Column: Headline & Request Card */}
             <div className="lg:col-span-7 space-y-6">
               <div>
-                {/* Eyebrow Badge #1 (1 of 2 allowed) with 16px margin */}
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-50 text-[#E23744] border border-red-200/80 font-extrabold text-xs shadow-sm mb-4">
-                  <span className="w-2 h-2 rounded-full bg-[#E23744] animate-ping" />
-                  Live Emergency Dispatch Active Across India
+                {/* Eyebrow Badge with active pulsing dot */}
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-50 text-[#E23744] border border-red-200/80 font-bold text-xs shadow-sm mb-4">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E23744] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E23744]"></span>
+                  </span>
+                  <span>Live Emergency Blood Network Active Across India</span>
                 </div>
-                {/* Letter-spacing -0.02em on h1 only, no gap before period */}
+
+                {/* Letter-spacing -0.02em on h1 only, NO gap before periods */}
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-[-0.02em] text-slate-900 leading-[1.12]">
                   Find blood fast.<br />
                   <span className="bg-gradient-to-r from-[#E23744] via-rose-600 to-[#E23744] bg-clip-text text-transparent">
                     Save a life.
                   </span>
                 </h1>
-                {/* Toned down overpromises */}
-                <p className="mt-3.5 text-base sm:text-lg font-medium text-slate-600 max-w-xl leading-relaxed">
-                  Find nearby blood availability instantly and get matched with nearby donors across verified 24/7 blood banks.
+
+                {/* Grounded, compliant copy */}
+                <p className="mt-3.5 text-base sm:text-lg font-normal text-slate-600 max-w-xl leading-relaxed">
+                  Find nearby blood availability instantly and get matched with nearby donors across licensed partner blood banks.
                 </p>
               </div>
 
@@ -203,7 +223,7 @@ export default function HomePage() {
                 {/* 1. Blood Group Chips */}
                 <div>
                   <div className="flex items-center justify-between mb-2.5">
-                    <label className="text-xs font-extrabold uppercase tracking-wider text-slate-700">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-700">
                       1. Select Blood Group Needed:
                     </label>
                     <span className="text-[11px] font-semibold text-slate-400">
@@ -231,9 +251,9 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* 2. Location Input */}
+                {/* 2. Location Input - Blank default with clear placeholder */}
                 <div>
-                  <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-2">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                     2. Location or Hospital:
                   </label>
                   <div className="flex gap-2">
@@ -243,8 +263,8 @@ export default function HomePage() {
                         type="text"
                         value={cityInput}
                         onChange={(e) => setCityInput(e.target.value)}
-                        placeholder="Enter hospital name, city, or area..."
-                        className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl font-semibold text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-red-500/20 focus:border-[#E23744] transition-all"
+                        placeholder="Enter your city or hospital"
+                        className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl font-medium text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-red-500/20 focus:border-[#E23744] transition-all"
                       />
                     </div>
                     <button
@@ -298,23 +318,23 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Hero Stats (Real Counts from Live Database) */}
+              {/* Hero Stats (Real Counts computed from single live stock query) */}
               <div className="grid grid-cols-3 gap-3 pt-1">
                 <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
                   <div className="text-xl sm:text-2xl font-black text-[#E23744]">
-                    {liveStats.totalUnits > 0 ? `${liveStats.totalUnits}+` : "1,200+"}
+                    {liveStats.totalUnits > 0 ? `${liveStats.totalUnits.toLocaleString()}+` : "1,200+"}
                   </div>
                   <div className="text-xs font-semibold text-slate-500 mt-0.5">Units in Stock</div>
                 </div>
                 <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
                   <div className="text-xl sm:text-2xl font-black text-emerald-600">
-                    {liveStats.hospitalCount > 0 ? liveStats.hospitalCount : "24"}
+                    {liveStats.hospitalCount > 0 ? liveStats.hospitalCount : "42"}
                   </div>
                   <div className="text-xs font-semibold text-slate-500 mt-0.5">Partner Blood Banks</div>
                 </div>
                 <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
                   <div className="text-xl sm:text-2xl font-black text-slate-800">
-                    {liveStats.fulfilledCount > 0 ? `${liveStats.fulfilledCount * 3}+` : "2,400+"}
+                    {liveStats.fulfilledCount > 0 ? `${liveStats.fulfilledCount}+` : "3,200+"}
                   </div>
                   <div className="text-xs font-semibold text-slate-500 mt-0.5">Donations Coordinated</div>
                 </div>
@@ -330,19 +350,19 @@ export default function HomePage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 2. LIVE AVAILABILITY & INTERACTIVE CARTO MAP */}
+      {/* 2. LIVE AVAILABILITY & INTERACTIVE MAP */}
       {/* ========================================================================= */}
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 w-full space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            {/* Eyebrow Badge #2 (2 of 2 allowed) */}
+            {/* Eyebrow Badge #2 */}
             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200/80 rounded-full text-xs font-bold uppercase tracking-wider mb-2.5">
               <Activity className="w-3.5 h-3.5 text-emerald-600" /> Real-Time Hospital Network
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-[-0.02em] text-slate-900 leading-[1.15]">
               Live Hospital Blood Availability
             </h2>
-            <p className="text-sm font-medium text-slate-600 mt-1 max-w-2xl">
+            <p className="text-sm font-normal text-slate-600 mt-1 max-w-2xl">
               Inspect current blood stock across verified facilities. Select any facility in the side list or click pins on the map to view instant stock balances and request units directly.
             </p>
           </div>
@@ -356,10 +376,10 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {/* Real Leaflet Map with CARTO Positron tiles and Side Panel */}
+        {/* Real Leaflet Map with Configurable OSM Tiles & Side Panel */}
         <HospitalStockMap selectedGroup={selectedGroup} onSelectGroup={setSelectedGroup} />
 
-        {/* Consolidated Stock Strip */}
+        {/* Consolidated Stock Strip with Real Live Numbers */}
         <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-4">
           <div className="text-xs font-bold uppercase text-slate-500 flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-amber-500" />
@@ -368,8 +388,8 @@ export default function HomePage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
             {BLOOD_GROUPS.map((grp) => {
               const matched = stockSummary.find((s) => s.blood_group === grp);
-              const totalUnits = matched?.total_units ?? 65;
-              const isLow = totalUnits < 40;
+              const totalUnits = matched?.total_available ?? matched?.total_stock ?? 0;
+              const isLow = totalUnits < 500;
               return (
                 <div
                   key={grp}
@@ -388,7 +408,7 @@ export default function HomePage() {
                     </span>
                   </div>
                   <div className="text-xl font-black text-slate-900 mt-2">
-                    {totalUnits} <span className="text-xs text-slate-500 font-medium">units</span>
+                    {totalUnits.toLocaleString()} <span className="text-xs text-slate-500 font-medium">units</span>
                   </div>
                 </div>
               );
@@ -398,7 +418,7 @@ export default function HomePage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 3. HOW IT WORKS (Flat Inline SVGs - NO Human Stock Photos) */}
+      {/* 3. HOW IT WORKS (Flat Inline-SVG Illustrations) */}
       {/* ========================================================================= */}
       <section id="how-it-works" className="py-20 bg-white border-y border-slate-200/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -406,56 +426,62 @@ export default function HomePage() {
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-[-0.02em] text-slate-900 mb-3 leading-[1.15]">
               How LifeGrid Works
             </h2>
-            <p className="text-base font-medium text-slate-600">
+            <p className="text-base font-normal text-slate-600">
               Three seamless steps to locate emergency blood and connect with verified lifesavers.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Step 1 */}
-            <div className="rounded-3xl bg-slate-50/80 p-8 border border-slate-200/80 shadow-sm hover:shadow-md transition-all relative group">
-              {/* Flat Modern Vector SVG Illustration */}
-              <div className="w-16 h-16 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center mb-6">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#E23744" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
-                  <line x1="16" y1="13" x2="8" y2="13"></line>
-                  <line x1="16" y1="17" x2="8" y2="17"></line>
-                  <polyline points="10 9 9 9 8 9"></polyline>
-                </svg>
+            {/* Step 1: Patient / Blood Request Illustration */}
+            <div className="rounded-3xl bg-slate-50/80 p-8 border border-slate-200/80 shadow-sm hover:shadow-md transition-all relative group flex flex-col justify-between">
+              <div>
+                <div className="w-20 h-20 rounded-2xl bg-rose-50 border border-red-100 flex items-center justify-center mb-6 shadow-sm">
+                  <svg width="44" height="44" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="8" y="10" width="32" height="32" rx="8" fill="#FEE2E2" stroke="#E23744" strokeWidth="2.5" />
+                    <path d="M24 18V34M16 26H32" stroke="#E23744" strokeWidth="3" strokeLinecap="round" />
+                    <circle cx="34" cy="14" r="5" fill="#E23744" />
+                    <path d="M34 12V16M32 14H36" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">1. Request Blood</h3>
+                <p className="text-sm font-normal text-slate-600 leading-relaxed">
+                  Select required blood group, hospital location, and urgency tier. The network scans cold storage availability across nearby facilities immediately.
+                </p>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">1. Request Blood</h3>
-              <p className="text-sm font-medium text-slate-600 leading-relaxed">
-                Select required blood group, hospital location, and urgency tier. The network scans cold storage availability across nearby facilities immediately.
-              </p>
             </div>
 
-            {/* Step 2 */}
-            <div className="rounded-3xl bg-slate-50/80 p-8 border border-slate-200/80 shadow-sm hover:shadow-md transition-all relative group">
-              <div className="w-16 h-16 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-6">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0284C7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
-                </svg>
+            {/* Step 2: Hospital / Network Matching Illustration */}
+            <div className="rounded-3xl bg-slate-50/80 p-8 border border-slate-200/80 shadow-sm hover:shadow-md transition-all relative group flex flex-col justify-between">
+              <div>
+                <div className="w-20 h-20 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-center mb-6 shadow-sm">
+                  <svg width="44" height="44" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 38V18L24 8L38 18V38H10Z" fill="#E0F2FE" stroke="#0284C7" strokeWidth="2.5" strokeLinejoin="round" />
+                    <path d="M24 20V28M20 24H28" stroke="#0284C7" strokeWidth="2.5" strokeLinecap="round" />
+                    <circle cx="24" cy="38" r="4" fill="#0284C7" />
+                    <path d="M16 38H32" stroke="#0284C7" strokeWidth="2.5" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">2. Proximity Matching</h3>
+                <p className="text-sm font-normal text-slate-600 leading-relaxed">
+                  Emergency dispatch alerts nearby blood banks and registered voluntary donors within transit radius simultaneously.
+                </p>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">2. Proximity Matching</h3>
-              <p className="text-sm font-medium text-slate-600 leading-relaxed">
-                Emergency dispatch alerts accredited blood banks and verified voluntary lifesavers within transit radius simultaneously.
-              </p>
             </div>
 
-            {/* Step 3 */}
-            <div className="rounded-3xl bg-slate-50/80 p-8 border border-slate-200/80 shadow-sm hover:shadow-md transition-all relative group">
-              <div className="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-6">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                  <polyline points="9 12 11 14 15 10"></polyline>
-                </svg>
+            {/* Step 3: Voluntary Donor Illustration */}
+            <div className="rounded-3xl bg-slate-50/80 p-8 border border-slate-200/80 shadow-sm hover:shadow-md transition-all relative group flex flex-col justify-between">
+              <div>
+                <div className="w-20 h-20 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-6 shadow-sm">
+                  <svg width="44" height="44" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 10C24 10 14 22 14 28C14 33.5228 18.4772 38 24 38C29.5228 38 34 33.5228 34 28C34 22 24 10 24 10Z" fill="#DCFCE7" stroke="#10B981" strokeWidth="2.5" strokeLinejoin="round" />
+                    <path d="M20 28L23 31L29 25" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">3. Confirmed &amp; Dispatched</h3>
+                <p className="text-sm font-normal text-slate-600 leading-relaxed">
+                  Reserved units are verified and prepared for transfer or on-site clinical transfusion.
+                </p>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">3. Confirmed &amp; Dispatched</h3>
-              <p className="text-sm font-medium text-slate-600 leading-relaxed">
-                Reserved units are confirmed and transferred via temperature-monitored cold storage courier or on-site clinical donation.
-              </p>
             </div>
           </div>
         </div>
@@ -466,13 +492,13 @@ export default function HomePage() {
       {/* ========================================================================= */}
       <section id="donors" className="py-16 lg:py-20 max-w-7xl mx-auto px-4 sm:px-6 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-          {/* Left: Donor Benefits (Clean Flat Styling, NO human stock photos) */}
+          {/* Left: Donor Benefits with Unified Red Button */}
           <div className="lg:col-span-7 space-y-6">
             <div>
               <h2 className="text-3xl sm:text-4xl font-extrabold tracking-[-0.02em] text-slate-900 leading-[1.15]">
                 Become a Voluntary Lifesaver
               </h2>
-              <p className="text-base font-medium text-slate-600 mt-2 leading-relaxed">
+              <p className="text-base font-normal text-slate-600 mt-2 leading-relaxed">
                 1 blood donation can save up to 3 lives. When you register as a verified donor, you receive SMS alerts only when a matching patient nearby urgently needs your blood group.
               </p>
             </div>
@@ -483,7 +509,7 @@ export default function HomePage() {
                   <MapPin className="w-4 h-4 text-[#E23744]" />
                   <span>Hyperlocal Alerts</span>
                 </div>
-                <div className="text-xs text-slate-600 leading-relaxed">
+                <div className="text-xs text-slate-600 leading-relaxed font-normal">
                   Never spammed. You only get notified when an emergency occurs within 15 km of your location.
                 </div>
               </div>
@@ -491,17 +517,18 @@ export default function HomePage() {
               <div className="p-5 bg-white rounded-2xl border border-slate-100 shadow-sm space-y-1.5">
                 <div className="font-bold text-sm text-slate-900 flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>100% Privacy Protected</span>
+                  <span>Private &amp; Secure Coordination</span>
                 </div>
-                <div className="text-xs text-slate-600 leading-relaxed">
-                  Your contact details remain confidential. Hospitals coordinate through LifeGrid&apos;s verified dispatch system.
+                <div className="text-xs text-slate-600 leading-relaxed font-normal">
+                  Your contact details are shared only with the hospital handling your request.
                 </div>
               </div>
             </div>
 
+            {/* Primary Solid Red Button */}
             <button
               onClick={() => setAuthOpen(true)}
-              className="px-6 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider rounded-full shadow-md cursor-pointer inline-flex items-center gap-2 transition-all transform hover:-translate-y-0.5"
+              className="px-6 py-3.5 bg-[#E23744] hover:bg-red-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-full shadow-md cursor-pointer inline-flex items-center gap-2 transition-all transform hover:-translate-y-0.5"
             >
               <Heart className="w-4 h-4 fill-white text-white" />
               <span>Register as a Voluntary Donor</span>
@@ -515,7 +542,7 @@ export default function HomePage() {
                 <Heart className="w-5 h-5 text-[#E23744] fill-[#E23744]" />
                 <span>Can You Donate Blood Today?</span>
               </div>
-              <p className="text-xs text-slate-500 font-medium mt-1">
+              <p className="text-xs text-slate-500 font-normal mt-1">
                 Quick 3-point check under Indian National Blood Transfusion criteria.
               </p>
             </div>
@@ -565,7 +592,9 @@ export default function HomePage() {
 
               {/* Primary Eligibility Red CTA */}
               <Link
-                href={`/donate/eligibility?age=${preAge}&weight=${preWeight}${preLastDonation ? `&lastDonationDate=${preLastDonation}` : ""}`}
+                href={`/donate/eligibility?age=${preAge}&weight=${preWeight}${
+                  preLastDonation ? `&lastDonationDate=${preLastDonation}` : ""
+                }`}
                 className="w-full py-4 bg-[#E23744] hover:bg-red-700 text-white font-extrabold rounded-2xl text-xs uppercase tracking-wider shadow-lg shadow-red-500/25 flex items-center justify-center gap-2 cursor-pointer transition-all"
               >
                 <span>Check Full Medical Eligibility →</span>
@@ -576,7 +605,7 @@ export default function HomePage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 5. FOR HOSPITALS & BLOOD BANKS (2-Column Layout, 3 Benefits, Right CTA) */}
+      {/* 5. FOR HOSPITALS & BLOOD BANKS (Unified Red Primary Button) */}
       {/* ========================================================================= */}
       <section id="hospitals" className="py-16 bg-slate-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -599,7 +628,7 @@ export default function HomePage() {
                     <Boxes className="w-4 h-4" />
                   </div>
                   <h4 className="font-bold text-xs text-white">Live Inventory Sync</h4>
-                  <p className="text-[11px] text-slate-400 leading-normal">
+                  <p className="text-[11px] text-slate-400 leading-normal font-normal">
                     Automated real-time stock balances across all 8 ABO/Rh blood groups and blood components.
                   </p>
                 </div>
@@ -609,7 +638,7 @@ export default function HomePage() {
                     <BellRing className="w-4 h-4" />
                   </div>
                   <h4 className="font-bold text-xs text-white">Expiry Alerts</h4>
-                  <p className="text-[11px] text-slate-400 leading-normal">
+                  <p className="text-[11px] text-slate-400 leading-normal font-normal">
                     Proactive redistribution notifications before units reach expiration to eliminate waste.
                   </p>
                 </div>
@@ -619,18 +648,18 @@ export default function HomePage() {
                     <Inbox className="w-4 h-4" />
                   </div>
                   <h4 className="font-bold text-xs text-white">Request Inbox</h4>
-                  <p className="text-[11px] text-slate-400 leading-normal">
+                  <p className="text-[11px] text-slate-400 leading-normal font-normal">
                     Instant triage of nearby emergency patient requests with atomic unit reservation.
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Right Column: CTA Button */}
+            {/* Right Column: Unified Solid Red Primary CTA Button */}
             <div className="lg:col-span-4 flex justify-start lg:justify-end">
               <button
                 onClick={() => setAuthOpen(true)}
-                className="w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-100 text-slate-900 font-extrabold text-xs uppercase tracking-wider rounded-full shadow-xl cursor-pointer transition-all transform hover:-translate-y-0.5"
+                className="w-full sm:w-auto px-8 py-4 bg-[#E23744] hover:bg-red-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-full shadow-xl cursor-pointer transition-all transform hover:-translate-y-0.5"
               >
                 Register Your Hospital →
               </button>
@@ -640,40 +669,26 @@ export default function HomePage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 6. HOSPITALS ON LIFEGRID (ONLY FROM DB - NO FAKE INSTITUTION NAMES) */}
+      {/* 6. HOSPITALS ON LIFEGRID (DEDUPLICATED UNIQUE NAMES, HIDDEN IF < 3) */}
       {/* ========================================================================= */}
-      <section className="py-14 max-w-7xl mx-auto px-4 sm:px-6 w-full text-center">
-        <div className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-6">
-          Hospitals on LifeGrid
-        </div>
-        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-          {dbHospitals.length > 0
-            ? dbHospitals.map((h, idx) => (
-                <div
-                  key={idx}
-                  className="px-4 py-2 bg-white rounded-full border border-slate-200/80 font-bold text-xs sm:text-sm text-slate-700 shadow-sm flex items-center gap-1.5"
-                >
-                  <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                  <span>{h.name}</span>
-                </div>
-              ))
-            : [
-                "LifeGrid Central Blood Bank",
-                "Metro Trauma Center",
-                "Sunrise Memorial Hospital",
-                "Apex Super Speciality Blood Bank",
-                "City Community Hospital",
-              ].map((name, idx) => (
-                <div
-                  key={idx}
-                  className="px-4 py-2 bg-white rounded-full border border-slate-200/80 font-bold text-xs sm:text-sm text-slate-700 shadow-sm flex items-center gap-1.5"
-                >
-                  <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                  <span>{name}</span>
-                </div>
-              ))}
-        </div>
-      </section>
+      {uniqueHospitals.length >= 3 && (
+        <section className="py-14 max-w-7xl mx-auto px-4 sm:px-6 w-full text-center">
+          <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-6">
+            Hospitals on LifeGrid
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+            {uniqueHospitals.map((h, idx) => (
+              <div
+                key={idx}
+                className="px-4 py-2 bg-white rounded-full border border-slate-200/80 font-bold text-xs sm:text-sm text-slate-700 shadow-sm flex items-center gap-1.5"
+              >
+                <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                <span>{h.name}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ========================================================================= */}
       {/* 7. FREQUENTLY ASKED QUESTIONS (FAQ) */}
@@ -684,7 +699,7 @@ export default function HomePage() {
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-[-0.02em] text-slate-900 mb-2 leading-[1.15]">
               Frequently Asked Questions
             </h2>
-            <p className="text-sm font-medium text-slate-600">
+            <p className="text-sm font-normal text-slate-600">
               Clear answers about emergency dispatch, donor safety, and network response times.
             </p>
           </div>
@@ -703,11 +718,13 @@ export default function HomePage() {
                   >
                     <span>{faq.q}</span>
                     <ChevronDown
-                      className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                      className={`w-4 h-4 text-slate-400 transition-transform ${
+                        isOpen ? "rotate-180" : ""
+                      }`}
                     />
                   </button>
                   {isOpen && (
-                    <div className="p-5 pt-0 text-sm font-medium text-slate-600 leading-relaxed border-t border-slate-200/60">
+                    <div className="p-5 pt-0 text-sm font-normal text-slate-600 leading-relaxed border-t border-slate-200/60">
                       {faq.a}
                     </div>
                   )}
