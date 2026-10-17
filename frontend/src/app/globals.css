@@ -25,7 +25,7 @@
     letter-spacing: -0.02em;
   }
 
-  nav, p, button, input {
+  nav, p, button, input, footer, span, div, .tagline {
     letter-spacing: 0;
   }
 
