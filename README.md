@@ -141,6 +141,22 @@ cd frontend
 # Install npm dependencies
 npm install
 
+# (Optional) Map Tiles Configuration (.env.local)
+# LifeGrid defaults to keyless OpenStreetMap tiles out of the box.
+# You can configure drop-in high-performance tiles via frontend/.env.local:
+#
+# Standard OSM (Default, No API Key Required):
+# NEXT_PUBLIC_MAP_TILE_URL=https://tile.openstreetmap.org/{z}/{x}/{y}.png
+# NEXT_PUBLIC_MAP_ATTRIBUTION=&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors
+#
+# MapTiler (Free Tier with API Key):
+# NEXT_PUBLIC_MAP_TILE_URL=https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=YOUR_MAPTILER_KEY
+# NEXT_PUBLIC_MAP_ATTRIBUTION=&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> &copy; OpenStreetMap contributors
+#
+# Stadia Maps (Free Tier with API Key):
+# NEXT_PUBLIC_MAP_TILE_URL=https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=YOUR_STADIA_KEY
+# NEXT_PUBLIC_MAP_ATTRIBUTION=&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; OpenStreetMap contributors
+
 # Start Next.js development server
 npm run dev
 ```
