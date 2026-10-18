@@ -201,6 +201,20 @@ LifeGrid includes 15 production-grade analytical pipelines:
 
 ---
 
+## 🔒 Production Security & Demo Account Notice
+
+> [!IMPORTANT]
+> **Production Deployment Requirement**:
+> 1. Set `NEXT_PUBLIC_DEMO_MODE=false` (or remove the variable) in your production environment variables. When disabled, 1-click demo login buttons are completely stripped from the build and will never render.
+> 2. **Delete Seeded Accounts**: Ensure all sample demo accounts (`admin@lifegrid.in`, `staff@riversidehospital.in`, `donor@lifegrid.in`, `requester@lifegrid.in`) are permanently removed from your production MongoDB database before public release:
+>    ```javascript
+>    db.users.deleteMany({
+>      email: { $in: ["admin@lifegrid.in", "staff@riversidehospital.in", "donor@lifegrid.in", "requester@lifegrid.in"] }
+>    });
+>    ```
+
+---
+
 ## 🧪 Testing
 
 Run comprehensive automated test suites:
