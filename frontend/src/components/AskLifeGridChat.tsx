@@ -4,6 +4,15 @@ import React, { useState, useRef, useEffect } from "react";
 import { MessageSquare, X, Send, RefreshCw, PhoneCall } from "lucide-react";
 import { api } from "@/lib/api";
 
+function cleanChatText(text: string): string {
+  if (!text) return "";
+  return text
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/\*\*/g, "")
+    .replace(/###\s*/g, "")
+    .trim();
+}
+
 export default function AskLifeGridChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [isOverFooter, setIsOverFooter] = useState(false);
@@ -64,7 +73,7 @@ export default function AskLifeGridChat() {
           {
             id: (Date.now() + 1).toString(),
             role: "assistant",
-            content: botReply,
+            content: cleanChatText(botReply),
           },
         ]);
       } else {
@@ -166,7 +175,7 @@ export default function AskLifeGridChat() {
                   }`}
                 >
                   <p className="whitespace-pre-wrap leading-relaxed">
-                    {m.content || "I have received your inquiry. Please check partner hospital blood banks or dial 112 for immediate emergencies."}
+                    {cleanChatText(m.content) || "I have received your inquiry. Please check partner hospital blood banks or dial 112 for immediate emergencies."}
                   </p>
                 </div>
               </div>

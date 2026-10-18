@@ -128,7 +128,7 @@ export default function AiSuitePage() {
           {
             id: (Date.now() + 1).toString(),
             role: "assistant",
-            content: botReply,
+            content: botReply.replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*\*/g, ""),
             tool_calls: res.data.tool_calls || res.data.tools_executed || [],
             latency_ms: res.data.latency_ms || res.data.telemetry?.latency_ms,
           },

@@ -8,6 +8,7 @@ raw PyMongo database tools, and persists conversation histories in `ai_conversat
 
 import json
 import logging
+import re
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
 from bson import ObjectId
@@ -171,10 +172,12 @@ def run_assistant_agent(
         except Exception as e:
             logger.warning(f"Failed to synthesize final answer: {e}")
 
-    if not final_content and hasattr(response_msg, "reasoning") and response_msg.reasoning:
-        final_content = response_msg.reasoning
     if not final_content:
         final_content = "I have checked the LifeGrid database records for your inquiry. Please see the clinical data retrieved."
+
+    # Strip double asterisks and raw markdown artifacts for a clean human-readable conversation
+    final_content = re.sub(r"\*\*(.*?)\*\*", r"\1", final_content)
+    final_content = final_content.replace("**", "").replace("### ", "").strip()
 
     # 4. Save updated messages to MongoDB adhering to strict schema
     new_user_entry = {"role": "user", "content": user_message, "at": now}
