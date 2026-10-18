@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, JetBrains_Mono, Noto_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans, JetBrains_Mono, Noto_Sans_Devanagari, Noto_Sans_Gurmukhi } from "next/font/google";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -17,10 +17,18 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-// Noto Sans — covers Devanagari (Hindi) and Gurmukhi (Punjabi) for language switcher
-const notoSans = Noto_Sans({
-  variable: "--font-noto",
-  subsets: ["latin", "devanagari"],
+// Noto Sans Devanagari (Hindi) for language switcher and localized typography
+const notoSansDevanagari = Noto_Sans_Devanagari({
+  variable: "--font-noto-devanagari",
+  subsets: ["devanagari"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+// Noto Sans Gurmukhi (Punjabi) for language switcher and localized typography
+const notoSansGurmukhi = Noto_Sans_Gurmukhi({
+  variable: "--font-noto-gurmukhi",
+  subsets: ["gurmukhi"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
 });
@@ -42,7 +50,7 @@ export default function RootLayout({
     <html
       lang="en"
       // Apply all font variables to <html> so portals (modals attached to <body>) also inherit them
-      className={`${plusJakartaSans.variable} ${jetbrainsMono.variable} ${notoSans.variable} h-full antialiased`}
+      className={`${plusJakartaSans.variable} ${jetbrainsMono.variable} ${notoSansDevanagari.variable} ${notoSansGurmukhi.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans bg-[#F8FAFC] text-slate-900 selection:bg-rose-500 selection:text-white">
         {children}

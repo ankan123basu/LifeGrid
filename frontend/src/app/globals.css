@@ -10,13 +10,14 @@
     --brand-emerald: #10B981;
     --brand-amber: #F59E0B;
     --canvas-bg: #F8FAFC;
+    /* Primary font: Plus Jakarta Sans, fallback to Noto Sans Devanagari & Gurmukhi */
+    --font-sans: var(--font-sans), var(--font-noto-devanagari), var(--font-noto-gurmukhi), system-ui, -apple-system, sans-serif;
   }
 
   body {
     background-color: var(--canvas-bg);
     color: var(--brand-dark);
-    /* Plus Jakarta Sans first; Noto Sans covers Devanagari/Gurmukhi for language switcher */
-    font-family: var(--font-sans), var(--font-noto), system-ui, -apple-system, sans-serif;
+    font-family: var(--font-sans);
     letter-spacing: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
