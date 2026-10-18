@@ -62,13 +62,13 @@ export default function EligibilityWizardPage() {
     explanation: string;
   } | null>(null);
 
-  // Form State
+  // Form State — all numeric fields start empty so user must enter them consciously
   const [formData, setFormData] = useState({
     // Step 1: Basics
-    age: "24",
+    age: "",
     dob: "",
     sex: "male" as "male" | "female" | "other",
-    weight: "62",
+    weight: "",
 
     // Step 2: Last Donation
     hasDonatedBefore: "no",
@@ -100,9 +100,9 @@ export default function EligibilityWizardPage() {
     isBreastfeeding: false,
     recentMiscarriage: false,
 
-    // Step 7: Optional Hemoglobin
+    // Step 7: Optional Hemoglobin (empty — user must enter or choose "I don't know")
     knowsHb: "no",
-    hemoglobin: "13.5",
+    hemoglobin: "",
   });
 
   // Load saved draft on mount
@@ -249,15 +249,21 @@ export default function EligibilityWizardPage() {
       payload.hemoglobin = parseFloat(formData.hemoglobin);
     }
 
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
     try {
-      const res = await fetch("http://localhost:8000/api/v1/eligibility/check", {
+      const res = await fetch(`${API_BASE}/api/v1/eligibility/check`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
-        throw new Error("Evaluation failed");
+        let detail = `Server error ${res.status}`;
+        try {
+          const errBody = await res.json();
+          detail = errBody?.detail || errBody?.error?.message || detail;
+        } catch (_) {}
+        throw new Error(detail);
       }
 
       const data: EligibilityResult = await res.json();
@@ -266,16 +272,18 @@ export default function EligibilityWizardPage() {
       // Trigger default AI explanation in background
       fetchAiExplanation(data, selectedLang);
     } catch (err: any) {
-      setErrorMsg("Unable to evaluate eligibility. Please verify your connection.");
+      const msg = err.message || "Network error";
+      setErrorMsg(`Eligibility check failed: ${msg}`);
     } finally {
       setLoading(false);
     }
   }
 
   async function fetchAiExplanation(resData: EligibilityResult, lang: "en" | "hi" | "pa") {
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
     setExplaining(true);
     try {
-      const explainRes = await fetch("http://localhost:8000/api/v1/eligibility/explain", {
+      const explainRes = await fetch(`${API_BASE}/api/v1/eligibility/explain`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -348,38 +356,50 @@ export default function EligibilityWizardPage() {
       <main className="flex-1 max-w-3xl mx-auto px-4 sm:px-6 py-10 w-full">
         {/* Header Title */}
         <div className="text-center space-y-2 mb-8">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-50 text-[#E23744] border border-red-200/80 rounded-full text-xs font-extrabold uppercase tracking-wider">
-            <Heart className="w-3.5 h-3.5 fill-[#E23744]" /> National Blood Safety Standard
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
-            Blood Donation Eligibility
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-[-0.02em] text-slate-900">
+            Blood donation eligibility check
           </h1>
-          <p className="text-sm font-medium text-slate-600 max-w-lg mx-auto">
-            Answer a few quick questions to instantly verify if you can donate whole blood today under Indian clinical guidelines (NBTC / Drugs &amp; Cosmetics Rules).
+          <p className="text-sm font-normal text-slate-500 max-w-lg mx-auto">
+            Answer a few questions to check if you can donate whole blood today. Based on common Indian screening criteria — final decision at the donation centre.
           </p>
         </div>
 
         {/* Wizard Card */}
         {!result ? (
           <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200/80 space-y-6">
-            {/* Step Progress Bar */}
-            <div>
-              <div className="flex items-center justify-between text-xs font-bold text-slate-500 mb-2">
-                <span>Step {step > 6 && !isFemale ? 6 : step} of {totalSteps}</span>
-                <span>{Math.round(((step > 6 && !isFemale ? 6 : step) / totalSteps) * 100)}% Completed</span>
-              </div>
-              <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-[#E23744] transition-all duration-300"
-                  style={{ width: `${((step > 6 && !isFemale ? 6 : step) / totalSteps) * 100}%` }}
-                />
-              </div>
-            </div>
+            {/* Step Progress Bar — never shows 100% until evaluation succeeds */}
+            {(() => {
+              const displayStep = Math.min(step > 6 && !isFemale ? 6 : step, totalSteps - 1);
+              const pct = Math.min(Math.round((displayStep / totalSteps) * 100), 95);
+              return (
+                <div>
+                  <div className="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2">
+                    <span>Step {displayStep} of {totalSteps}</span>
+                    <span>{pct}%</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-[#E23744] transition-all duration-500"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })()}
 
             {errorMsg && (
-              <div className="p-3.5 bg-red-50 border border-red-200 rounded-2xl text-xs font-bold text-red-700 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{errorMsg}</span>
+              <div className="p-3.5 bg-red-50 border border-red-200 rounded-2xl text-xs font-bold text-red-700 flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <div>{errorMsg}</div>
+                  <button
+                    type="button"
+                    onClick={() => { setErrorMsg(""); handleNext(); }}
+                    className="mt-1.5 text-[11px] font-extrabold text-[#E23744] hover:underline cursor-pointer"
+                  >
+                    Retry →
+                  </button>
+                </div>
               </div>
             )}
 
@@ -810,8 +830,8 @@ export default function EligibilityWizardPage() {
 
                   {formData.knowsHb === "yes" && (
                     <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200">
-                      <label className="block text-xs font-extrabold uppercase text-slate-700 mb-1.5">
-                        Hemoglobin Reading (g/dL):
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        Hemoglobin reading (g/dL):
                       </label>
                       <input
                         type="number"
@@ -821,10 +841,11 @@ export default function EligibilityWizardPage() {
                         value={formData.hemoglobin}
                         onChange={(e) => updateField("hemoglobin", e.target.value)}
                         className="w-full sm:w-64 p-3 bg-white border border-slate-200 rounded-2xl font-bold text-sm"
-                        placeholder="e.g. 13.5"
+                        placeholder="Enter value, e.g. 13.5"
+                        autoComplete="off"
                       />
                       <span className="text-[11px] text-slate-400 mt-1 block">
-                        Must be &gt;= 12.5 g/dL under national guidelines.
+                        Must be ≥ 12.5 g/dL under national guidelines.
                       </span>
                     </div>
                   )}

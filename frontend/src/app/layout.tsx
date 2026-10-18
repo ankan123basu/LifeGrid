@@ -1,17 +1,28 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, JetBrains_Mono, Noto_Sans } from "next/font/google";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
 });
 
+// JetBrains Mono — ONLY for code, IDs, technical values
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  display: "swap",
+});
+
+// Noto Sans — covers Devanagari (Hindi) and Gurmukhi (Punjabi) for language switcher
+const notoSans = Noto_Sans({
+  variable: "--font-noto",
+  subsets: ["latin", "devanagari"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 import AskLifeGridChat from "@/components/AskLifeGridChat";
@@ -30,7 +41,8 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${plusJakartaSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      // Apply all font variables to <html> so portals (modals attached to <body>) also inherit them
+      className={`${plusJakartaSans.variable} ${jetbrainsMono.variable} ${notoSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans bg-[#F8FAFC] text-slate-900 selection:bg-rose-500 selection:text-white">
         {children}

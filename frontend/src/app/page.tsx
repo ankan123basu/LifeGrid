@@ -352,7 +352,7 @@ export default function HomePage() {
       {/* ========================================================================= */}
       {/* 2. LIVE AVAILABILITY & INTERACTIVE MAP */}
       {/* ========================================================================= */}
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 w-full space-y-8">
+      <section id="inventory-map" className="py-16 max-w-7xl mx-auto px-4 sm:px-6 w-full space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
             {/* Eyebrow Badge #2 */}

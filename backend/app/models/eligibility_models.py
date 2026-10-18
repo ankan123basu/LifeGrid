@@ -33,6 +33,7 @@ class EligibilityCheckRequest(BaseModel):
     miscarriage_date: Optional[str] = None
     chronic_conditions: Optional[List[str]] = Field(default_factory=list)
     physician_restricted_donation: Optional[bool] = False
+    alcohol_24h: Optional[bool] = False
     city: Optional[str] = None
 
 class EligibilityResultResponse(BaseModel):

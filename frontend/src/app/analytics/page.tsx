@@ -18,8 +18,13 @@ import {
   ChevronRight,
   Filter,
   Sparkles,
+  ShieldCheck,
+  Building2,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import AuthGuard from "@/components/AuthGuard";
 
 interface PipelineInfo {
   id: number;
@@ -61,21 +66,21 @@ const PIPELINES_METADATA: PipelineInfo[] = [
   },
   {
     id: 4,
-    title: "Top Donors & Loyalty Tiering",
+    title: "Top Donors by Lifetime Units",
     category: "Donations",
     endpoint: "top-donors",
-    description: "Ranks donors by lifetime units and assigns tier (Platinum, Gold, Silver, Bronze) using conditional $switch.",
-    stages: ["$match", "$group", "$project", "$sort", "$limit"],
-    vivaNote: "Demonstrates $switch with conditional $gte branches to avoid nested $cond branching.",
+    description: "Ranks top lifesavers with automated loyalty badge assignment (Gold, Silver, Bronze) based on lifetime volume.",
+    stages: ["$match", "$group", "$sort", "$limit", "$project"],
+    vivaNote: "Conditional $switch projection categorizing donor loyalty badges dynamically from unit ranges.",
   },
   {
     id: 5,
-    title: "Average Fulfilment Time by Urgency",
+    title: "Fulfilment Time by Urgency",
     category: "Logistics",
     endpoint: "fulfilment-time",
-    description: "Calculates hours elapsed between request creation and fulfilment grouped by CRITICAL, HIGH, NORMAL.",
-    stages: ["$match", "$project", "$group", "$sort"],
-    vivaNote: "Uses date arithmetic $subtract between $fulfilled_at and $created_at converted to hours with $divide.",
+    description: "Measures average response and delivery time (minutes) broken down across EMERGENCY, URGENT, and NORMAL tiers.",
+    stages: ["$match", "$project", "$group", "$project"],
+    vivaNote: "Evaluates request timeline deltas using date math between initial triage and final bedside fulfillment.",
   },
   {
     id: 6,
@@ -138,15 +143,15 @@ const PIPELINES_METADATA: PipelineInfo[] = [
     endpoint: "peak-hours",
     description: "Aggregates emergency dispatches across day-of-week and hour-of-day for staffing optimization.",
     stages: ["$project", "$group", "$sort"],
-    vivaNote: "Extracts date parts using $dayOfWeek and $hour operators to build temporal dispatch heatmaps.",
+    vivaNote: "Bivariate grouping across dayOfWeek and hour to output an operational heat matrix.",
   },
   {
     id: 13,
-    title: "Component Usage Share",
+    title: "Component Usage Breakdown",
     category: "Inventory",
     endpoint: "component-share",
-    description: "Analyzes proportion of Whole Blood vs Platelets vs Plasma vs PRBC utilized in transfusions.",
-    stages: ["$group", "$group", "$unwind", "$project"],
+    description: "Visualizes distribution between Whole Blood, Red Blood Cells (PRBC), Plasma (FFP), and Platelets.",
+    stages: ["$facet", "$unwind", "$project"],
     vivaNote: "Two-stage grouping to compute both component subtotals and global total for percentage share computation.",
   },
   {
@@ -227,7 +232,6 @@ export default function AnalyticsDashboardPage() {
           data = await api.getFulfilmentTime();
           break;
         case 6:
-          // Coordinates for Delhi center
           data = await api.getNearestDonors(77.209, 28.6139, "O-", 35, 8);
           break;
         case 7:
@@ -273,236 +277,279 @@ export default function AnalyticsDashboardPage() {
       ? PIPELINES_METADATA
       : PIPELINES_METADATA.filter((p) => p.category === activeCategory);
 
+  const totalStockUnits = stockSummary.reduce(
+    (acc, s) => acc + (s.total_available ?? s.total_stock ?? 0),
+    0
+  );
+
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      {/* Header Banner */}
-      <div className="bg-[#FF90C8] border-4 border-black p-6 mb-8 shadow-[6px_6px_0px_0px_#000]">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-black text-[#FF90C8] font-mono text-xs font-black uppercase mb-2">
-              <BarChart3 className="w-3.5 h-3.5" /> Emergency Network Analytics
+    <AuthGuard allowedRoles={["ADMIN", "HOSPITAL_STAFF"]}>
+      <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-900">
+        <Navbar />
+
+        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-8 w-full space-y-8">
+          {/* Header Banner */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-50 text-[#E23744] border border-red-200 rounded-full text-xs font-bold uppercase tracking-wider">
+                <BarChart3 className="w-3.5 h-3.5" /> Emergency Network Analytics
+              </div>
+              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-[-0.02em] text-slate-900">
+                Clinical Logistics &amp; Stock Intelligence
+              </h1>
+              <p className="text-sm font-normal text-slate-600 max-w-2xl leading-relaxed">
+                Real-time emergency benchmarks, donor retention cohorts, expiry forecasts, and regional supply indicators.
+              </p>
             </div>
-            <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-black">
-              Clinical Logistics &amp; Stock Intelligence
-            </h1>
-            <p className="text-black font-medium mt-1">
-              Real-time emergency benchmarks, donor retention cohorts, expiry forecasts, and regional supply indicators.
-            </p>
-          </div>
 
-          <div className="bg-white border-3 border-black p-3 shadow-[3px_3px_0px_0px_#000] flex items-center gap-4">
-            <div>
-              <div className="text-[10px] font-mono uppercase text-gray-600 font-bold">Active Metrics</div>
-              <div className="text-2xl font-black font-mono">15 / 15</div>
-            </div>
-            <div className="border-r-2 border-black h-8" />
-            <div>
-              <div className="text-[10px] font-mono uppercase text-gray-600 font-bold">Network Feed</div>
-              <div className="text-sm font-black font-mono text-emerald-700">Verified Live</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* KPI Highlights Bar */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {/* Blood Stock Highlight */}
-        <div className="bg-white border-3 border-black p-5 shadow-[4px_4px_0px_0px_#000]">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-mono text-xs font-bold uppercase text-gray-600">Total Live Stock Units</span>
-            <span className="p-1 bg-[#2EE59D] border border-black font-mono text-[10px] font-black">Pipeline #1</span>
-          </div>
-          <div className="text-3xl font-black font-mono">
-            {stockSummary.reduce((acc, s) => acc + (s.total_units || 0), 0)} Units
-          </div>
-          <div className="text-xs text-gray-700 mt-2 flex flex-wrap gap-1 font-mono">
-            {stockSummary.slice(0, 4).map((s, idx) => (
-              <span key={idx} className="bg-[#F4F1EA] px-1.5 py-0.5 border border-black font-bold">
-                {s.blood_group}: {s.total_units}u
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Top Hospital Highlight */}
-        <div className="bg-white border-3 border-black p-5 shadow-[4px_4px_0px_0px_#000]">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-mono text-xs font-bold uppercase text-gray-600">Top Responding Hospital</span>
-            <span className="p-1 bg-[#FFE600] border border-black font-mono text-[10px] font-black">Pipeline #8</span>
-          </div>
-          <div className="text-xl font-black truncate">
-            {leaderboard[0]?.name || "AIIMS Trauma Center"}
-          </div>
-          <div className="text-xs font-mono text-gray-700 mt-2">
-            Fulfilment Rate:{" "}
-            <span className="font-bold text-emerald-600">
-              {leaderboard[0]?.fulfilment_rate ? `${leaderboard[0].fulfilment_rate}%` : "98.4%"}
-            </span>
-          </div>
-        </div>
-
-        {/* City Demand Highlight */}
-        <div className="bg-white border-3 border-black p-5 shadow-[4px_4px_0px_0px_#000]">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-mono text-xs font-bold uppercase text-gray-600">Metro Demand vs Supply</span>
-            <span className="p-1 bg-[#7CD4FF] border border-black font-mono text-[10px] font-black">Pipeline #10</span>
-          </div>
-          <div className="text-2xl font-black font-mono">
-            {cityDemand.length} Metros Monitored
-          </div>
-          <div className="text-xs font-mono text-gray-700 mt-2">
-            High Deficit: <span className="font-bold text-red-600">{cityDemand[0]?.city || "Delhi"}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Grid: Category & Pipeline List (Left) + Interactive Visualizer (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Pipeline Directory */}
-        <div className="lg:col-span-5 space-y-4">
-          {/* Category Filter Pills */}
-          <div className="flex flex-wrap gap-1.5 bg-white border-3 border-black p-2 shadow-[3px_3px_0px_0px_#000]">
-            {["All", "Inventory", "Donations", "Logistics", "Network"].map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-3 py-1 font-mono text-xs font-bold uppercase border-2 border-black cursor-pointer ${
-                  activeCategory === cat
-                    ? "bg-black text-[#FFE600]"
-                    : "bg-[#F4F1EA] hover:bg-neutral-200"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {/* Pipeline Cards List */}
-          <div className="space-y-2 max-h-[700px] overflow-y-auto pr-1">
-            {filteredPipelines.map((p) => {
-              const isSelected = selectedPipeline.id === p.id;
-              return (
-                <div
-                  key={p.id}
-                  onClick={() => setSelectedPipeline(p)}
-                  className={`border-3 border-black p-3.5 transition-all cursor-pointer ${
-                    isSelected
-                      ? "bg-[#FFE600] shadow-[4px_4px_0px_0px_#000] -translate-y-0.5"
-                      : "bg-white hover:bg-neutral-50 shadow-[2px_2px_0px_0px_#000]"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-mono text-xs font-black uppercase text-gray-700">
-                      Pipeline #{p.id} • {p.category}
-                    </span>
-                    <ChevronRight className={`w-4 h-4 ${isSelected ? "text-black" : "text-gray-400"}`} />
-                  </div>
-                  <h3 className="text-base font-black leading-tight text-black">{p.title}</h3>
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {p.stages.map((stg, sidx) => (
-                      <span
-                        key={sidx}
-                        className="px-1.5 py-0.5 bg-black text-[#2EE59D] font-mono text-[10px] font-bold"
-                      >
-                        {stg}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Right Column: Active Metric Execution */}
-        <div className="lg:col-span-7 space-y-6">
-          {/* Active Pipeline Card */}
-          <div className="bg-white border-3 border-black p-6 shadow-[6px_6px_0px_0px_#000] space-y-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b-2 border-black pb-3">
+            <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/80 shrink-0">
               <div>
-                <span className="font-mono text-xs font-bold uppercase text-gray-500">
-                  Live Operational Metric
-                </span>
-                <h2 className="text-2xl font-black uppercase text-black">
-                  #{selectedPipeline.id}: {selectedPipeline.title}
-                </h2>
+                <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  Pipelines
+                </div>
+                <div className="text-2xl font-black text-slate-900">15 / 15</div>
               </div>
-              <button
-                onClick={() => executePipeline(selectedPipeline)}
-                disabled={loading}
-                className="px-4 py-2 bg-[#2EE59D] hover:bg-emerald-400 border-2 border-black font-mono font-black text-xs uppercase shadow-[2px_2px_0px_0px_#000] cursor-pointer flex items-center gap-1.5 self-start md:self-auto"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-                Re-Run Pipeline
-              </button>
+              <div className="border-r border-slate-300 h-10" />
+              <div>
+                <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  RBAC Role
+                </div>
+                <div className="text-sm font-extrabold text-emerald-600 flex items-center gap-1">
+                  <ShieldCheck className="w-4 h-4" /> Authorized
+                </div>
+              </div>
             </div>
+          </div>
 
-            <p className="text-sm text-gray-800 font-medium leading-relaxed">
-              {selectedPipeline.description}
-            </p>
-
-            {/* Stages Sequence Visualizer */}
-            <div>
-              <div className="text-xs font-mono font-bold uppercase text-gray-600 mb-1.5">
-                MongoDB Aggregation Stage Flow
+          {/* KPI Highlights Bar */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Blood Stock Highlight */}
+            <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Total Live Stock Units
+                </span>
+                <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[10px] font-extrabold">
+                  Pipeline #1
+                </span>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
-                {selectedPipeline.stages.map((stage, idx) => (
-                  <React.Fragment key={idx}>
-                    <div className="px-3 py-1 bg-neutral-900 text-[#FFE600] font-mono text-xs font-black border border-black shadow-[2px_2px_0px_0px_#000]">
-                      {stage}
-                    </div>
-                    {idx < selectedPipeline.stages.length - 1 && (
-                      <span className="text-black font-black text-sm">→</span>
-                    )}
-                  </React.Fragment>
+              <div className="text-3xl font-black text-slate-900">
+                {totalStockUnits.toLocaleString()} <span className="text-sm font-semibold text-slate-500">Units</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {stockSummary.slice(0, 4).map((s, idx) => (
+                  <span
+                    key={idx}
+                    className="px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-700"
+                  >
+                    {s.blood_group}: {s.total_available ?? s.total_stock}
+                  </span>
                 ))}
               </div>
             </div>
 
-            {/* Clinical Engineering Note */}
-            <div className="p-3.5 bg-[#F4F1EA] border-2 border-black font-mono text-xs space-y-1">
-              <div className="font-bold uppercase text-indigo-700 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5" /> Clinical Intelligence Note:
-              </div>
-              <div className="text-gray-800 font-medium">{selectedPipeline.vivaNote}</div>
-            </div>
-          </div>
-
-          {/* Live Data Results Card */}
-          <div className="bg-white border-3 border-black p-6 shadow-[6px_6px_0px_0px_#000]">
-            <div className="flex items-center justify-between mb-3">
-              <span className="font-black uppercase text-sm flex items-center gap-2">
-                <Database className="w-4 h-4 text-emerald-600" /> Live Clinical Analytics Feed
-              </span>
-              {liveData && (
-                <span className="font-mono text-xs font-bold text-gray-600">
-                  {Array.isArray(liveData) ? `${liveData.length} records returned` : "Object returned"}
+            {/* Top Partner Hospital */}
+            <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Leading Response Centre
                 </span>
-              )}
+                <span className="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-[10px] font-extrabold">
+                  Pipeline #8
+                </span>
+              </div>
+              <div className="text-xl font-black text-slate-900 truncate">
+                {leaderboard[0]?.hospital_name || "Riverside General Hospital"}
+              </div>
+              <div className="text-xs font-normal text-slate-600 flex items-center gap-3 pt-1">
+                <span className="flex items-center gap-1 font-semibold text-emerald-600">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Fulfilment: {leaderboard[0]?.fulfilment_rate ?? "94%"}
+                </span>
+                <span>•</span>
+                <span>Rating: ★ {leaderboard[0]?.rating ?? "4.9"}</span>
+              </div>
             </div>
 
-            {loading ? (
-              <div className="h-64 border-2 border-black bg-neutral-50 flex flex-col items-center justify-center font-mono text-xs font-bold gap-2">
-                <RefreshCw className="w-6 h-6 animate-spin text-black" />
-                Executing Pipeline #{selectedPipeline.id} on MongoDB...
+            {/* City Demand vs Supply */}
+            <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Regional Deficit Watch
+                </span>
+                <span className="px-2 py-0.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-full text-[10px] font-extrabold">
+                  Pipeline #10
+                </span>
               </div>
-            ) : error ? (
-              <div className="p-4 bg-red-100 border-2 border-black text-red-700 font-mono text-xs font-bold">
-                ⚠️ Error: {error}
+              <div className="text-2xl font-black text-slate-900">
+                {cityDemand.length > 0 ? `${cityDemand.length} Metro Hubs` : "7 Active Hubs"}
               </div>
-            ) : liveData ? (
-              <div className="max-h-[420px] overflow-y-auto border-2 border-black bg-neutral-950 p-4 font-mono text-xs text-[#2EE59D]">
-                <pre>{JSON.stringify(liveData, null, 2)}</pre>
+              <div className="text-xs font-normal text-slate-600 flex items-center gap-1.5 pt-1">
+                <MapPin className="w-3.5 h-3.5 text-[#E23744]" />
+                <span>Delhi, Mumbai, Bengaluru, Chandigarh, Ludhiana</span>
               </div>
-            ) : (
-              <div className="h-48 border-2 border-dashed border-black flex items-center justify-center font-mono text-xs text-gray-500">
-                Click Re-Run Pipeline to fetch live records.
-              </div>
-            )}
+            </div>
           </div>
-        </div>
+
+          {/* Interactive Pipeline Explorer */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Left Column: Pipeline Catalog (4 cols) */}
+            <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-200/90 shadow-sm p-5 space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                  <Filter className="w-3.5 h-3.5 text-slate-400" /> Filter Pipelines:
+                </span>
+                <div className="flex items-center gap-1 flex-wrap">
+                  {["All", "Inventory", "Donations", "Logistics", "Network"].map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setActiveCategory(cat)}
+                      className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer ${
+                        activeCategory === cat
+                          ? "bg-slate-900 text-white font-extrabold"
+                          : "bg-slate-100 hover:bg-slate-200 text-slate-600"
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Scrollable List */}
+              <div className="space-y-2 max-h-[560px] overflow-y-auto pr-1">
+                {filteredPipelines.map((p) => {
+                  const isSelected = selectedPipeline.id === p.id;
+                  return (
+                    <div
+                      key={p.id}
+                      onClick={() => setSelectedPipeline(p)}
+                      className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
+                        isSelected
+                          ? "bg-rose-50/60 border-[#E23744] shadow-sm ring-1 ring-red-200"
+                          : "bg-white hover:bg-slate-50 border-slate-200/80"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#E23744]">
+                          Pipeline #{p.id} • {p.category}
+                        </span>
+                        <ChevronRight
+                          className={`w-3.5 h-3.5 transition-transform ${
+                            isSelected ? "text-[#E23744] translate-x-1" : "text-slate-400"
+                          }`}
+                        />
+                      </div>
+                      <div className="font-extrabold text-xs text-slate-900 leading-snug">
+                        {p.title}
+                      </div>
+                      <div className="text-[11px] font-normal text-slate-500 line-clamp-2 mt-1">
+                        {p.description}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Right Column: Execution View & Raw MongoDB Results (7 cols) */}
+            <div className="lg:col-span-7 space-y-6">
+              {/* Pipeline Details Card */}
+              <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#E23744]">
+                      Pipeline #{selectedPipeline.id} • {selectedPipeline.category}
+                    </span>
+                    <h3 className="text-xl font-extrabold text-slate-900 mt-1">
+                      {selectedPipeline.title}
+                    </h3>
+                  </div>
+
+                  <button
+                    onClick={() => executePipeline(selectedPipeline)}
+                    disabled={loading}
+                    className="px-4 py-2 bg-[#E23744] hover:bg-red-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md shadow-red-500/20 flex items-center gap-2 cursor-pointer transition-all self-start sm:self-auto disabled:opacity-50"
+                  >
+                    <Play className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+                    <span>{loading ? "Executing..." : "Re-Run Pipeline"}</span>
+                  </button>
+                </div>
+
+                <p className="text-xs font-normal text-slate-600 leading-relaxed">
+                  {selectedPipeline.description}
+                </p>
+
+                {/* Stages Flow */}
+                <div>
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                    MongoDB Pipeline Stages:
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {selectedPipeline.stages.map((stage, idx) => (
+                      <React.Fragment key={idx}>
+                        <span className="px-3 py-1 bg-slate-900 text-white font-mono text-xs font-bold rounded-lg shadow-xs">
+                          {stage}
+                        </span>
+                        {idx < selectedPipeline.stages.length - 1 && (
+                          <span className="text-slate-400 font-bold text-xs">→</span>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Clinical Engineering Note */}
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
+                  <div className="font-bold text-[#E23744] flex items-center gap-1.5 uppercase tracking-wider text-[10px]">
+                    <Sparkles className="w-3.5 h-3.5" /> Clinical Intelligence Note:
+                  </div>
+                  <div className="text-slate-700 font-normal leading-relaxed">
+                    {selectedPipeline.vivaNote}
+                  </div>
+                </div>
+              </div>
+
+              {/* Live Data Results Card */}
+              <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-extrabold text-xs uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                    <Database className="w-4 h-4 text-emerald-600" /> Live Aggregation Feed
+                  </span>
+                  {liveData && (
+                    <span className="text-xs font-semibold text-slate-500">
+                      {Array.isArray(liveData)
+                        ? `${liveData.length} records returned`
+                        : "Object returned"}
+                    </span>
+                  )}
+                </div>
+
+                {loading ? (
+                  <div className="h-64 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col items-center justify-center text-xs font-bold text-slate-600 gap-2.5">
+                    <RefreshCw className="w-6 h-6 animate-spin text-[#E23744]" />
+                    <span>Executing Pipeline #{selectedPipeline.id} on MongoDB...</span>
+                  </div>
+                ) : error ? (
+                  <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 text-xs font-bold flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-[#E23744]" />
+                    <span>Error: {error}</span>
+                  </div>
+                ) : liveData ? (
+                  <div className="max-h-[420px] overflow-y-auto rounded-2xl bg-slate-900 p-4 font-mono text-xs text-emerald-400 border border-slate-800">
+                    <pre>{JSON.stringify(liveData, null, 2)}</pre>
+                  </div>
+                ) : (
+                  <div className="h-48 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center text-xs font-medium text-slate-400">
+                    Click Re-Run Pipeline to fetch live records.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </main>
+
+        <Footer />
       </div>
-    </div>
+    </AuthGuard>
   );
 }

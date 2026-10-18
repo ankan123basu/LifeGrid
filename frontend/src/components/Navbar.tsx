@@ -159,12 +159,9 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
                       </div>
                     </Link>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setDonateDropdownOpen(false);
-                        onOpenAuth?.();
-                      }}
+                    <Link
+                      href="/register?role=DONOR"
+                      onClick={() => setDonateDropdownOpen(false)}
                       className="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-[#E23744] transition-colors cursor-pointer"
                     >
                       <Heart className="w-4 h-4 text-[#E23744]" />
@@ -174,7 +171,7 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
                           Receive local SOS alerts
                         </div>
                       </div>
-                    </button>
+                    </Link>
 
                     <Link
                       href="/requests"
@@ -303,6 +300,16 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
                         <User className="w-3.5 h-3.5" />
                         <span>Profile &amp; Requests</span>
                       </Link>
+                      {user.role === "ADMIN" && (
+                        <Link
+                          href="/admin/dev-tools"
+                          className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-purple-700 hover:bg-purple-50 transition-colors"
+                          onClick={() => setAvatarMenuOpen(false)}
+                        >
+                          <ShieldAlert className="w-3.5 h-3.5" />
+                          <span>Admin &amp; RBAC DevTools</span>
+                        </Link>
+                      )}
                       <button
                         onClick={() => {
                           setAvatarMenuOpen(false);
@@ -320,12 +327,18 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
             ) : (
               /* Public Anonymous State: Sign In + Solid Red Request Blood */
               <div className="flex items-center gap-2">
-                <button
-                  onClick={onOpenAuth}
+                <Link
+                  href="/login"
+                  onClick={(e) => {
+                    if (onOpenAuth) {
+                      e.preventDefault();
+                      onOpenAuth();
+                    }
+                  }}
                   className="px-4 py-2 text-xs font-bold text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-all cursor-pointer"
                 >
                   Sign In
-                </button>
+                </Link>
                 <Link
                   href="/requests"
                   className="px-4 py-2 bg-[#E23744] hover:bg-red-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-full shadow-md shadow-red-500/20 cursor-pointer transition-all transform hover:-translate-y-0.5 active:translate-y-0"
@@ -386,16 +399,14 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
                 <HeartHandshake className="w-4 h-4 text-emerald-600" />
                 <span>Check Eligibility</span>
               </Link>
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenAuth?.();
-                }}
-                className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-sm text-slate-800 hover:bg-slate-100 transition-colors"
+              <Link
+                href="/register?role=DONOR"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-sm text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 <Heart className="w-4 h-4 text-[#E23744]" />
                 <span>Register as Donor</span>
-              </button>
+              </Link>
               <Link
                 href="/inventory"
                 onClick={() => setMobileMenuOpen(false)}
@@ -423,15 +434,19 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
                 Request Blood Now
               </Link>
               {!user && (
-                <button
-                  onClick={() => {
+                <Link
+                  href="/login"
+                  onClick={(e) => {
                     setMobileMenuOpen(false);
-                    onOpenAuth?.();
+                    if (onOpenAuth) {
+                      e.preventDefault();
+                      onOpenAuth();
+                    }
                   }}
-                  className="w-full py-2.5 bg-slate-100 text-slate-800 font-bold text-xs uppercase tracking-wider text-center rounded-xl"
+                  className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs uppercase tracking-wider text-center rounded-xl transition-colors block"
                 >
                   Sign In
-                </button>
+                </Link>
               )}
             </div>
           </div>

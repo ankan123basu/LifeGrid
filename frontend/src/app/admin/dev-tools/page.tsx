@@ -19,6 +19,9 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuthStore } from "@/lib/store";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import AuthGuard from "@/components/AuthGuard";
 
 const PRESET_PIPELINES: Record<
   string,
@@ -261,45 +264,35 @@ export default function AdminDevToolsPage() {
 
   const explainAnalysis = execResult?.explain ? analyzeExplainPlan(execResult.explain) : null;
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      {/* Header Banner */}
-      <div className="bg-[#7CD4FF] border-4 border-black p-6 mb-8 shadow-[6px_6px_0px_0px_#000]">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-black text-[#7CD4FF] font-mono text-xs font-black uppercase mb-2">
-              <Terminal className="w-3.5 h-3.5" /> Admin Diagnostics &amp; Dev Tools
-            </div>
-            <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-black">
-              Database Diagnostics &amp; Query Workbench
-            </h1>
-            <p className="text-black font-medium mt-1">
-              Internal query optimization workbench, explain plan inspector, and database telemetry analyzer.
-            </p>
-          </div>
+    return (
+    <AuthGuard allowedRoles={["ADMIN"]}>
+      <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-900">
+        <Navbar />
 
-          {/* Quick Admin Auth Status */}
-          <div className="bg-white border-3 border-black p-4 shadow-[3px_3px_0px_0px_#000] flex flex-col justify-between">
-            <div className="text-[11px] font-mono uppercase font-bold text-gray-600 mb-1">
-              Admin Privilege Status
-            </div>
-            {user?.role === "ADMIN" ? (
-              <div className="flex items-center gap-2 text-emerald-600 font-mono font-black text-sm">
-                <ShieldCheck className="w-4 h-4" /> ADMIN (Active)
+        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-8 w-full space-y-8">
+          {/* Header Banner */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-sky-50 text-sky-700 border border-sky-200 rounded-full text-xs font-bold uppercase tracking-wider">
+                <Terminal className="w-3.5 h-3.5" /> Admin Diagnostics &amp; Dev Tools
               </div>
-            ) : (
-              <button
-                onClick={handleQuickAdminLogin}
-                disabled={adminLoggingIn}
-                className="px-3 py-1.5 bg-[#FFE600] hover:bg-yellow-400 border-2 border-black font-mono font-black text-xs uppercase shadow-[2px_2px_0px_0px_#000] cursor-pointer flex items-center gap-1.5"
-              >
-                <Lock className="w-3.5 h-3.5" />
-                {adminLoggingIn ? "Logging in..." : "Quick Admin Login"}
-              </button>
-            )}
+              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-[-0.02em] text-slate-900">
+                Database Diagnostics &amp; Query Workbench
+              </h1>
+              <p className="text-sm font-normal text-slate-600 max-w-2xl leading-relaxed">
+                Internal query optimization workbench, explain plan inspector, and database telemetry analyzer.
+              </p>
+            </div>
+
+            {/* Admin Status Pill */}
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 flex items-center gap-3 shrink-0">
+              <ShieldCheck className="w-6 h-6 text-emerald-600" />
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Privilege Status</div>
+                <div className="text-sm font-extrabold text-slate-900">ADMIN (Verified)</div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
       {/* AI Query Compiler */}
       <div className="bg-white border-3 border-black p-6 mb-8 shadow-[6px_6px_0px_0px_#000]">
@@ -524,6 +517,10 @@ export default function AdminDevToolsPage() {
           </div>
         </div>
       </div>
-    </div>
+        </main>
+
+        <Footer />
+      </div>
+    </AuthGuard>
   );
 }

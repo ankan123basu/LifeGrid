@@ -19,6 +19,9 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import AuthGuard from "@/components/AuthGuard";
 
 type TabMode = "chat" | "parser" | "outreach" | "forecast" | "telemetry";
 
@@ -48,7 +51,7 @@ export default function AiSuitePage() {
 
   // --- Parser State ---
   const [parserText, setParserText] = useState(
-    "URGENT: Road accident near AIIMS New Delhi! Victim needs 3 units of O- Negative Whole Blood immediately. Patient admitted in Trauma ICU. Contact Dr. Sharma 9876543210."
+    "URGENT: Road accident near Riverside General Hospital Delhi! Victim needs 3 units of O- Negative Whole Blood immediately. Patient admitted in Trauma ICU. Contact Dr. Sharma 9876543210."
   );
   const [parserLoading, setParserLoading] = useState(false);
   const [parsedResult, setParsedResult] = useState<any>(null);
@@ -57,7 +60,7 @@ export default function AiSuitePage() {
   // --- Outreach State ---
   const [outreachForm, setOutreachForm] = useState({
     blood_group: "O-",
-    hospital_name: "Apollo Hospital",
+    hospital_name: "Riverside General Hospital",
     city: "Delhi",
     urgency: "CRITICAL",
     patient_diagnosis: "Emergency cardiac surgery",
@@ -217,73 +220,74 @@ export default function AiSuitePage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      {/* Header Banner */}
-      <div className="bg-[#FFE600] border-4 border-black p-6 mb-8 shadow-[6px_6px_0px_0px_#000]">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-black text-[#FFE600] font-mono text-xs font-black uppercase mb-2">
-              <Zap className="w-3.5 h-3.5" /> Emergency Care AI Assistant
-            </div>
-            <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-black">
-              Clinical Intelligence Hub
-            </h1>
-            <p className="text-black font-medium mt-1">
-              Automated donor matching, unstructured SOS distress parser, multilingual broadcast generator, and predictive shortage forecaster.
-            </p>
-          </div>
+    <AuthGuard>
+      <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-900">
+        <Navbar />
 
-          {/* Quick Telemetry Capsule */}
-          <div className="bg-white border-3 border-black p-3 shadow-[3px_3px_0px_0px_#000] flex items-center gap-4">
-            <div>
-              <div className="text-[10px] font-mono uppercase text-gray-600 font-bold">Total Operations</div>
-              <div className="text-xl font-black font-mono">{telemetry?.total_logs ?? "..."}</div>
+        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-8 w-full space-y-8">
+          {/* Header Banner */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-50 text-[#E23744] border border-red-200 rounded-full text-xs font-bold uppercase tracking-wider">
+                <Zap className="w-3.5 h-3.5" /> Emergency Care AI Assistant
+              </div>
+              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-[-0.02em] text-slate-900">
+                Clinical Intelligence Hub
+              </h1>
+              <p className="text-sm font-normal text-slate-600 max-w-2xl leading-relaxed">
+                Automated donor matching, unstructured SOS distress parser, multilingual broadcast generator, and predictive shortage forecaster.
+              </p>
             </div>
-            <div className="border-r-2 border-black h-8" />
-            <div>
-              <div className="text-[10px] font-mono uppercase text-gray-600 font-bold">Processed</div>
-              <div className="text-xl font-black font-mono text-emerald-600">
-                {telemetry?.total_tokens ? telemetry.total_tokens.toLocaleString() : "..."}
+
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 flex items-center gap-4 shrink-0">
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Total Ops</div>
+                <div className="text-xl font-black text-slate-900">{telemetry?.total_logs ?? "..."}</div>
+              </div>
+              <div className="border-r border-slate-300 h-8" />
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Processed</div>
+                <div className="text-xl font-black text-emerald-600 font-mono">
+                  {telemetry?.total_tokens ? telemetry.total_tokens.toLocaleString() : "..."}
+                </div>
+              </div>
+              <div className="border-r border-slate-300 h-8" />
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Avg Latency</div>
+                <div className="text-xl font-black text-[#E23744] font-mono">
+                  {telemetry?.avg_latency_ms ? `${telemetry.avg_latency_ms}ms` : "..."}
+                </div>
               </div>
             </div>
-            <div className="border-r-2 border-black h-8" />
-            <div>
-              <div className="text-[10px] font-mono uppercase text-gray-600 font-bold">Avg Latency</div>
-              <div className="text-xl font-black font-mono text-indigo-600">
-                {telemetry?.avg_latency_ms ? `${telemetry.avg_latency_ms}ms` : "..."}
-              </div>
-            </div>
           </div>
-        </div>
-      </div>
 
-      {/* Tabs Navigation */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        {[
-          { id: "chat", label: "Care Assistant", icon: Bot, color: "bg-[#7CD4FF]" },
-          { id: "parser", label: "SOS Distress Parser", icon: AlertTriangle, color: "bg-[#FF90C8]" },
-          { id: "outreach", label: "Multilingual Broadcaster", icon: Share2, color: "bg-[#2EE59D]" },
-          { id: "forecast", label: "Shortage Forecaster", icon: Activity, color: "bg-[#FFE600]" },
-          { id: "telemetry", label: "System Telemetry", icon: Cpu, color: "bg-white" },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as TabMode)}
-              className={`flex items-center gap-2 px-5 py-3 border-3 border-black font-black uppercase text-sm transition-all cursor-pointer ${
-                isActive
-                  ? `${tab.color} shadow-[4px_4px_0px_0px_#000] -translate-y-0.5`
-                  : "bg-white hover:bg-neutral-100 shadow-[2px_2px_0px_0px_#000]"
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              {tab.label}
-            </button>
-          );
-        })}
-      </div>
+          {/* Tabs Navigation */}
+          <div className="flex flex-wrap gap-2">
+            {[
+              { id: "chat", label: "Care Assistant", icon: Bot },
+              { id: "parser", label: "SOS Distress Parser", icon: AlertTriangle },
+              { id: "outreach", label: "Multilingual Broadcaster", icon: Share2 },
+              { id: "forecast", label: "Shortage Forecaster", icon: Activity },
+              { id: "telemetry", label: "System Telemetry", icon: Cpu },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as TabMode)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                    isActive
+                      ? "bg-slate-900 text-white shadow-sm font-extrabold"
+                      : "bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/80"
+                  }`}
+                >
+                  <Icon className={`w-3.5 h-3.5 ${isActive ? "text-[#E23744]" : "text-slate-400"}`} />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
 
       {/* ========================================================================= */}
       {/* TAB 1: AUTONOMOUS CLINICAL AGENT */}
@@ -883,6 +887,10 @@ export default function AiSuitePage() {
           </div>
         </div>
       )}
-    </div>
+        </main>
+
+        <Footer />
+      </div>
+    </AuthGuard>
   );
 }
