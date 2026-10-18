@@ -34,6 +34,7 @@ const notoSansGurmukhi = Noto_Sans_Gurmukhi({
 });
 
 import AskLifeGridChat from "@/components/AskLifeGridChat";
+import { LanguageProvider } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: "LifeGrid | Real-Time Blood & Emergency Network",
@@ -53,8 +54,10 @@ export default function RootLayout({
       className={`${plusJakartaSans.variable} ${jetbrainsMono.variable} ${notoSansDevanagari.variable} ${notoSansGurmukhi.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans bg-[#F8FAFC] text-slate-900 selection:bg-rose-500 selection:text-white">
-        {children}
-        <AskLifeGridChat />
+        <LanguageProvider>
+          {children}
+          <AskLifeGridChat />
+        </LanguageProvider>
       </body>
     </html>
   );

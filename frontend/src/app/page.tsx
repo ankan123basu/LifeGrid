@@ -25,6 +25,7 @@ import Footer from "@/components/Footer";
 import AuthModal from "@/components/AuthModal";
 import HeroBloodDropCanvas from "@/components/three/HeroBloodDropCanvas";
 import { api } from "@/lib/api";
+import { useLanguage } from "@/lib/i18n";
 
 const MoltenMetal = dynamic(() => import("@/components/MoltenMetal"), { ssr: false });
 
@@ -43,6 +44,7 @@ const HospitalStockMap = dynamic(
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 export default function HomePage() {
+  const { t } = useLanguage();
   const [authOpen, setAuthOpen] = useState(false);
 
   // Request form state - defaults to empty with prompt
@@ -209,20 +211,20 @@ export default function HomePage() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E23744] opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E23744]"></span>
                   </span>
-                  <span>Live emergency blood network across {cityCount > 0 ? `${cityCount} cities` : "12+ cities"}</span>
+                  <span>{t("hero_badge", { cities: cityCount > 0 ? cityCount : "12+" })}</span>
                 </div>
 
                 {/* Letter-spacing -0.02em on h1 only, NO gap before periods */}
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-[-0.02em] text-slate-900 leading-[1.12]">
-                  Find blood fast.<br />
+                  {t("hero_title_1")}<br />
                   <span className="bg-gradient-to-r from-[#E23744] via-rose-600 to-[#E23744] bg-clip-text text-transparent">
-                    Save a life.
+                    {t("hero_title_2")}
                   </span>
                 </h1>
 
                 {/* Grounded, compliant copy */}
                 <p className="mt-3.5 text-base sm:text-lg font-normal text-slate-600 max-w-xl leading-relaxed">
-                  Find nearby blood availability instantly and get matched with nearby donors across partner hospital blood banks.
+                  {t("hero_desc")}
                 </p>
               </div>
 
@@ -232,7 +234,7 @@ export default function HomePage() {
                 <div>
                   <div className="flex items-center justify-between mb-2.5">
                     <label className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                      1. Select Blood Group Needed:
+                      {t("search_card_step1")}
                     </label>
                     <span className="text-[11px] font-semibold text-slate-400">
                       ABO / Rh System
@@ -262,7 +264,7 @@ export default function HomePage() {
                 {/* 2. Location Input - Blank default with clear placeholder */}
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
-                    2. Location or Hospital:
+                    {t("search_card_step2")}
                   </label>
                   <div className="flex gap-2">
                     <div className="relative flex-1">
@@ -271,7 +273,7 @@ export default function HomePage() {
                         type="text"
                         value={cityInput}
                         onChange={(e) => setCityInput(e.target.value)}
-                        placeholder="Enter your city or hospital"
+                        placeholder={t("search_placeholder")}
                         className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl font-medium text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-red-500/20 focus:border-[#E23744] transition-all"
                       />
                     </div>
@@ -282,7 +284,7 @@ export default function HomePage() {
                       className="px-4 py-3.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold text-slate-700 shadow-sm hover:shadow cursor-pointer flex items-center gap-1.5 shrink-0 transition-all"
                     >
                       <Navigation className={`w-3.5 h-3.5 ${locating ? "animate-spin text-[#E23744]" : "text-slate-500"}`} />
-                      <span className="hidden sm:inline">Use Location</span>
+                      <span className="hidden sm:inline">{locating ? t("search_detecting") : t("search_use_location")}</span>
                     </button>
                   </div>
                 </div>
@@ -300,7 +302,7 @@ export default function HomePage() {
                       }`}
                     >
                       <AlertCircle className="w-3.5 h-3.5" />
-                      <span>Immediate (&lt;1h)</span>
+                      <span>{t("search_urgency_immediate")}</span>
                     </button>
                     <button
                       type="button"
@@ -311,7 +313,7 @@ export default function HomePage() {
                           : "text-slate-600 hover:text-slate-900"
                       }`}
                     >
-                      Scheduled Surgery
+                      {t("search_urgency_scheduled")}
                     </button>
                   </div>
 
@@ -321,7 +323,7 @@ export default function HomePage() {
                     className="w-full sm:flex-1 py-4 bg-[#E23744] hover:bg-red-700 text-white rounded-2xl font-bold text-xs text-center shadow-lg shadow-red-500/25 flex items-center justify-center gap-2 cursor-pointer transition-all transform hover:-translate-y-0.5 active:translate-y-0"
                   >
                     <Search className="w-4 h-4" />
-                    <span>Find blood now</span>
+                    <span>{t("search_btn_find")}</span>
                   </Link>
                 </div>
               </div>
@@ -332,19 +334,19 @@ export default function HomePage() {
                   <div className="text-xl sm:text-2xl font-black text-[#E23744]">
                     {liveStats.totalUnits > 0 ? `${liveStats.totalUnits.toLocaleString()}+` : "1,200+"}
                   </div>
-                  <div className="text-xs font-semibold text-slate-500 mt-0.5">Units in Stock</div>
+                  <div className="text-xs font-semibold text-slate-500 mt-0.5">{t("stat_units_stock")}</div>
                 </div>
                 <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
                   <div className="text-xl sm:text-2xl font-black text-emerald-600">
                     {liveStats.hospitalCount > 0 ? liveStats.hospitalCount : "42"}
                   </div>
-                  <div className="text-xs font-semibold text-slate-500 mt-0.5">Partner Blood Banks</div>
+                  <div className="text-xs font-semibold text-slate-500 mt-0.5">{t("stat_partner_banks")}</div>
                 </div>
                 <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
                   <div className="text-xl sm:text-2xl font-black text-slate-800">
                     {liveStats.fulfilledCount > 0 ? `${liveStats.fulfilledCount}+` : "3,200+"}
                   </div>
-                  <div className="text-xs font-semibold text-slate-500 mt-0.5">Donations Coordinated</div>
+                  <div className="text-xs font-semibold text-slate-500 mt-0.5">{t("stat_donations")}</div>
                 </div>
               </div>
             </div>
