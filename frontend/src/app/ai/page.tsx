@@ -116,15 +116,21 @@ export default function AiSuitePage() {
 
     try {
       const res: any = await api.aiChat(text);
-      if (res.success && res.data) {
+      const botReply =
+        res?.data?.reply ||
+        res?.data?.response ||
+        res?.data?.message ||
+        (typeof res?.data === "string" ? res.data : null);
+
+      if (res?.success && botReply) {
         setMessages((prev) => [
           ...prev,
           {
             id: (Date.now() + 1).toString(),
             role: "assistant",
-            content: res.data.response,
-            tool_calls: res.data.tool_calls || [],
-            latency_ms: res.data.latency_ms,
+            content: botReply,
+            tool_calls: res.data.tool_calls || res.data.tools_executed || [],
+            latency_ms: res.data.latency_ms || res.data.telemetry?.latency_ms,
           },
         ]);
         // Refresh telemetry stats in background

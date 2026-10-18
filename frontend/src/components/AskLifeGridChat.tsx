@@ -52,17 +52,23 @@ export default function AskLifeGridChat() {
 
     try {
       const res: any = await api.aiChat(text);
-      if (res.success && res.data) {
+      const botReply =
+        res?.data?.reply ||
+        res?.data?.response ||
+        res?.data?.message ||
+        (typeof res?.data === "string" ? res.data : null);
+
+      if (res?.success && botReply) {
         setMessages((prev) => [
           ...prev,
           {
             id: (Date.now() + 1).toString(),
             role: "assistant",
-            content: res.data.response,
+            content: botReply,
           },
         ]);
       } else {
-        throw new Error(res.error || "Failed to reach assistant");
+        throw new Error(res?.error?.message || res?.error || "Failed to reach assistant");
       }
     } catch (err: any) {
       setMessages((prev) => [
@@ -159,7 +165,9 @@ export default function AskLifeGridChat() {
                       : "bg-white text-slate-800 font-medium rounded-bl-sm border border-slate-200/80 shadow-sm"
                   }`}
                 >
-                  <p className="whitespace-pre-wrap leading-relaxed">{m.content}</p>
+                  <p className="whitespace-pre-wrap leading-relaxed">
+                    {m.content || "I have received your inquiry. Please check partner hospital blood banks or dial 112 for immediate emergencies."}
+                  </p>
                 </div>
               </div>
             ))}

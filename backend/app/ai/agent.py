@@ -153,7 +153,24 @@ def run_assistant_agent(
             final_content = response_msg.content or ""
             break
 
-    # If the model had empty content (e.g. reasoning model token exhaustion), fallback to reasoning or summary
+    # If the model had empty content (e.g. reasoning model token exhaustion or loop limit reached)
+    if not final_content and executed_tools:
+        try:
+            summary_msg, s_meta, s_lat = ai_manager.chat_completion(
+                messages=messages + [{
+                    "role": "user",
+                    "content": "Please provide a clear, concise, direct response answering the user's inquiry based on the database data above."
+                }],
+                temperature=0.3,
+                feature="ASSISTANT_CHAT",
+                user_id=str(user_obj_id)
+            )
+            final_content = summary_msg.content or ""
+            total_tokens += s_meta.get("total_tokens", 0)
+            total_latency_ms += s_lat
+        except Exception as e:
+            logger.warning(f"Failed to synthesize final answer: {e}")
+
     if not final_content and hasattr(response_msg, "reasoning") and response_msg.reasoning:
         final_content = response_msg.reasoning
     if not final_content:
@@ -182,7 +199,10 @@ def run_assistant_agent(
     return {
         "conversation_id": str(conv_obj_id),
         "reply": final_content,
+        "response": final_content,
         "tools_executed": executed_tools,
+        "tool_calls": executed_tools,
+        "latency_ms": round(total_latency_ms, 2),
         "telemetry": {
             "total_tokens": total_tokens,
             "latency_ms": round(total_latency_ms, 2),

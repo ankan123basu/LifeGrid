@@ -32,6 +32,16 @@ def check_blood_stock(blood_group: str, hospital_id: Optional[str] = None) -> Di
     total_avail = sum(r.get("units_available", 0) for r in records)
     total_res = sum(r.get("units_reserved", 0) for r in records)
 
+    # Pre-fetch hospital metadata so the agent immediately knows hospital names and cities
+    hospital_ids = [r.get("hospital_id") for r in records if r.get("hospital_id")]
+    hospitals_map = {}
+    if hospital_ids:
+        for h in db.hospitals.find({"_id": {"$in": hospital_ids}}, {"name": 1, "address.city": 1}):
+            hospitals_map[h["_id"]] = {
+                "name": h.get("name", "Partner Hospital"),
+                "city": h.get("address", {}).get("city", "Unknown City")
+            }
+
     return {
         "blood_group": blood_group.upper(),
         "total_available": total_avail,
@@ -41,11 +51,13 @@ def check_blood_stock(blood_group: str, hospital_id: Optional[str] = None) -> Di
         "breakdown": [
             {
                 "hospital_id": str(r.get("hospital_id")),
+                "hospital_name": hospitals_map.get(r.get("hospital_id"), {}).get("name", "Partner Hospital"),
+                "city": hospitals_map.get(r.get("hospital_id"), {}).get("city", ""),
                 "component": r.get("component"),
                 "units_available": r.get("units_available"),
                 "units_reserved": r.get("units_reserved")
             }
-            for r in records[:5]
+            for r in records[:6]
         ]
     }
 
@@ -73,19 +85,22 @@ def get_hospital_capacity(hospital_name_or_city: Optional[str] = None) -> List[D
     db = get_db()
     query: Dict[str, Any] = {"verified": True}
     if hospital_name_or_city:
-        query["$or"] = [
+        or_clauses: List[Dict[str, Any]] = [
             {"name": {"$regex": hospital_name_or_city, "$options": "i"}},
             {"address.city": {"$regex": hospital_name_or_city, "$options": "i"}}
         ]
+        if ObjectId.is_valid(hospital_name_or_city):
+            or_clauses.append({"_id": ObjectId(hospital_name_or_city)})
+        query["$or"] = or_clauses
 
     cursor = db.hospitals.find(query).limit(5)
     return [
         {
             "hospital_id": str(h["_id"]),
             "name": h["name"],
-            "city": h["address"]["city"],
-            "phone": h["contact"]["phone"],
-            "emergency_phone": h["contact"].get("emergency_phone"),
+            "city": h.get("address", {}).get("city", ""),
+            "phone": h.get("contact", {}).get("phone", ""),
+            "emergency_phone": h.get("contact", {}).get("emergency_phone"),
             "registration_no": h.get("registration_no")
         }
         for h in cursor
