@@ -385,7 +385,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     </span>
                     {quickLoading === label && <RefreshCw className="w-3 h-3 animate-spin text-[#E23744]" />}
                   </div>
-                  <div className="text-[10px] text-slate-400 font-mono truncate mt-0.5">{e}</div>
+                  <div className="text-[10px] text-slate-500 font-normal truncate mt-0.5">{e}</div>
                 </button>
               ))}
             </div>
