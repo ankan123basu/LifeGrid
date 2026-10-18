@@ -92,13 +92,10 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
               ✚
             </div>
             <div className="flex flex-col">
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-xl tracking-tight leading-none text-slate-900">
-                  LifeGrid
-                </span>
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              </div>
-              <span className="text-[11px] font-semibold text-slate-500 tracking-normal">
+              <span className="font-extrabold text-xl tracking-tight leading-none text-slate-900">
+                LifeGrid
+              </span>
+              <span className="text-[11px] font-semibold text-slate-500 tracking-normal mt-0.5">
                 Emergency Blood Network
               </span>
             </div>
@@ -337,13 +334,13 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
                   }}
                   className="px-4 py-2 text-xs font-bold text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-all cursor-pointer"
                 >
-                  Sign In
+                  Sign in
                 </Link>
                 <Link
                   href="/requests"
-                  className="px-4 py-2 bg-[#E23744] hover:bg-red-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-full shadow-md shadow-red-500/20 cursor-pointer transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+                  className="px-4 py-2 bg-[#E23744] hover:bg-red-700 text-white font-bold text-xs rounded-full shadow-md shadow-red-500/20 cursor-pointer transition-all transform hover:-translate-y-0.5 active:translate-y-0"
                 >
-                  Request Blood
+                  Request blood
                 </Link>
               </div>
             )}

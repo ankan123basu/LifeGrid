@@ -21,10 +21,6 @@ export default function Footer() {
               India&apos;s real-time emergency blood network connecting voluntary lifesavers, partner
               hospital blood banks, and critical patients in real-time.
             </p>
-            <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-3 py-1.5 rounded-full w-fit">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              Emergency Blood Network
-            </div>
           </div>
 
           {/* For Patients & Requesters */}
@@ -83,7 +79,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/compliance/dpdp" className="hover:text-white transition-colors">
-                  DPDP Act Compliance
+                  Data Protection Notice
                 </Link>
               </li>
             </ul>
