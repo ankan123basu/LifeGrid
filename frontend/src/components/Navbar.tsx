@@ -34,7 +34,6 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const [donateDropdownOpen, setDonateDropdownOpen] = useState(false);
-  const [lang, setLang] = useState<"EN" | "हिं" | "ਪੰ">("EN");
   const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -230,25 +229,8 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
             </nav>
           )}
 
-          {/* Desktop Right Actions: Language Switcher + Auth / Emergency CTAs */}
+          {/* Desktop Right Actions: Auth / Emergency CTAs */}
           <div className="hidden md:flex items-center gap-3">
-            {/* EN / हिं / ਪੰ Multi-language Switcher */}
-            <div className="flex items-center bg-slate-100 p-0.5 rounded-full border border-slate-200/80 text-[11px] font-bold">
-              {(["EN", "हिं", "ਪੰ"] as const).map((l) => (
-                <button
-                  key={l}
-                  onClick={() => setLang(l)}
-                  className={`px-2 py-1 rounded-full transition-all cursor-pointer ${
-                    lang === l
-                      ? "bg-white text-slate-900 shadow-xs font-extrabold"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
-                  title={`Switch to ${l === "EN" ? "English" : l === "हिं" ? "Hindi" : "Punjabi"}`}
-                >
-                  {l}
-                </button>
-              ))}
-            </div>
 
             {user ? (
               /* Logged In State */
@@ -361,24 +343,6 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-slate-200 bg-white/95 backdrop-blur-xl px-4 py-4 space-y-3 animate-in slide-in-from-top-4 duration-200">
-            {/* Multi-language in mobile */}
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <span className="text-xs font-bold text-slate-500">Language:</span>
-              <div className="flex items-center bg-slate-100 p-0.5 rounded-full border border-slate-200 text-xs font-bold">
-                {(["EN", "हिं", "ਪੰ"] as const).map((l) => (
-                  <button
-                    key={l}
-                    onClick={() => setLang(l)}
-                    className={`px-2.5 py-1 rounded-full ${
-                      lang === l ? "bg-white text-slate-900 shadow-xs font-extrabold" : "text-slate-500"
-                    }`}
-                  >
-                    {l}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             <div className="space-y-1">
               <Link
                 href="/requests"
