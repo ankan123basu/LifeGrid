@@ -26,6 +26,8 @@ import AuthModal from "@/components/AuthModal";
 import HeroBloodDropCanvas from "@/components/three/HeroBloodDropCanvas";
 import { api } from "@/lib/api";
 
+const MoltenMetal = dynamic(() => import("@/components/MoltenMetal"), { ssr: false });
+
 const HospitalStockMap = dynamic(
   () => import("@/components/HospitalStockMap"),
   {
@@ -150,6 +152,12 @@ export default function HomePage() {
     return list.slice(0, 6);
   }, [dbHospitals]);
 
+  // Dynamic count of cities represented in DB
+  const cityCount = useMemo(() => {
+    const set = new Set(dbHospitals.map((h) => h.address?.city).filter(Boolean));
+    return set.size;
+  }, [dbHospitals]);
+
   const faqs = [
     {
       q: "How fast will blood be dispatched in an emergency?",
@@ -201,7 +209,7 @@ export default function HomePage() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E23744] opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E23744]"></span>
                   </span>
-                  <span>Live Emergency Blood Network Active Across India</span>
+                  <span>Live emergency blood network across {cityCount > 0 ? `${cityCount} cities` : "12+ cities"}</span>
                 </div>
 
                 {/* Letter-spacing -0.02em on h1 only, NO gap before periods */}
@@ -214,7 +222,7 @@ export default function HomePage() {
 
                 {/* Grounded, compliant copy */}
                 <p className="mt-3.5 text-base sm:text-lg font-normal text-slate-600 max-w-xl leading-relaxed">
-                  Find nearby blood availability instantly and get matched with nearby donors across licensed partner blood banks.
+                  Find nearby blood availability instantly and get matched with nearby donors across partner hospital blood banks.
                 </p>
               </div>
 
@@ -307,13 +315,13 @@ export default function HomePage() {
                     </button>
                   </div>
 
-                  {/* Primary CTA (solid red #E23744) */}
+                  {/* Primary CTA (solid red #E23744 in sentence case) */}
                   <Link
                     href={`/requests?blood_group=${encodeURIComponent(selectedGroup)}&urgency=${urgency}&location=${encodeURIComponent(cityInput)}`}
-                    className="w-full sm:flex-1 py-4 bg-[#E23744] hover:bg-red-700 text-white rounded-2xl font-extrabold text-xs uppercase tracking-wider text-center shadow-lg shadow-red-500/25 flex items-center justify-center gap-2 cursor-pointer transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+                    className="w-full sm:flex-1 py-4 bg-[#E23744] hover:bg-red-700 text-white rounded-2xl font-bold text-xs text-center shadow-lg shadow-red-500/25 flex items-center justify-center gap-2 cursor-pointer transition-all transform hover:-translate-y-0.5 active:translate-y-0"
                   >
                     <Search className="w-4 h-4" />
-                    <span>Find Blood Now</span>
+                    <span>Find blood now</span>
                   </Link>
                 </div>
               </div>
@@ -341,9 +349,32 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right Column: 3D LatheGeometry Blood Drop with Orbiting RBCs */}
-            <div className="lg:col-span-5 flex flex-col items-center justify-center relative">
-              <HeroBloodDropCanvas className="h-[420px] w-full" />
+            {/* Right Column: 3D LatheGeometry Blood Drop with MoltenMetal Fluid Aura */}
+            <div className="lg:col-span-5 flex flex-col items-center justify-center relative min-h-[460px]">
+              {/* MoltenMetal: strictly behind the 3D visual with radial mask */}
+              <div
+                className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-3xl"
+                style={{
+                  maskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)",
+                  WebkitMaskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)",
+                }}
+              >
+                <MoltenMetal
+                  lightMode={true}
+                  colors={["#FF8FA3", "#FF4D4D"]}
+                  coreColor="#8A0A22"
+                  brightness={1.7}
+                  haze={0.3}
+                  glow={2.0}
+                  opacity={0.9}
+                  className="w-full h-full"
+                />
+              </div>
+
+              {/* 3D Visual in foreground */}
+              <div className="relative z-10 w-full flex items-center justify-center">
+                <HeroBloodDropCanvas className="h-[450px] w-full" />
+              </div>
             </div>
           </div>
         </div>
@@ -649,7 +680,7 @@ export default function HomePage() {
                   </div>
                   <h4 className="font-bold text-xs text-white">Request Inbox</h4>
                   <p className="text-[11px] text-slate-400 leading-normal font-normal">
-                    Instant triage of nearby emergency patient requests with atomic unit reservation.
+                    Instant triage of nearby emergency patient requests to reserve units instantly.
                   </p>
                 </div>
               </div>
@@ -659,9 +690,9 @@ export default function HomePage() {
             <div className="lg:col-span-4 flex justify-start lg:justify-end">
               <button
                 onClick={() => setAuthOpen(true)}
-                className="w-full sm:w-auto px-8 py-4 bg-[#E23744] hover:bg-red-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-full shadow-xl cursor-pointer transition-all transform hover:-translate-y-0.5"
+                className="w-full sm:w-auto px-8 py-4 bg-[#E23744] hover:bg-red-700 text-white font-bold text-xs rounded-full shadow-xl cursor-pointer transition-all transform hover:-translate-y-0.5"
               >
-                Register Your Hospital →
+                Register your hospital →
               </button>
             </div>
           </div>
