@@ -62,16 +62,16 @@ export default function EligibilityWizardPage() {
     explanation: string;
   } | null>(null);
 
-  // Form State — all numeric fields start empty so user must enter them consciously
+  // Form State — all fields start empty so user must enter/select them consciously
   const [formData, setFormData] = useState({
     // Step 1: Basics
     age: "",
     dob: "",
-    sex: "male" as "male" | "female" | "other",
+    sex: "" as "male" | "female" | "other" | "",
     weight: "",
 
     // Step 2: Last Donation
-    hasDonatedBefore: "no",
+    hasDonatedBefore: "" as "yes" | "no" | "",
     lastDonationDate: "",
     donationType: "whole_blood",
 
@@ -87,7 +87,7 @@ export default function EligibilityWizardPage() {
     antibioticsActive: false,
 
     // Step 4: Lifestyle
-    alcoholLast24h: false,
+    alcoholLast24h: null as boolean | null,
 
     // Step 5: Medical History
     chronicConditions: [] as string[],
@@ -100,8 +100,8 @@ export default function EligibilityWizardPage() {
     isBreastfeeding: false,
     recentMiscarriage: false,
 
-    // Step 7: Optional Hemoglobin (empty — user must enter or choose "I don't know")
-    knowsHb: "no",
+    // Step 7: Optional Hemoglobin
+    knowsHb: "" as "yes" | "no" | "",
     hemoglobin: "",
   });
 
@@ -144,12 +144,63 @@ export default function EligibilityWizardPage() {
     });
   }
 
-  // Step Validation
+  // Reactive Step Validity Checker (controls whether Continue button is enabled)
+  function isStepValid(currentStep: number): boolean {
+    if (currentStep === 1) {
+      const numAge = parseInt(formData.age, 10);
+      const numWeight = parseFloat(formData.weight);
+      return (
+        formData.age.trim() !== "" &&
+        !isNaN(numAge) &&
+        numAge >= 10 &&
+        numAge <= 120 &&
+        Boolean(formData.sex) &&
+        formData.weight.trim() !== "" &&
+        !isNaN(numWeight) &&
+        numWeight >= 20 &&
+        numWeight <= 250
+      );
+    }
+    if (currentStep === 2) {
+      if (!formData.hasDonatedBefore) return false;
+      if (formData.hasDonatedBefore === "yes" && !formData.lastDonationDate) return false;
+      return true;
+    }
+    if (currentStep === 3) {
+      if (formData.recentTattoo && !formData.tattooDate) return false;
+      return true;
+    }
+    if (currentStep === 4) {
+      return formData.alcoholLast24h !== null;
+    }
+    if (currentStep === 5) {
+      return true;
+    }
+    if (currentStep === 6 && isFemale) {
+      if (formData.recentDelivery && !formData.deliveryDate) return false;
+      return true;
+    }
+    if (currentStep === 7 || (currentStep === 6 && !isFemale)) {
+      if (!formData.knowsHb) return false;
+      if (formData.knowsHb === "yes") {
+        const numHb = parseFloat(formData.hemoglobin);
+        return formData.hemoglobin.trim() !== "" && !isNaN(numHb) && numHb > 0;
+      }
+      return true;
+    }
+    return true;
+  }
+
+  // Step Validation with user-visible errors
   function validateStep(currentStep: number): boolean {
     if (currentStep === 1) {
       const numAge = parseInt(formData.age, 10);
       if (isNaN(numAge) || numAge < 10 || numAge > 120) {
         setErrorMsg("Please enter a valid age between 10 and 120.");
+        return false;
+      }
+      if (!formData.sex) {
+        setErrorMsg("Please select biological sex.");
         return false;
       }
       const numWeight = parseFloat(formData.weight);
@@ -160,6 +211,10 @@ export default function EligibilityWizardPage() {
     }
 
     if (currentStep === 2) {
+      if (!formData.hasDonatedBefore) {
+        setErrorMsg("Please indicate if you have donated blood before.");
+        return false;
+      }
       if (formData.hasDonatedBefore === "yes" && !formData.lastDonationDate) {
         setErrorMsg("Please specify the date of your last donation.");
         return false;
@@ -169,6 +224,13 @@ export default function EligibilityWizardPage() {
     if (currentStep === 3) {
       if (formData.recentTattoo && !formData.tattooDate) {
         setErrorMsg("Please specify approximate date of your tattoo or piercing.");
+        return false;
+      }
+    }
+
+    if (currentStep === 4) {
+      if (formData.alcoholLast24h === null) {
+        setErrorMsg("Please answer the alcohol intake question.");
         return false;
       }
     }
@@ -491,22 +553,22 @@ export default function EligibilityWizardPage() {
                       onClick={() => updateField("hasDonatedBefore", "no")}
                       className={`p-3.5 rounded-2xl text-xs font-bold border transition-all cursor-pointer ${
                         formData.hasDonatedBefore === "no"
-                          ? "bg-[#E23744] text-white border-[#E23744] shadow-md"
+                          ? "bg-[#E23744] text-white border-[#E23744] shadow-md shadow-red-500/20"
                           : "bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200"
                       }`}
                     >
-                      No (First-Time Donor)
+                      Never donated / First time
                     </button>
                     <button
                       type="button"
                       onClick={() => updateField("hasDonatedBefore", "yes")}
                       className={`p-3.5 rounded-2xl text-xs font-bold border transition-all cursor-pointer ${
                         formData.hasDonatedBefore === "yes"
-                          ? "bg-[#E23744] text-white border-[#E23744] shadow-md"
+                          ? "bg-[#E23744] text-white border-[#E23744] shadow-md shadow-red-500/20"
                           : "bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200"
                       }`}
                     >
-                      Yes, previously
+                      Yes, I have donated before
                     </button>
                   </div>
                 </div>
@@ -645,23 +707,23 @@ export default function EligibilityWizardPage() {
                         type="button"
                         onClick={() => updateField("alcoholLast24h", false)}
                         className={`p-3 rounded-2xl text-xs font-bold border transition-all cursor-pointer ${
-                          !formData.alcoholLast24h
-                            ? "bg-[#E23744] text-white border-[#E23744]"
-                            : "bg-white text-slate-700 border-slate-200"
+                          formData.alcoholLast24h === false
+                            ? "bg-[#E23744] text-white border-[#E23744] shadow-md shadow-red-500/20"
+                            : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                         }`}
                       >
-                        No
+                        No, zero alcohol in past 24h
                       </button>
                       <button
                         type="button"
                         onClick={() => updateField("alcoholLast24h", true)}
                         className={`p-3 rounded-2xl text-xs font-bold border transition-all cursor-pointer ${
-                          formData.alcoholLast24h
-                            ? "bg-[#E23744] text-white border-[#E23744]"
-                            : "bg-white text-slate-700 border-slate-200"
+                          formData.alcoholLast24h === true
+                            ? "bg-amber-600 text-white border-amber-600 shadow-md shadow-amber-500/20"
+                            : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                         }`}
                       >
-                        Yes (within 24 hrs)
+                        Yes, consumed alcohol
                       </button>
                     </div>
                     <p className="text-[11px] text-slate-500 leading-normal">
@@ -809,19 +871,19 @@ export default function EligibilityWizardPage() {
                       onClick={() => updateField("knowsHb", "no")}
                       className={`p-3.5 rounded-2xl text-xs font-bold border transition-all cursor-pointer ${
                         formData.knowsHb === "no"
-                          ? "bg-[#E23744] text-white border-[#E23744]"
-                          : "bg-slate-50 text-slate-700 border-slate-200"
+                          ? "bg-[#E23744] text-white border-[#E23744] shadow-md shadow-red-500/20"
+                          : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
                       }`}
                     >
-                      I Don&apos;t Know (Test at Center)
+                      I don&apos;t know (test at centre)
                     </button>
                     <button
                       type="button"
                       onClick={() => updateField("knowsHb", "yes")}
                       className={`p-3.5 rounded-2xl text-xs font-bold border transition-all cursor-pointer ${
                         formData.knowsHb === "yes"
-                          ? "bg-[#E23744] text-white border-[#E23744]"
-                          : "bg-slate-50 text-slate-700 border-slate-200"
+                          ? "bg-[#E23744] text-white border-[#E23744] shadow-md shadow-red-500/20"
+                          : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
                       }`}
                     >
                       Yes, I know it
@@ -870,19 +932,19 @@ export default function EligibilityWizardPage() {
               <button
                 type="button"
                 onClick={handleNext}
-                disabled={loading}
-                className="px-7 py-3 bg-[#E23744] hover:bg-red-700 text-white rounded-full text-xs font-extrabold uppercase tracking-wider shadow-lg shadow-red-500/25 flex items-center gap-2 cursor-pointer transition-all"
+                disabled={loading || !isStepValid(step)}
+                className="px-7 py-3 bg-[#E23744] hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#E23744] text-white rounded-full text-xs font-bold tracking-normal shadow-lg shadow-red-500/25 flex items-center gap-2 cursor-pointer transition-all"
               >
                 {loading ? (
                   "Evaluating..."
-                ) : step === 7 ? (
+                ) : step === 7 || (!isFemale && step === 6) ? (
                   <>
-                    <span>Check Eligibility</span>
+                    <span>Check eligibility</span>
                     <Sparkles className="w-3.5 h-3.5" />
                   </>
                 ) : (
                   <>
-                    <span>Next</span>
+                    <span>Next step</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </>
                 )}
@@ -892,6 +954,19 @@ export default function EligibilityWizardPage() {
         ) : (
           /* ── RESULT SCREEN (4 DISTINCT STATES) ── */
           <div className="space-y-6 animate-in zoom-in-95 duration-200">
+            {/* Step Progress Bar — 100% on successful evaluation */}
+            <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-sm">
+              <div className="flex items-center justify-between text-xs font-semibold text-slate-600 mb-2">
+                <span className="flex items-center gap-1.5 font-bold text-emerald-600">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Assessment complete
+                </span>
+                <span className="font-bold text-emerald-600">100%</span>
+              </div>
+              <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                <div className="h-full bg-emerald-500 w-full" />
+              </div>
+            </div>
+
             {/* 1. ELIGIBLE STATE */}
             {result.status === "ELIGIBLE" && (
               <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-emerald-200 space-y-6">
