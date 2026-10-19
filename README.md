@@ -1,35 +1,104 @@
-# 🩸 LifeGrid — Real-Time, AI-Assisted Blood & Emergency Resource Network
+<![CDATA[<div align="center">
 
-[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-8.0+-47A248?style=for-the-badge&logo=mongodb)](https://www.mongodb.com/)
-[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python)](https://python.org/)
-[![Groq AI](https://img.shields.io/badge/Groq-LLaMA_3.3_70B-F55036?style=for-the-badge)](https://groq.com/)
-[![Three.js](https://img.shields.io/badge/Three.js-WebGL2-black?style=for-the-badge&logo=three.js)](https://threejs.org/)
-[![Leaflet](https://img.shields.io/badge/Leaflet-Maps-199900?style=for-the-badge&logo=leaflet)](https://leafletjs.com/)
+<img src="https://img.shields.io/badge/LifeGrid-Emergency%20Blood%20Network-E23744?style=for-the-badge&logoColor=white" alt="LifeGrid"/>
 
-> **LifeGrid** is an ultra-fast, consumer-first emergency resource dispatch network. Designed with a saturated **Neo-Brutalist** aesthetic (bold ink borders, hard offset shadows, high-contrast indicators), LifeGrid bridges the gap between critical blood shortages, verified hospital inventories, and active volunteer donors in sub-second latency.
+# LifeGrid — Real-Time AI-Assisted Emergency Blood Network
+
+**India's end-to-end emergency blood logistics platform.**
+Live inventory, intelligent donor matching, geospatial dispatch, and a 5-language AI clinical assistant — all in one unified system.
+
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-8.0+-47A248?style=flat-square&logo=mongodb)](https://www.mongodb.com/)
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python)](https://python.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=flat-square&logo=typescript)](https://typescriptlang.org/)
+[![Three.js](https://img.shields.io/badge/Three.js-WebGL-black?style=flat-square&logo=three.js)](https://threejs.org/)
+[![Groq AI](https://img.shields.io/badge/Groq-AI%20Engine-F55036?style=flat-square)](https://groq.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 
 ---
 
-## ⚡ Highlights & Core Capabilities
+[Live Demo](#-quickstart-guide) · [System Architecture](#-system-architecture) · [API Reference](#-api-reference) · [15 Analytics Pipelines](#-15-production-grade-aggregation-pipelines) · [AI Clinical Suite](#-ai-clinical-suite) · [Contributing](#-contributing)
 
-- 🗺️ **Interactive Hospital Stock Map**: Real-time Leaflet map displaying verified medical facilities with non-overlapping circular colored dots (🟢 Available `>30`, 🟡 Moderate `10-30`, 🔴 Critical `<10`), collision-avoidance micro-jitter, and rich neo-brutalist hover tooltips with live ABO/Rh balances.
-- 🚨 **Instant Emergency Dispatch**: 1-click blood request flow with automatic GPS location detection, urgency tiers (`CRITICAL`, `URGENT`, `ROUTINE`), and compatible donor matching.
-- ⚡ **Real-Time WebSocket & Change Streams**: Native MongoDB Change Streams pushing instant inventory depletion, request state transitions (`PENDING` → `MATCHED` → `IN_TRANSIT` → `FULFILLED`), and notification broadcasts over multi-room WebSockets.
-- 🤖 **Clinical AI Suite (Groq LLaMA 3.3)**:
-  - Multi-turn clinical assistant with autonomous database tool-calling (stock checks, donor radius lookups).
-  - Unstructured SOS / WhatsApp distress message parser converting raw text to structured emergency requests.
-  - Multilingual donor mobilization generator (English, Hindi, Punjabi).
-  - 7–14 day predictive inventory shortage forecaster.
-- 🧬 **Interactive 3D Visualizations (Three.js)**:
-  - Real-time biconcave erythrocyte (RBC) cellular simulation with systolic/diastolic dual pulsation.
-  - Geospatial dispatch globe with glowing Bezier transit arcs connecting Indian medical centers.
-  - Interactive clinical blood packet inspector with dynamic ABO/Rh fluid volume rendering.
-- 📊 **15 Production-Grade Aggregation Pipelines**:
-  - Full analytics suite covering hospital leaderboards, donor retention cohorts, peak-hour heatmaps, expiring batch trackers, and city demand/supply ratios.
-- 🧪 **Interactive Query Lab**:
-  - Live pipeline executor with `.explain("executionStats")` visualizer distinguishing indexed `IXSCAN` from unindexed `COLLSCAN` plans.
+</div>
+
+---
+
+## What is LifeGrid?
+
+LifeGrid is a full-stack, production-architected emergency blood resource management system built for India's healthcare ecosystem. It solves the critical gap between **where blood is available** and **where a patient urgently needs it** — in real time.
+
+The platform connects voluntary donors, verified hospital blood banks, and clinical staff across India's major metropolitan areas through a unified intelligent network, featuring:
+
+- Sub-second live inventory queries backed by **MongoDB Change Streams**
+- Autonomous clinical AI powered by **Groq** with live database tool-calling
+- **Three.js WebGL** 3D geospatial visualization with interactive orbit controls
+- Full **RBAC** authentication (Admin, Hospital Staff, Donor, Requester)
+- **5-language real-time UI** (English, Hindi, Punjabi, Bengali, Tamil)
+- 15 production-grade MongoDB aggregation analytics pipelines
+
+---
+
+## Feature Overview
+
+### 🩸 Blood Discovery & Dispatch
+
+| Feature | Description |
+|---|---|
+| **Hospital Stock Map** | Real-time Leaflet map showing 40+ verified partner hospitals with color-coded availability indicators (🟢 Available, 🟡 Moderate, 🔴 Critical) |
+| **Instant Blood Request** | 1-click emergency dispatch with GPS location, urgency tiers (`CRITICAL`, `URGENT`, `ROUTINE`), compatible donor radius matching |
+| **Eligibility Wizard** | 5-step clinical pre-screening form for donor eligibility with haemoglobin, weight, travel, and infection history checks |
+| **Donor Registration** | Voluntary lifesaver enrollment with blood group, geolocation, and 90-day donation cooldown enforcement |
+
+### 📊 Analytics Command Center (`/analytics`)
+
+A fully live executive clinical operations dashboard powered by real-time MongoDB aggregation:
+
+- **Interactive 3D WebGL Network Globe** (Three.js) — rotating Pan-India blood bank mesh with metropolitan dispatch nodes, orbital rings, animated transit arcs, and mouse-drag orbit controls
+- **Live Blood Group Reserve Matrix** — visual capacity bars for all 8 groups (`O+`, `O-`, `A+`, `A-`, `B+`, `B-`, `AB+`, `AB-`) with `OPTIMAL / MODERATE / DEFICIT` status badges
+- **Monthly Donation Timeline** — gradient bar chart visualizing donation velocity and cumulative running total via `$setWindowFields`
+- **Critical Shortage Radar** — real-time deficit alerts with hospital contact numbers and 1-click direct call
+- **Hospital Leaderboard** — fulfilment rate bars, request completion stats, and star ratings ranked from live data
+- **Lifesaver Honor Roll** — top donors ranked by lifetime units with Platinum/Gold loyalty badge tiers
+- **Regional Deficit Watch** — metro supply-to-demand ratio meters across Delhi, Mumbai, Bengaluru, and more
+- **CSE494 Pipeline Inspector Drawer** — slide-over inspector for all 15 MongoDB aggregation pipelines with stage-by-stage explanations and live JSON output
+
+### 🤖 AI Clinical Suite (`/ai`)
+
+Five autonomous AI-powered tabs backed by Groq's LLM platform:
+
+| Tab | Capability |
+|---|---|
+| **Care Assistant** | Multi-turn clinical agent with live MongoDB tool-calling (`check_blood_inventory`, `find_nearest_hospitals`, `get_blood_compatibility`, `estimate_delivery_time`, `find_critical_shortages`) |
+| **SOS Distress Parser** | Converts raw WhatsApp forwards, family voice transcriptions, and emergency dispatch messages into structured `BloodRequest` schema using LLM NER |
+| **Multilingual Broadcaster** | Generates high-urgency donor mobilization alerts in English, Hindi, and Punjabi simultaneously |
+| **Shortage Forecaster** | 7–14 day predictive stock depletion analysis across all 8 blood groups with recommended intervention actions |
+| **System Telemetry** | Live Groq model audit — total calls, tokens processed, average latency, and MongoDB `ai_usage_logs` auditing |
+
+### 🌍 Real-Time 5-Language UI
+
+The entire application supports live, zero-reload language switching across:
+
+- 🇬🇧 **English** (default)
+- 🇮🇳 **Hindi** (हिन्दी)
+- 🇮🇳 **Punjabi** (ਪੰਜਾਬੀ)
+- 🇮🇳 **Bengali** (বাংলা)
+- 🇮🇳 **Tamil** (தமிழ்)
+
+Language selection persists via React Context and switches all nav labels, hero copy, search card instructions, and status text in real time without a page refresh.
+
+### ⚡ Real-Time Infrastructure
+
+- **WebSocket Change Streams**: Native MongoDB Change Streams push live inventory mutations, request status transitions (`PENDING → MATCHED → IN_TRANSIT → FULFILLED`), and notification broadcasts to all connected clients
+- **Multi-Room WebSocket Manager**: Room-based real-time subscriptions per hospital, per user, and per global admin
+- **Auto-Reconnect Client**: Frontend WebSocket client with exponential back-off and connection health monitoring
+
+### 🔐 Security & RBAC
+
+- JWT-based authentication (Python-JOSE, RS256)
+- Role-Based Access Control: `ADMIN`, `HOSPITAL_STAFF`, `DONOR`, `REQUESTER`
+- Route and API protection via `AuthGuard` component with allowed-role enforcement
+- Demo accounts gated strictly behind `NEXT_PUBLIC_DEMO_MODE=true` — absent in any production build
 
 ---
 
@@ -37,20 +106,22 @@
 
 ```mermaid
 flowchart TD
-    subgraph Client ["Frontend (Next.js 15 App Router)"]
-        UI["Neo-Brutalist UI & Pages"]
+    subgraph Client ["Frontend (Next.js 16 · React 19 · TypeScript)"]
+        UI["UI Pages & Components"]
         LeafletMap["Hospital Stock Map (Leaflet)"]
-        ThreeCanvas["Three.js 3D Visualizations"]
+        ThreeCanvas["Three.js 3D Globe & RBC Sim"]
         WSClient["WebSocket Client (Auto-Reconnect)"]
-        ChatDrawer["Floating 'Ask LifeGrid' AI Drawer"]
+        ChatDrawer["Ask LifeGrid AI Drawer"]
+        i18n["5-Language Context (EN/HI/PA/BN/TA)"]
     end
 
-    subgraph Server ["Backend (FastAPI + PyMongo)"]
-        Router["FastAPI REST Endpoints"]
+    subgraph Server ["Backend (FastAPI · PyMongo · Pydantic v2)"]
+        Router["REST API Endpoints"]
         WSManager["WebSocket Connection Manager"]
-        AIAgent["Groq AI Agent + Function Calling Tools"]
-        CRUD["PyMongo CRUD & Transaction Controllers"]
-        Streams["Change Stream Watcher Thread"]
+        AIAgent["Groq Autonomous Agent + Tool Calling"]
+        CRUD["PyMongo CRUD & ACID Transactions"]
+        Streams["MongoDB Change Stream Watcher"]
+        Auth["JWT Auth · RBAC Middleware"]
     end
 
     subgraph Database ["MongoDB 8.0+ Replica Set"]
@@ -58,19 +129,21 @@ flowchart TD
         ColInv[("blood_inventory")]
         ColReq[("blood_requests")]
         ColUsers[("users")]
-        ColAudit[("audit_logs (TTL Index)")]
+        ColAudit[("audit_logs (TTL 90d)")]
         ColAI[("ai_usage_logs")]
+        ColAnalytics[("analytics_daily · $merge")]
     end
 
     subgraph External ["External Services"]
-        GroqAPI["Groq Cloud API (LLaMA 3.3 70B)"]
+        GroqAPI["Groq Cloud API (LLaMA / GPT-OSS)"]
     end
 
     UI --> Router
-    WSClient <-->|ws://localhost:8000/ws| WSManager
+    WSClient <-->|"ws://localhost:8000/ws"| WSManager
     LeafletMap --> Router
     ChatDrawer --> Router
     Router --> AIAgent
+    Router --> Auth
     AIAgent <--> GroqAPI
     Router --> CRUD
     CRUD <--> Database
@@ -80,152 +153,253 @@ flowchart TD
 
 ---
 
+## 🗂️ Repository Structure
+
+```
+LifeGrid/
+├── backend/
+│   ├── app/
+│   │   ├── main.py                 # FastAPI application entry point
+│   │   ├── routers/                # Route modules (auth, blood, hospitals, analytics, ai, ws)
+│   │   ├── models/                 # Pydantic v2 request/response schemas
+│   │   ├── core/                   # JWT, security, config, database connection
+│   │   └── services/               # Business logic, AI agent, change stream watcher
+│   ├── queries/                    # Standalone demo scripts (CRUD, aggregation, transactions)
+│   ├── seed/                       # Realistic data seeder (42 hospitals, 500+ donors, 8-group inventory)
+│   ├── tests/                      # Pytest test suite
+│   ├── requirements.txt
+│   └── .env.example
+│
+├── frontend/
+│   ├── src/
+│   │   ├── app/                    # Next.js App Router pages
+│   │   │   ├── page.tsx            # Landing page
+│   │   │   ├── analytics/          # Executive clinical command center
+│   │   │   ├── ai/                 # AI Clinical Suite (5 tabs)
+│   │   │   ├── requests/           # Blood request management
+│   │   │   ├── inventory/          # Hospital blood stock view
+│   │   │   ├── donate/             # Donor eligibility + registration
+│   │   │   ├── admin/              # Admin dashboard
+│   │   │   ├── query-lab/          # Live MongoDB pipeline executor
+│   │   │   └── compliance/         # DPDP, Privacy, Terms pages
+│   │   ├── components/
+│   │   │   ├── Navbar.tsx          # 5-language switcher, RBAC-aware auth header
+│   │   │   ├── ThreeNetworkGlobe.tsx  # 3D WebGL emergency network globe
+│   │   │   ├── three/              # BloodBagCanvas, RBC simulation, sphere scenes
+│   │   │   ├── AuthGuard.tsx       # Role-protected route wrapper
+│   │   │   └── Footer.tsx
+│   │   └── lib/
+│   │       ├── api.ts              # Typed API client
+│   │       └── i18n.tsx            # 5-language React context & translation dictionary
+│   └── .env.local.example
+│
+├── docker-compose.yml
+├── CHANGELOG.md
+└── README.md
+```
+
+---
+
 ## 🚀 Quickstart Guide
 
 ### Prerequisites
-- **Python 3.11+**
-- **Node.js 18+** & `npm`
-- **MongoDB 7.0+ / 8.0+** running locally on `mongodb://localhost:27017` (Replica set enabled for Change Streams & Transactions)
-- *(Optional)* **Groq API Key** for AI features (a mock fallback is built-in if key is omitted)
 
----
+| Requirement | Version |
+|---|---|
+| Python | 3.11+ |
+| Node.js | 18+ |
+| MongoDB | 7.0+ (replica set enabled) |
+| npm | 9+ |
+| Groq API Key | Optional — AI features degrade gracefully |
 
-### 1. Database Setup
+### Step 1 — Start MongoDB (Replica Set)
 
-Ensure MongoDB is running:
+Change Streams and multi-document transactions require a replica set. Start with:
+
 ```bash
 mongod --replSet rs0 --dbpath ./data/db
 ```
-*(If running single-node replica set, run `rs.initiate()` once in mongosh).*
 
----
+If running for the first time, initiate the replica set in `mongosh`:
 
-### 2. Backend Setup
+```js
+rs.initiate()
+```
+
+### Step 2 — Backend Setup
 
 ```bash
 cd backend
 
 # Create and activate virtual environment
 python -m venv .venv
+.venv\Scripts\activate          # Windows
+# source .venv/bin/activate     # Linux / macOS
 
-# Windows:
-.\.venv\Scripts\activate
-# Linux/macOS:
-# source .venv/bin/activate
-
-# Install dependencies
+# Install all Python dependencies
 pip install -r requirements.txt
 
-# Configure environment variables
+# Configure environment (copy and edit with your keys)
 cp .env.example .env
-# Edit .env with your MONGODB_URI and GROQ_API_KEY
+```
 
-# Seed realistic database records (~40 hospitals, donors, 8-group inventory, requests)
+Edit `backend/.env`:
+
+```env
+MONGODB_URI=mongodb://localhost:27017/?replicaSet=rs0
+DB_NAME=lifegrid
+GROQ_API_KEY=your_groq_api_key_here
+JWT_SECRET_KEY=your_very_long_random_secret
+ALLOWED_ORIGINS=http://localhost:3000
+```
+
+```bash
+# Seed 42 hospitals, 500+ donors, full 8-group blood inventory, and demo users
 python seed/seed.py
 
-# Launch FastAPI development server
+# Start FastAPI with hot-reload
 uvicorn app.main:app --reload --port 8000
 ```
 
-The backend documentation will be accessible at:
-- **Interactive Swagger UI:** [http://localhost:8000/docs](http://localhost:8000/docs)
-- **Alternative ReDoc:** [http://localhost:8000/redoc](http://localhost:8000/redoc)
+API documentation is now live at:
+- **Swagger UI**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- **ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
 
----
-
-### 3. Frontend Setup
+### Step 3 — Frontend Setup
 
 ```bash
 cd frontend
 
-# Install npm dependencies
+# Install dependencies
 npm install
 
-# (Optional) Map Tiles Configuration (.env.local)
-# LifeGrid defaults to keyless OpenStreetMap tiles out of the box.
-# You can configure drop-in high-performance tiles via frontend/.env.local:
-#
-# Standard OSM (Default, No API Key Required):
-# NEXT_PUBLIC_MAP_TILE_URL=https://tile.openstreetmap.org/{z}/{x}/{y}.png
-# NEXT_PUBLIC_MAP_ATTRIBUTION=&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors
-#
-# MapTiler (Free Tier with API Key):
-# NEXT_PUBLIC_MAP_TILE_URL=https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=YOUR_MAPTILER_KEY
-# NEXT_PUBLIC_MAP_ATTRIBUTION=&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> &copy; OpenStreetMap contributors
-#
-# Stadia Maps (Free Tier with API Key):
-# NEXT_PUBLIC_MAP_TILE_URL=https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=YOUR_STADIA_KEY
-# NEXT_PUBLIC_MAP_ATTRIBUTION=&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; OpenStreetMap contributors
+# Configure environment
+cp .env.local.example .env.local
+```
 
+Edit `frontend/.env.local`:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_WS_URL=ws://localhost:8000
+NEXT_PUBLIC_DEMO_MODE=true          # Set to false in production
+```
+
+> **Map Tiles** — LifeGrid defaults to free OpenStreetMap tiles with no API key required.
+> You can optionally upgrade to MapTiler or Stadia Maps by editing `NEXT_PUBLIC_MAP_TILE_URL`.
+
+```bash
 # Start Next.js development server
 npm run dev
 ```
 
-Open your browser at **[http://localhost:3000](http://localhost:3000)**.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Demo Accounts (Development Only)
+
+The following accounts are seeded when `NEXT_PUBLIC_DEMO_MODE=true`:
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | `admin@lifegrid.in` | `admin123` |
+| Hospital Staff | `staff@riversidehospital.in` | `staff123` |
+| Donor | `donor@lifegrid.in` | `donor123` |
+| Requester | `requester@lifegrid.in` | `req123` |
+
+> [!CAUTION]
+> **Before deploying to production**, set `NEXT_PUBLIC_DEMO_MODE=false` to completely strip demo login buttons from the build, and permanently delete all seeded demo accounts from your MongoDB database:
+> ```js
+> db.users.deleteMany({
+>   email: { $in: ["admin@lifegrid.in", "staff@riversidehospital.in", "donor@lifegrid.in", "requester@lifegrid.in"] }
+> })
+> ```
 
 ---
 
-## 🗄️ Database Design & Schema Highlights
+## 🗄️ Database Design & Schema
 
-| Collection | Primary Index | Key Features |
-| :--- | :--- | :--- |
-| `hospitals` | `2dsphere` on `location` | Compound text index on `(name, address.city)`, verified bed & blood bank specs |
-| `blood_inventory` | Compound `(hospital_id, blood_group, component)` | Atomic reservation via `find_one_and_update()`, embedded expiration batches |
-| `blood_requests` | `patient_id`, `hospital_id`, `status` | Multi-document ACID transactional dispatch, embedded status audit trail |
-| `users` | Unique `email`, `2dsphere` on `location` | Strict donor 90-day cooldown enforcement, role-based access control |
-| `notifications` | `recipient_id`, `created_at` | Real-time WebSocket delivery and read receipts |
-| `audit_logs` | TTL on `timestamp` (90 days) | Append-only compliance log for emergency actions |
-| `ai_usage_logs` | `timestamp`, `feature` | Operational telemetry auditing token consumption and latency |
+### Collections
 
----
+| Collection | Primary Index | Key Design Points |
+|---|---|---|
+| `hospitals` | `2dsphere` on `location` | Compound text index on `(name, address.city)`, verified bed count, blood bank specialization |
+| `blood_inventory` | Compound `(hospital_id, blood_group, component)` | Atomic reservation via `findOneAndUpdate` with optimistic locking, embedded `expiry_batches` array |
+| `blood_requests` | `patient_id`, `hospital_id`, `status` | Multi-document ACID transaction dispatch, embedded status audit trail array |
+| `users` | Unique `email`, `2dsphere` on `location` | 90-day donor cooldown enforcement, role-based access, hashed credentials |
+| `notifications` | `recipient_id`, `created_at` | Real-time WebSocket delivery and read-receipt tracking |
+| `audit_logs` | TTL index on `timestamp` (90 days) | Append-only compliance log for all emergency actions per DPDP norms |
+| `ai_usage_logs` | `timestamp`, `feature` | Operational LLM telemetry — token consumption, latency percentiles, model version |
+| `analytics_daily` | `date` | Materialized daily summaries persisted via `$merge` for dashboard cold-start acceleration |
 
-## 📊 15 Advanced Aggregation Pipelines
+### Key Design Patterns
 
-LifeGrid includes 15 production-grade analytical pipelines:
-
-1. **Blood Stock by Group Across Hospitals** (`$group`, `$project`, `$sort`)
-2. **Critical Shortage Detector** (`$match` with threshold, `$lookup` hospitals)
-3. **Monthly Donation Trend with Running Total** (`$setWindowFields` moving total)
-4. **Top 10 Donors by Lifetime Units** (`$bucketAuto` / `$switch` tier badging)
-5. **Average Fulfilment Time per Urgency Tier** (`$arrayElemAt` timeline delta)
-6. **Nearest Compatible Donors for Request** (`$geoNear` + ABO/Rh matrix + 90-day cooldown)
-7. **Request Funnel via Parallel Facets** (`$facet` multi-stage aggregation)
-8. **Hospital Performance Leaderboard** (`$lookup` request completion rates & ratings)
-9. **Batches Expiring in Next 7 Days** (`$unwind` on embedded `expiry_batches`)
-10. **City-Wise Demand vs. Supply Ratio** (`$lookup` + `$divide` demand ratio)
-11. **Donor Retention Cohorts** (First donation month vs. repeat returns)
-12. **Peak-Hour Emergency Heatmap** (`$dayOfWeek` × `$hour` matrix)
-13. **Component-Wise Usage Share** (Whole Blood, RBC, Platelets, Plasma share)
-14. **Materialized Daily Summary** (`$merge` into `analytics_daily` table)
-15. **AI Usage & Latency Audit** (Token cost and p95 response time analytics)
+- **Atomic Inventory Reservation** — Uses `findOneAndUpdate` with `$inc` on `units_available` inside a session to prevent double-allocation under concurrent emergency requests
+- **ACID Multi-Document Transactions** — Blood request creation atomically debits inventory and creates the request document in a single commit/rollback boundary
+- **Geospatial Donor Matching** — `$geoNear` aggregation with ABO/Rh compatibility matrix filter and 90-day cooldown guard
+- **Change Streams → WebSocket** — Background thread watches `blood_inventory` and `blood_requests` collections and pushes mutations to relevant WebSocket rooms in real time
 
 ---
 
-## 🔒 Production Security & Demo Account Notice
+## 📊 15 Production-Grade Aggregation Pipelines
 
-> [!IMPORTANT]
-> **Production Deployment Requirement**:
-> 1. Set `NEXT_PUBLIC_DEMO_MODE=false` (or remove the variable) in your production environment variables. When disabled, 1-click demo login buttons are completely stripped from the build and will never render.
-> 2. **Delete Seeded Accounts**: Ensure all sample demo accounts (`admin@lifegrid.in`, `staff@riversidehospital.in`, `donor@lifegrid.in`, `requester@lifegrid.in`) are permanently removed from your production MongoDB database before public release:
->    ```javascript
->    db.users.deleteMany({
->      email: { $in: ["admin@lifegrid.in", "staff@riversidehospital.in", "donor@lifegrid.in", "requester@lifegrid.in"] }
->    });
->    ```
+All 15 pipelines are live, executable from the `/analytics` Pipeline Inspector drawer, and individually testable via `python queries/aggregation_demo.py`.
+
+| # | Pipeline | Key MongoDB Stage(s) | Purpose |
+|---|---|---|---|
+| 1 | Blood Stock by Group | `$group`, `$sort` | Total live units per blood type across all hospitals |
+| 2 | Critical Shortage Detector | `$match`, `$lookup`, `$unwind` | Inter-collection join to surface hospitals below 5-unit threshold |
+| 3 | Monthly Donation Running Total | `$group`, `$setWindowFields` | Cumulative blood volume with MongoDB 5.0+ analytical window function |
+| 4 | Top Donors by Lifetime Units | `$group`, `$switch`, `$limit` | Ranked lifesavers with dynamic Platinum/Gold/Silver badge assignment |
+| 5 | Fulfilment Time by Urgency | `$project`, `$group` | Average minutes from triage to bedside, split by CRITICAL / URGENT / NORMAL |
+| 6 | Nearest Compatible Donors | `$geoNear`, `$match` | Geospatial distance query with ABO/Rh matrix + 90-day cooldown filter |
+| 7 | Request Funnel (Parallel Facets) | `$facet` | Multi-dimensional stats (by status, urgency, blood group) in one DB pass |
+| 8 | Hospital Performance Leaderboard | `$lookup`, `$addFields`, `$sort` | Fulfilment rate percentage computed inline via `$divide` |
+| 9 | Expiring Batches (7-Day Alert) | `$unwind`, `$match` | Deconstructs embedded `expiry_batches` array and filters on ISO timestamp |
+| 10 | City Demand vs. Supply Ratio | `$group`, `$lookup`, `$divide` | Cross-collection demand/supply deficit ratio per metro hub |
+| 11 | Donor Retention Cohort | `$group`, `$bucketAuto` | Repeat vs. one-time donor frequency distribution analysis |
+| 12 | Peak-Hour Request Heatmap | `$dayOfWeek`, `$hour`, `$group` | Bivariate emergency dispatch matrix for operational staffing optimization |
+| 13 | Component Usage Breakdown | `$facet`, `$unwind` | Share split across Whole Blood, RBC (PRBC), Plasma (FFP), Platelets |
+| 14 | Materialized Daily Summary | `$group`, `$merge` | Incremental analytical cache with `whenMatched: replace` upsert strategy |
+| 15 | AI Engine Audit & Token Telemetry | `$match`, `$group`, `$sort` | Groq LLM cost, latency percentiles, and usage trends from `ai_usage_logs` |
 
 ---
 
-## 🧪 Testing
+## 🤖 AI Clinical Suite
 
-Run comprehensive automated test suites:
+The AI suite is powered by **Groq's inference API** using two model configurations:
+
+| Model Role | Model ID | Use Case |
+|---|---|---|
+| Orchestration & Reasoning | `openai/gpt-oss-120b` | Multi-turn clinical chat with tool-calling |
+| Distress Parsing & Translation | `openai/gpt-oss-20b` | SOS text parsing, schema extraction, multilingual broadcast |
+
+### Agent Tool Functions
+
+The autonomous agent has direct, real-time access to the following MongoDB-backed tools:
+
+```python
+check_blood_inventory(blood_group, city, component?)   # Live inventory query
+find_nearest_hospitals(city, radius_km?)               # Geospatial proximity lookup
+get_blood_compatibility(patient_blood_group)           # ABO/Rh compatibility matrix
+estimate_delivery_time(donor_city, hospital_city)      # Logistics routing estimate
+find_critical_shortages(threshold_units?)              # Network-wide deficit scan
+```
+
+All tool results are streamed directly into the chat response and logged to `ai_usage_logs` with token counts and latency for full audit transparency.
+
+---
+
+## 🏃 Running & Testing
+
+### Backend Tests
 
 ```bash
 cd backend
 
-# Run full PyMongo test suite
+# Full pytest suite
 pytest -v
 
-# Run individual feature demonstrations
+# Individual feature demos (CRUD, aggregation, AI)
 python queries/crud_demo.py
 python queries/aggregation_demo.py
 python queries/transactions_demo.py
@@ -233,17 +407,167 @@ python queries/validation_demo.py
 python queries/ai_demo.py
 ```
 
+### Frontend E2E Tests (Playwright)
+
+```bash
+cd frontend
+
+# Run all Playwright end-to-end tests
+npx playwright test
+
+# Run a specific test (e.g., eligibility wizard)
+npx playwright test tests/eligibility-wizard.spec.ts
+
+# View interactive test report
+npx playwright show-report
+```
+
+### Build for Production
+
+```bash
+cd frontend
+npm run build
+npm start
+```
+
 ---
 
-## 🛠️ Tech Stack Details
+## 🌐 API Reference
 
-- **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS, Leaflet, Three.js, Lucide Icons, Canvas Confetti.
-- **Backend**: FastAPI, PyMongo (raw sync driver with zero ODMs), Pydantic v2, WebSockets, Python-JOSE (JWT).
-- **AI / LLM**: Groq Cloud SDK (`llama-3.3-70b-versatile`) with function calling tools.
-- **Database**: MongoDB 8.0+ Replica Set.
+The full interactive API reference is auto-generated by FastAPI at [http://localhost:8000/docs](http://localhost:8000/docs). Key endpoint groups:
+
+| Prefix | Description |
+|---|---|
+| `/api/auth` | Registration, login, JWT refresh |
+| `/api/hospitals` | List, search, geoNear hospital queries |
+| `/api/blood` | Blood request CRUD, inventory check, status transitions |
+| `/api/donors` | Donor registration, eligibility check, nearest donors |
+| `/api/analytics/*` | 15 aggregation pipeline endpoints |
+| `/api/ai/*` | Chat, SOS parse, outreach generate, shortage forecast |
+| `/ws/{room}` | WebSocket connection for real-time updates |
 
 ---
 
-## 🛡️ License
+## 🛠️ Tech Stack
+
+### Frontend
+
+| Technology | Version | Purpose |
+|---|---|---|
+| Next.js | 16.x | App Router, SSR, dynamic imports |
+| React | 19.x | UI component model |
+| TypeScript | 5.x | Full type safety |
+| Tailwind CSS | 4.x | Utility-first styling |
+| Three.js | 0.186+ | 3D WebGL visualizations (globe, RBC sim, blood bag) |
+| @react-three/fiber | 9.x | React renderer for Three.js |
+| Leaflet | 1.9+ | Interactive hospital stock map |
+| Framer Motion | 14.x | Micro-animations and page transitions |
+| Lucide React | 1.58+ | Icon system |
+| Plus Jakarta Sans | Google Fonts | Primary brand typeface |
+
+### Backend
+
+| Technology | Version | Purpose |
+|---|---|---|
+| FastAPI | 0.115+ | ASGI REST API framework |
+| PyMongo | 4.x (sync) | Raw MongoDB driver — zero ODM overhead |
+| Pydantic | v2 | Request/response schema validation |
+| Python-JOSE | — | JWT creation and verification |
+| Uvicorn | — | ASGI server with hot reload |
+| Groq SDK | — | LLM inference with tool-calling |
+
+### Database & Infrastructure
+
+| Technology | Purpose |
+|---|---|
+| MongoDB 8.0+ | Primary data store — replica set for Change Streams & transactions |
+| MongoDB Change Streams | Real-time inventory mutation events |
+| WebSockets (FastAPI) | Live client notification delivery |
+| Docker Compose | Optional containerized local environment |
+
+---
+
+## 🐳 Docker Setup (Optional)
+
+A `docker-compose.yml` is provided for a fully containerized local environment:
+
+```bash
+docker compose up --build
+```
+
+This starts MongoDB (with replica set initialization), the FastAPI backend, and seeds the database automatically.
+
+---
+
+## 🔒 Security Considerations
+
+> [!IMPORTANT]
+> Before deploying LifeGrid to any production or publicly accessible environment:
+>
+> 1. **Set `NEXT_PUBLIC_DEMO_MODE=false`** in your production environment. When this variable is absent or false, all demo login buttons are completely stripped from the compiled build — they do not render, and their code is tree-shaken out.
+>
+> 2. **Delete all seeded demo accounts** from your production MongoDB database:
+>    ```js
+>    db.users.deleteMany({
+>      email: { $in: ["admin@lifegrid.in", "staff@riversidehospital.in", "donor@lifegrid.in", "requester@lifegrid.in"] }
+>    })
+>    ```
+>
+> 3. **Rotate all secrets**: Use strong, randomly generated values for `JWT_SECRET_KEY` and never commit `.env` files to version control.
+>
+> 4. **Enable MongoDB authentication**: Configure MongoDB with username/password authentication before exposing to a network.
+
+---
+
+## 📁 Environment Variables Reference
+
+### Backend (`backend/.env`)
+
+| Variable | Required | Description |
+|---|---|---|
+| `MONGODB_URI` | ✅ | Full MongoDB connection string with replica set |
+| `DB_NAME` | ✅ | Target database name (default: `lifegrid`) |
+| `GROQ_API_KEY` | ⚠️ Optional | Groq Cloud API key — AI features degrade gracefully without it |
+| `JWT_SECRET_KEY` | ✅ | Strong random secret for JWT signing |
+| `ALLOWED_ORIGINS` | ✅ | Comma-separated allowed CORS origins |
+
+### Frontend (`frontend/.env.local`)
+
+| Variable | Required | Description |
+|---|---|---|
+| `NEXT_PUBLIC_API_URL` | ✅ | Backend REST API base URL |
+| `NEXT_PUBLIC_WS_URL` | ✅ | Backend WebSocket base URL |
+| `NEXT_PUBLIC_DEMO_MODE` | ⚠️ Dev only | Enable `true` for development to show demo login buttons |
+| `NEXT_PUBLIC_MAP_TILE_URL` | Optional | Custom map tile server URL (defaults to OpenStreetMap) |
+| `NEXT_PUBLIC_MAP_ATTRIBUTION` | Optional | Attribution string for custom tile provider |
+
+---
+
+## 🤝 Contributing
+
+Contributions, bug reports, and feature requests are welcome.
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feat/your-feature-name`
+3. Make your changes following the existing code style and commit conventions (`feat:`, `fix:`, `style:`, `refactor:`, `docs:`)
+4. Push your branch: `git push origin feat/your-feature-name`
+5. Open a Pull Request against `main`
+
+Please ensure any backend changes include corresponding pytest coverage, and frontend changes maintain Playwright E2E test coverage for critical user flows.
+
+---
+
+## 📄 License
 
 This project is open-source under the [MIT License](LICENSE).
+
+---
+
+<div align="center">
+
+Built with care for India's blood donor ecosystem.
+
+**LifeGrid Emergency Resource Network** · © 2026
+
+</div>
+]]>
