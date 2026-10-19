@@ -120,9 +120,13 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 export default function HospitalStockMap({
   selectedGroup = "ALL",
   onSelectGroup,
+  initialCity,
+  initialSearch,
 }: {
   selectedGroup?: string;
   onSelectGroup?: (group: string) => void;
+  initialCity?: string;
+  initialSearch?: string;
 }) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
@@ -134,11 +138,27 @@ export default function HospitalStockMap({
   const [shortages, setShortages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [tileError, setTileError] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialSearch || "");
   const [activeCity, setActiveCity] = useState("Delhi");
   const [locating, setLocating] = useState(false);
   const [userCoords, setUserCoords] = useState<[number, number] | null>(null);
   const [activeHospital, setActiveHospital] = useState<ActiveHospitalCardData | null>(null);
+
+  // Sync initialCity / initialSearch changes from parent
+  useEffect(() => {
+    if (initialCity && initialCity !== "Current Location (Detected)") {
+      const match = Object.keys(CITY_COORDS).find(
+        (c) => c.toLowerCase() === initialCity.toLowerCase()
+      );
+      if (match) {
+        setActiveCity(match);
+      } else {
+        setSearchQuery(initialCity);
+      }
+    } else if (initialSearch !== undefined) {
+      setSearchQuery(initialSearch);
+    }
+  }, [initialCity, initialSearch]);
 
   // Load Hospitals & Shortages
   useEffect(() => {

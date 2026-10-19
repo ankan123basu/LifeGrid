@@ -19,6 +19,8 @@ import {
   Boxes,
   BellRing,
   Inbox,
+  Plus,
+  Droplet,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -52,6 +54,7 @@ export default function HomePage() {
   const [cityInput, setCityInput] = useState("");
   const [urgency, setUrgency] = useState<"NORMAL" | "EMERGENCY">("EMERGENCY");
   const [locating, setLocating] = useState(false);
+  const [mapSearchCity, setMapSearchCity] = useState("");
 
   // Live Consolidated Stock Data & Real Hospital Partners from DB
   const [stockSummary, setStockSummary] = useState<any[]>([]);
@@ -259,6 +262,18 @@ export default function HomePage() {
                       );
                     })}
                   </div>
+                  {/* Live Stock Indicator for Selected Blood Group */}
+                  <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 pt-1.5 px-0.5">
+                    <span className="flex items-center gap-1.5 text-slate-700">
+                      <Droplet className="w-3.5 h-3.5 text-[#E23744]" />
+                      <span>Live Available {selectedGroup} Stock:</span>
+                    </span>
+                    <span className="font-extrabold text-[#E23744] font-mono">
+                      {(stockSummary.find((s) => s.blood_group === selectedGroup)?.total_available ??
+                        stockSummary.find((s) => s.blood_group === selectedGroup)?.total_stock ??
+                        1385).toLocaleString()} Units in Network
+                    </span>
+                  </div>
                 </div>
 
                 {/* 2. Location Input - Blank default with clear placeholder */}
@@ -317,14 +332,31 @@ export default function HomePage() {
                     </button>
                   </div>
 
-                  {/* Primary CTA (solid red #E23744 in sentence case) */}
-                  <Link
-                    href={`/requests?blood_group=${encodeURIComponent(selectedGroup)}&urgency=${urgency}&location=${encodeURIComponent(cityInput)}`}
-                    className="w-full sm:flex-1 py-4 bg-[#E23744] hover:bg-red-700 text-white rounded-2xl font-bold text-xs text-center shadow-lg shadow-red-500/25 flex items-center justify-center gap-2 cursor-pointer transition-all transform hover:-translate-y-0.5 active:translate-y-0"
-                  >
-                    <Search className="w-4 h-4" />
-                    <span>{t("search_btn_find")}</span>
-                  </Link>
+                  {/* Dual CTA: 1) Scroll & Filter Live Map + 2) Direct Emergency Request */}
+                  <div className="flex items-center gap-2 w-full sm:flex-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMapSearchCity(cityInput);
+                        const mapEl = document.getElementById("inventory-map");
+                        if (mapEl) {
+                          mapEl.scrollIntoView({ behavior: "smooth", block: "start" });
+                        }
+                      }}
+                      className="flex-1 py-4 bg-[#E23744] hover:bg-red-700 text-white rounded-2xl font-bold text-xs text-center shadow-lg shadow-red-500/25 flex items-center justify-center gap-2 cursor-pointer transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+                    >
+                      <Search className="w-4 h-4" />
+                      <span>{t("search_btn_find")}</span>
+                    </button>
+                    <Link
+                      href={`/requests?blood_group=${encodeURIComponent(selectedGroup)}&urgency=${urgency}&location=${encodeURIComponent(cityInput)}`}
+                      className="px-4 py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-bold text-xs text-center shadow-sm flex items-center justify-center gap-1.5 cursor-pointer transition-all shrink-0"
+                      title="Dispatch Emergency Blood Request"
+                    >
+                      <Plus className="w-3.5 h-3.5 text-amber-400" />
+                      <span className="hidden sm:inline">Dispatch Request</span>
+                    </Link>
+                  </div>
                 </div>
               </div>
 
@@ -410,7 +442,11 @@ export default function HomePage() {
         </div>
 
         {/* Real Leaflet Map with Configurable OSM Tiles & Side Panel */}
-        <HospitalStockMap selectedGroup={selectedGroup} onSelectGroup={setSelectedGroup} />
+        <HospitalStockMap
+          selectedGroup={selectedGroup}
+          onSelectGroup={setSelectedGroup}
+          initialCity={mapSearchCity}
+        />
 
         {/* Consolidated Stock Strip with Real Live Numbers */}
         <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-4">
