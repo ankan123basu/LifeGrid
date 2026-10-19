@@ -1,11 +1,11 @@
-<![CDATA[<div align="center">
+<div align="center">
 
 <img src="https://img.shields.io/badge/LifeGrid-Emergency%20Blood%20Network-E23744?style=for-the-badge&logoColor=white" alt="LifeGrid"/>
 
-# LifeGrid — Real-Time AI-Assisted Emergency Blood Network
+# LifeGrid — Real-Time Emergency Blood Resource Network
 
 **India's end-to-end emergency blood logistics platform.**
-Live inventory, intelligent donor matching, geospatial dispatch, and a 5-language AI clinical assistant — all in one unified system.
+Live inventory, intelligent donor matching, geospatial dispatch, and a 5-language Groq-powered clinical chatbot — all in one unified system.
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
@@ -31,7 +31,7 @@ LifeGrid is a full-stack, production-architected emergency blood resource manage
 The platform connects voluntary donors, verified hospital blood banks, and clinical staff across India's major metropolitan areas through a unified intelligent network, featuring:
 
 - Sub-second live inventory queries backed by **MongoDB Change Streams**
-- Autonomous clinical AI powered by **Groq** with live database tool-calling
+- **Groq LLM-powered clinical chatbot** with structured function-calling that queries live MongoDB in real time
 - **Three.js WebGL** 3D geospatial visualization with interactive orbit controls
 - Full **RBAC** authentication (Admin, Hospital Staff, Donor, Requester)
 - **5-language real-time UI** (English, Hindi, Punjabi, Bengali, Tamil)
@@ -65,11 +65,11 @@ A fully live executive clinical operations dashboard powered by real-time MongoD
 
 ### 🤖 AI Clinical Suite (`/ai`)
 
-Five autonomous AI-powered tabs backed by Groq's LLM platform:
+Five Groq LLM-powered feature tabs:
 
 | Tab | Capability |
 |---|---|
-| **Care Assistant** | Multi-turn clinical agent with live MongoDB tool-calling (`check_blood_inventory`, `find_nearest_hospitals`, `get_blood_compatibility`, `estimate_delivery_time`, `find_critical_shortages`) |
+| **Care Assistant** | Multi-turn clinical chatbot powered by Groq with live MongoDB tool-calling (`check_blood_inventory`, `find_nearest_hospitals`, `get_blood_compatibility`, `estimate_delivery_time`, `find_critical_shortages`) |
 | **SOS Distress Parser** | Converts raw WhatsApp forwards, family voice transcriptions, and emergency dispatch messages into structured `BloodRequest` schema using LLM NER |
 | **Multilingual Broadcaster** | Generates high-urgency donor mobilization alerts in English, Hindi, and Punjabi simultaneously |
 | **Shortage Forecaster** | 7–14 day predictive stock depletion analysis across all 8 blood groups with recommended intervention actions |
@@ -118,7 +118,7 @@ flowchart TD
     subgraph Server ["Backend (FastAPI · PyMongo · Pydantic v2)"]
         Router["REST API Endpoints"]
         WSManager["WebSocket Connection Manager"]
-        AIAgent["Groq Autonomous Agent + Tool Calling"]
+        AIAgent["Groq LLM Chatbot + Tool Calling"]
         CRUD["PyMongo CRUD & ACID Transactions"]
         Streams["MongoDB Change Stream Watcher"]
         Auth["JWT Auth · RBAC Middleware"]
@@ -135,7 +135,7 @@ flowchart TD
     end
 
     subgraph External ["External Services"]
-        GroqAPI["Groq Cloud API (LLaMA / GPT-OSS)"]
+        GroqAPI["Groq Cloud API (LLaMA 3.3 70B)"]
     end
 
     UI --> Router
@@ -370,12 +370,12 @@ The AI suite is powered by **Groq's inference API** using two model configuratio
 
 | Model Role | Model ID | Use Case |
 |---|---|---|
-| Orchestration & Reasoning | `openai/gpt-oss-120b` | Multi-turn clinical chat with tool-calling |
-| Distress Parsing & Translation | `openai/gpt-oss-20b` | SOS text parsing, schema extraction, multilingual broadcast |
+| Orchestration & Reasoning | `llama-3.3-70b-versatile` | Multi-turn clinical chat with structured tool-calling |
+| Distress Parsing & Translation | `llama-3.3-70b-versatile` | SOS text parsing, schema extraction, multilingual broadcast |
 
-### Agent Tool Functions
+### Tool-Calling Functions
 
-The autonomous agent has direct, real-time access to the following MongoDB-backed tools:
+The Groq LLM chatbot is configured with structured function definitions that trigger live MongoDB queries. When the LLM decides a tool is needed, the backend executes it and returns the result into the conversation context:
 
 ```python
 check_blood_inventory(blood_group, city, component?)   # Live inventory query
