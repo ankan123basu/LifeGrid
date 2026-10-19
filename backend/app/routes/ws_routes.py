@@ -1,6 +1,6 @@
 """
 LifeGrid - Real-time WebSocket Endpoints & Subscription Hub
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Provides:
 - WebSocket endpoint `/ws/live` with JWT query param authentication,

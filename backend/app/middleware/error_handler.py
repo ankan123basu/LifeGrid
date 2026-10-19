@@ -1,6 +1,6 @@
 """
 LifeGrid - Centralized Error Handler & Response Envelope
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Enforces a consistent API response envelope across all endpoints and errors:
 {

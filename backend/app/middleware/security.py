@@ -1,6 +1,6 @@
 """
 LifeGrid - Security Middleware & Protection Layer
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Includes:
 1. Security Headers (HSTS, X-Content-Type-Options, X-Frame-Options, CSP)

@@ -160,18 +160,6 @@ class ApiClient {
     return res.data || [];
   }
 
-  async executeQueryLab(collectionName: string, pipeline: any[], explain = false, sandbox = false) {
-    return this.request("/api/analytics/query-lab/execute", {
-      method: "POST",
-      body: JSON.stringify({
-        collection_name: collectionName,
-        pipeline,
-        explain,
-        sandbox,
-      }),
-    });
-  }
-
   // --- Blood Requests ---
   async listRequests(status?: string, urgency?: string, limit = 20) {
     let url = `/api/requests?limit=${limit}`;
@@ -235,13 +223,6 @@ class ApiClient {
     return this.request("/api/ai/parse-emergency", {
       method: "POST",
       body: JSON.stringify({ raw_text: rawText }),
-    });
-  }
-
-  async aiQueryLabGenerate(prompt: string) {
-    return this.request("/api/ai/query-lab/generate", {
-      method: "POST",
-      body: JSON.stringify({ prompt }),
     });
   }
 

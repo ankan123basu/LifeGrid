@@ -1,6 +1,6 @@
 """
 LifeGrid Aggregation Pipeline 5: Average Fulfilment Time per Urgency Level
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Problem:
 Measure emergency response SLA by calculating elapsed time from initial request

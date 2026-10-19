@@ -1,6 +1,6 @@
 """
 LifeGrid - Role-Based Access Control (RBAC) & Auth Dependencies
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Provides FastAPI dependencies for JWT authentication, role verification,
 and row-level ownership checks.

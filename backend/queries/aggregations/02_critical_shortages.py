@@ -1,6 +1,6 @@
 """
 LifeGrid Aggregation Pipeline 2: Critical Shortage Detector
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Problem:
 Hospitals and emergency coordinators need real-time alerts when blood inventory

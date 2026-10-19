@@ -1,6 +1,6 @@
 """
 LifeGrid - Blood Requests Controller (C)
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Demonstrates core PyMongo CRUD for Emergency Requests:
 - Create: insert_one() with embedded patient, timeline, and matched_donors subdocuments

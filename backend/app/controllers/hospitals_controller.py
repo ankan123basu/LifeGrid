@@ -1,6 +1,6 @@
 """
 LifeGrid - Hospitals Controller (C)
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Demonstrates core PyMongo CRUD & Search:
 - Text search: $text query using compound text index on (name, address.city)

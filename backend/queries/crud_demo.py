@@ -1,5 +1,5 @@
 """
-LifeGrid - Standalone PyMongo CRUD Demonstration (CSE494 Viva)
+LifeGrid - Standalone PyMongo CRUD Demonstration (Production Verification)
 Demonstrates every single required PyMongo operation:
 - CREATE:
     1. insert_one
@@ -58,7 +58,7 @@ console = Console(legacy_windows=False)
 def run_crud_demonstration():
     console.print(Panel.fit(
         "[bold cyan]LifeGrid - Exemplary PyMongo CRUD Demonstration[/bold cyan]\n"
-        "[dim]CSE494: Intelligent NoSQL Databases - Pure PyMongo Driver (Zero ODMs)[/dim]",
+        "[dim]LifeGrid Core Platform Architecture - Pure PyMongo Driver (Zero ODMs)[/dim]",
         border_style="cyan"
     ))
 
@@ -77,7 +77,7 @@ def run_crud_demonstration():
     temp_user_id = ObjectId()
     db.users.insert_one({
         "_id": temp_user_id,
-        "name": "Viva Temp Donor",
+        "name": "Test Donor",
         "email": f"temp.crud.{int(time.time()*1000)}@lifegrid.in",
         "password_hash": hash_password("Secret123!"),
         "role": "DONOR",
@@ -100,8 +100,8 @@ def run_crud_demonstration():
     bulk_docs = [
         {
             "_id": ObjectId(),
-            "name": f"Bulk Viva Donor {i}",
-            "email": f"bulk.viva.{i}.{int(time.time()*1000)}@lifegrid.in",
+            "name": f"Test Donor {i}",
+            "email": f"test.donor.{i}.{int(time.time()*1000)}@lifegrid.in",
             "password_hash": hash_password("Secret123!"),
             "role": "DONOR",
             "phone": f"+9198765432{i:02d}",
@@ -192,7 +192,7 @@ def run_crud_demonstration():
 
     # 12. UPDATE: $push & $pull on embedded array
     t0 = time.time()
-    test_batch_id = f"BAT-VIVA-{int(time.time())}"
+    test_batch_id = f"BAT-TEST-{int(time.time())}"
     # $push batch
     db.blood_inventory.update_one(
         {"hospital_id": sample_hosp_id, "blood_group": "AB-", "component": "platelets"},
@@ -253,7 +253,7 @@ def run_crud_demonstration():
 
     console.print("\n")
     console.print(table)
-    console.print("\n[bold green]✅ Viva Verification Completed: All required PyMongo CRUD operations demonstrated with zero errors![/bold green]")
+    console.print("\n[bold green]✅ Verification Completed: All required PyMongo CRUD operations demonstrated with zero errors![/bold green]")
 
 
 if __name__ == "__main__":

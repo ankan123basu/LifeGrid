@@ -1,6 +1,6 @@
 """
 LifeGrid - Blood Inventory API Router
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 """
 
 from typing import List

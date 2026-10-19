@@ -1,6 +1,6 @@
 """
 LifeGrid - Blood Donation Eligibility Endpoints
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Provides:
 - POST /api/v1/eligibility/check: Public deterministic check with anonymous, PII-free audit log

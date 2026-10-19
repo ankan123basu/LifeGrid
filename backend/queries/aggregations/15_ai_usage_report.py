@@ -1,6 +1,6 @@
 """
 LifeGrid Aggregation Pipeline 15: AI Usage & Telemetry Report (Groq LLM)
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Problem:
 Track Groq LLM inference costs, token expenditure (prompt + completion),

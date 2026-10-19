@@ -1,6 +1,6 @@
 """
 LifeGrid - Authentication, RBAC & Security Test Suite
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Tests:
 1. User registration & duplicate conflict handling

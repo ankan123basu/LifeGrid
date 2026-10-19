@@ -1,5 +1,5 @@
 """
-LifeGrid - Multi-Document ACID Transactions Live Demo (CSE494 Viva)
+LifeGrid - Multi-Document ACID Transactions Live Demo (Production Verification)
 Demonstrates multi-document transactional integrity in MongoDB:
 When a donation is completed, the following 5 operations commit all-or-nothing:
 1. Insert record in 'donations'
@@ -44,7 +44,7 @@ console = Console(legacy_windows=False)
 def run_transactions_demo():
     console.print(Panel.fit(
         "[bold cyan]LifeGrid - Multi-Document ACID Transactions Live Demo[/bold cyan]\n"
-        "[dim]CSE494: Intelligent NoSQL Databases - All-or-Nothing Consistency Across 5 Collections[/dim]",
+        "[dim]LifeGrid Core Platform Architecture - All-or-Nothing Consistency Across 5 Collections[/dim]",
         border_style="cyan"
     ))
 

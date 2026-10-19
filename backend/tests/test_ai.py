@@ -1,6 +1,6 @@
 """
 LifeGrid - Groq AI Integration Test Suite
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Tests AI services:
 1. Direct execution of PyMongo read-only DB tools
@@ -85,7 +85,12 @@ def test_api_parse_emergency_text(client):
     assert "units_needed" in data["data"]
 
 
-def test_api_ai_chat_assistant(client):
+def test_api_ai_chat_assistant(client, monkeypatch):
+    from app.routes import ai_routes
+    def mock_agent(*args, **kwargs):
+        return {"reply": "We have 42 units of O+ blood available.", "conversation_id": "test_conv", "tools_executed": []}
+    monkeypatch.setattr(ai_routes, "run_assistant_agent", mock_agent)
+
     payload = {
         "message": "Do we have any O+ blood available right now?"
     }
@@ -98,19 +103,14 @@ def test_api_ai_chat_assistant(client):
     assert "conversation_id" in data["data"]
 
 
-def test_api_ai_query_lab_generate(client):
-    payload = {
-        "prompt": "Find the total units of blood available per blood group"
-    }
-    response = client.post("/api/ai/query-lab/generate", json=payload)
-    assert response.status_code == 200
-    data = response.json()
-    assert data["success"] is True
-    assert "collection" in data["data"]
-    assert "pipeline" in data["data"]
+def test_api_ai_forecast(client, monkeypatch):
+    from app.routes import ai_routes
+    class MockMsg:
+        content = '{"risk_level": "MODERATE", "shortage_predictions": [{"blood_group": "O-", "current_stock": 2, "projected_depletion_days": 3, "risk_category": "CRITICAL", "confidence_score": 0.9, "actionable_recommendation": "Emergency outreach"}], "system_recommendation": "Mobilize regional O- donors."}'
+    def mock_completion(*args, **kwargs):
+        return MockMsg(), {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}, 15.0
+    monkeypatch.setattr(ai_routes.ai_manager, "chat_completion", mock_completion)
 
-
-def test_api_ai_forecast(client):
     payload = {
         "window_days": 7
     }
@@ -122,7 +122,14 @@ def test_api_ai_forecast(client):
     assert "shortage_predictions" in data["data"]
 
 
-def test_api_ai_outreach(client):
+def test_api_ai_outreach(client, monkeypatch):
+    from app.routes import ai_routes
+    class MockMsg:
+        content = '{"messages": {"english": "Urgent O- blood needed", "hindi": "O- rakt ki aavashyakta hai", "punjabi": "O- khoon di lod hai"}}'
+    def mock_completion(*args, **kwargs):
+        return MockMsg(), {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}, 15.0
+    monkeypatch.setattr(ai_routes.ai_manager, "chat_completion", mock_completion)
+
     payload = {
         "blood_group": "O-",
         "hospital_name": "AIIMS",

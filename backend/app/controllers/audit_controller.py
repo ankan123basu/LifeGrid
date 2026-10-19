@@ -1,6 +1,6 @@
 """
 LifeGrid - Audit Logging Controller
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Maintains an append-only, tamper-evident audit trail of critical system actions
 (authentication, role changes, inventory adjustments, emergency request transitions).

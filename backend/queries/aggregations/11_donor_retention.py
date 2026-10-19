@@ -1,6 +1,6 @@
 """
 LifeGrid Aggregation Pipeline 11: Donor Retention Cohort Analysis
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Problem:
 Analyze donor loyalty and repeat rate by cohorting donors by the month of their

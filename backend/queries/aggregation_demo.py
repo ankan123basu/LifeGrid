@@ -1,5 +1,5 @@
 """
-LifeGrid - All 15 Aggregation Pipelines Live Demo (CSE494 Viva)
+LifeGrid - All 15 Aggregation Pipelines Live Demo (Production Verification)
 Executes and prints results for all 15 university-grade aggregation pipelines:
 1. Blood stock by group across all hospitals
 2. Critical shortage detector (units < 5)
@@ -48,7 +48,7 @@ console = Console(legacy_windows=False)
 def run_all_aggregations():
     console.print(Panel.fit(
         "[bold cyan]LifeGrid - 15 Advanced Aggregation Pipelines Live Demo[/bold cyan]\n"
-        "[dim]CSE494: Intelligent NoSQL Databases - Full Analytical Pipeline Showcase[/dim]",
+        "[dim]LifeGrid Core Platform Architecture - Full Analytical Pipeline Showcase[/dim]",
         border_style="cyan"
     ))
 

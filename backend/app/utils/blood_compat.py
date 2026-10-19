@@ -1,6 +1,6 @@
 """
 LifeGrid - Blood Group Compatibility Matrix
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Defines clinical RBC (Red Blood Cell) compatibility relations
 for emergency matching and AI triage algorithms.

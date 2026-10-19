@@ -1,6 +1,6 @@
 """
 LifeGrid - FastAPI Application Entrypoint
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Main FastAPI application with CORS middleware, security headers,
 centralized exception handlers, lifespan database events, and router registration.
@@ -86,7 +86,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="LifeGrid API",
-    description="Intelligent Real-time Blood & Emergency Resource Network (CSE494 NoSQL Databases)",
+    description="Intelligent Real-time Blood & Emergency Resource Network (LifeGrid NoSQL Databases)",
     version="1.0.0",
     lifespan=lifespan,
     docs_url="/docs",

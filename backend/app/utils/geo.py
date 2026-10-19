@@ -1,6 +1,6 @@
 """
 LifeGrid - Geospatial Helpers
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Coordinates and boundaries for realistic Indian metropolitan and regional nodes:
 Ludhiana, Chandigarh, Delhi, Amritsar, Jalandhar, Mumbai, Bengaluru.

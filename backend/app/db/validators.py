@@ -1,6 +1,6 @@
 """
 LifeGrid - MongoDB Schema Validators ($jsonSchema)
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Every collection implements strict schema validation at the database engine level.
 Validation Level: "strict" (applies to all inserts and updates)

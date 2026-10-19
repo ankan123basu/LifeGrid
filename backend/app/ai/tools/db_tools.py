@@ -1,6 +1,6 @@
 """
 LifeGrid - Groq AI Tool Calling Functions (MongoDB Read-Only Tools)
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Provides tool schemas and execution handlers that allow Groq LLM models
 to safely query MongoDB collections for live inventory, donors, and hospital statuses.

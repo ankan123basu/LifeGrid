@@ -1,6 +1,6 @@
 """
 LifeGrid - Blood Shortage Predictive Forecast Prompt
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 """
 
 SYSTEM_PROMPT_FORECAST = """You are an Epidemiological & Blood Supply Chain Forecaster for LifeGrid.

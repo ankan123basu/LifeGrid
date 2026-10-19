@@ -1,6 +1,6 @@
 """
 LifeGrid - Real-time WebSockets & Connection Manager Test Suite
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Tests WebSocket connectivity, token authentication, room routing,
 and event broadcasting.

@@ -1,6 +1,6 @@
 """
 LifeGrid Aggregation Pipeline 9: Batches Expiring in Next 7 Days ($unwind)
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Problem:
 Blood units have strict shelf lives (Whole blood: 35-42 days, Platelets: 5 days).

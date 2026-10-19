@@ -1,6 +1,6 @@
 """
 LifeGrid Aggregation Pipeline 3: Monthly Donation Trend with Cumulative Running Total
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Problem:
 Health authorities track blood donation volumes over time and compute running

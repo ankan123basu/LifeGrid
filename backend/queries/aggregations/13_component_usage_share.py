@@ -1,6 +1,6 @@
 """
 LifeGrid Aggregation Pipeline 13: Component-Wise Usage Share
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Problem:
 Measure demand breakdown across blood components: Whole Blood, Packed Red Blood Cells (RBC),

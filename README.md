@@ -61,7 +61,7 @@ A fully live executive clinical operations dashboard powered by real-time MongoD
 - **Hospital Leaderboard** — fulfilment rate bars, request completion stats, and star ratings ranked from live data
 - **Lifesaver Honor Roll** — top donors ranked by lifetime units with Platinum/Gold loyalty badge tiers
 - **Regional Deficit Watch** — metro supply-to-demand ratio meters across Delhi, Mumbai, Bengaluru, and more
-- **CSE494 Pipeline Inspector Drawer** — slide-over inspector for all 15 MongoDB aggregation pipelines with stage-by-stage explanations and live JSON output
+- **LifeGrid Pipeline Inspector Drawer** — slide-over inspector for all 15 MongoDB aggregation pipelines with stage-by-stage explanations and live JSON output
 
 ### 🤖 AI Clinical Suite (`/ai`)
 

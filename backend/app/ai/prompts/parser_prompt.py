@@ -1,6 +1,6 @@
 """
 LifeGrid - Emergency Request Natural Language Parser Prompt
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 """
 
 SYSTEM_PROMPT_PARSER = """You are an Emergency Medical Triage Specialist for LifeGrid.

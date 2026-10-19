@@ -1,11 +1,9 @@
 """
 LifeGrid - AI Service REST Endpoints (Groq Integration)
-CSE494: Intelligent NoSQL Databases
 
 Provides:
 - POST /api/ai/chat: Conversational assistant with MongoDB tool calling
 - POST /api/ai/parse-emergency: Unstructured distress text -> structured BloodRequest schema
-- POST /api/ai/query-lab/generate: Natural language -> MongoDB Aggregation Pipeline
 - POST /api/ai/forecast: AI blood shortage predictor based on live inventory
 - POST /api/ai/outreach: Multilingual donor outreach generator (English, Hindi, Punjabi)
 - GET /api/ai/telemetry: Groq AI latency and token usage metrics
@@ -23,7 +21,6 @@ from app.db.client import get_db
 from app.ai.client import ai_manager
 from app.ai.agent import run_assistant_agent
 from app.ai.prompts.parser_prompt import SYSTEM_PROMPT_PARSER
-from app.ai.prompts.query_gen_prompt import SYSTEM_PROMPT_QUERY_GEN
 from app.ai.prompts.forecast_prompt import SYSTEM_PROMPT_FORECAST
 from app.ai.prompts.outreach_prompt import SYSTEM_PROMPT_OUTREACH
 from app.controllers import analytics_controller
@@ -45,10 +42,6 @@ class ChatRequest(BaseModel):
 
 class ParseEmergencyRequest(BaseModel):
     raw_text: str = Field(..., min_length=5, description="Unstructured WhatsApp forward, call note, or distress text")
-
-
-class QueryGenRequest(BaseModel):
-    prompt: str = Field(..., min_length=3, description="Natural language question to convert into MongoDB aggregation pipeline")
 
 
 class ForecastRequest(BaseModel):
@@ -118,7 +111,7 @@ def chat_with_assistant(
     current_user: Optional[Dict[str, Any]] = Depends(get_current_user_optional)
 ):
     """
-    Conversational clinical assistant and CSE494 viva guidance tutor.
+    Conversational clinical assistant and LifeGrid test guidance tutor.
     Executes PyMongo tools (stock check, donor search, hospital info) autonomously.
     """
     user_id = str(current_user["_id"]) if current_user else None
@@ -195,44 +188,7 @@ def parse_emergency_text(
 
 
 # ----------------------------------------------------------------------
-# 3. Query Lab: Natural Language to Aggregation Pipeline Generator
-# ----------------------------------------------------------------------
-@router.post("/query-lab/generate")
-def generate_aggregation_pipeline(
-    payload: QueryGenRequest,
-    current_user: Optional[Dict[str, Any]] = Depends(get_current_user_optional)
-):
-    """
-    Translates natural language questions into valid, optimal MongoDB aggregation pipelines.
-    """
-    user_id = str(current_user["_id"]) if current_user else None
-    messages = [
-        {"role": "system", "content": SYSTEM_PROMPT_QUERY_GEN},
-        {"role": "user", "content": f"Generate a MongoDB aggregation pipeline for: {payload.prompt}"}
-    ]
-
-    try:
-        response_msg, usage_meta, latency_ms = ai_manager.chat_completion(
-            messages=messages,
-            model=settings.GROQ_MODEL_CHAT,
-            temperature=0.1,
-            feature="QUERY_LAB_GENERATE",
-            user_id=user_id
-        )
-        content = response_msg.content or (getattr(response_msg, "reasoning", "") or "{}")
-        gen_data = extract_json_object(content)
-        return {
-            "success": True,
-            "data": gen_data,
-            "meta": usage_meta
-        }
-    except Exception as e:
-        logger.error(f"Error generating aggregation pipeline: {e}")
-        raise HTTPException(status_code=500, detail=f"Query generation error: {str(e)}")
-
-
-# ----------------------------------------------------------------------
-# 4. Blood Shortage Predictive Forecast
+# 3. Blood Shortage Predictive Forecast
 # ----------------------------------------------------------------------
 @router.post("/forecast")
 def predict_shortage_forecast(

@@ -1,6 +1,6 @@
 """
 LifeGrid - BSON / PyMongo Document Serializer
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Recursively converts MongoDB BSON objects (ObjectId, datetime) into JSON-serializable types.
 """

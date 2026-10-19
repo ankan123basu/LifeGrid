@@ -1,6 +1,6 @@
 """
 LifeGrid - Comprehensive CRUD & Transactions Integration Tests
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Tests:
 1. Hospitals: insert_one, text search, $near radius query

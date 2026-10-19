@@ -1,6 +1,6 @@
 """
 LifeGrid - Realistic Seed Data Generator
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Generates production-grade, culturally contextual Indian seed data:
 - ~40 hospitals across Ludhiana, Chandigarh, Delhi, Amritsar, Jalandhar, Mumbai, Bengaluru
@@ -10,7 +10,7 @@ Generates production-grade, culturally contextual Indian seed data:
 - ~3,000 donations with screening records and certificates
 - Complete blood inventory with embedded expiry batches (including near-expiry alerts)
 - Notifications, AI conversations, and AI usage logs
-- Default viva demo test accounts (admin, hospital staff, donor, requester)
+- Default production demo accounts (admin, hospital staff, donor, requester)
 
 Run:
   python seed/seed.py --reset
@@ -696,7 +696,7 @@ def generate_seed_data(reset: bool = True):
     table = Table(title="LifeGrid Seed Data Summary", show_header=True, header_style="bold green")
     table.add_column("Collection", style="cyan")
     table.add_column("Documents Inserted", style="magenta", justify="right")
-    table.add_column("Primary Purpose in Viva", style="yellow")
+    table.add_column("Primary Operational Purpose", style="yellow")
 
     table.add_row("hospitals", str(db.hospitals.count_documents({})), "GeoJSON points, Text search, facilities")
     table.add_row("users", str(db.users.count_documents({})), "Roles, Partial index, 90-day cooldown")

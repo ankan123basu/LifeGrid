@@ -1,6 +1,6 @@
 """
 LifeGrid - Notifications Controller (C)
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Demonstrates PyMongo CRUD on TTL-indexed collection:
 - find() with sort and limit

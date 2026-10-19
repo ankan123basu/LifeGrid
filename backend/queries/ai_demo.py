@@ -1,5 +1,5 @@
 """
-LifeGrid - Groq AI Engine Live Viva Demonstration (CSE494)
+LifeGrid - Groq AI Engine Live Viva Demonstration (LifeGrid)
 Executes and displays real-time results for all 5 Groq AI features:
 1. Emergency WhatsApp / distress text parsing to structured JSON
 2. Multi-turn Agent with MongoDB Tool Calling (live DB queries)
@@ -39,7 +39,7 @@ console = Console(legacy_windows=False)
 def run_ai_demo():
     console.print(Panel.fit(
         "[bold cyan]LifeGrid - Groq AI Engine Live Demonstration[/bold cyan]\n"
-        "[dim]CSE494: Intelligent NoSQL Databases - LLM Tool Calling & Clinical Intelligence[/dim]",
+        "[dim]LifeGrid Core Platform Architecture - LLM Tool Calling & Clinical Intelligence[/dim]",
         border_style="cyan"
     ))
 
@@ -74,21 +74,8 @@ def run_ai_demo():
         tools_used = chat_data.get("tools_executed", [])
         console.print(f"  [cyan]Tools Executed ({len(tools_used)}):[/cyan] {[t['tool'] for t in tools_used]}")
 
-        # 3. Query Lab Generator
-        console.print("\n[bold yellow]3. Query Lab: Natural Language to Aggregation Pipeline[/bold yellow]")
-        nl_query = "Show me the top 3 cities with the most blood requests, sorted descending"
-        t0 = time.time()
-        res_qgen = client.post("/api/ai/query-lab/generate", json={"prompt": nl_query})
-        dur_qgen = round((time.time() - t0) * 1000, 1)
-        assert res_qgen.status_code == 200
-        qgen_data = res_qgen.json()["data"]
-        console.print(f"[green]Generated Pipeline ({dur_qgen} ms):[/green]")
-        console.print(f"  Target Collection: [cyan]{qgen_data.get('collection')}[/cyan]")
-        console.print(f"  Pipeline Stages: {len(qgen_data.get('pipeline', []))} stages")
-        console.print(f"  Viva Explanation: {qgen_data.get('explanation')[:180]}...")
-
-        # 4. Shortage Forecasting
-        console.print("\n[bold yellow]4. Predictive Shortage Forecast (7-Day Horizon)[/bold yellow]")
+        # 3. Shortage Forecasting
+        console.print("\n[bold yellow]3. Predictive Shortage Forecast (7-Day Horizon)[/bold yellow]")
         t0 = time.time()
         res_forecast = client.post("/api/ai/forecast", json={"window_days": 7})
         dur_forecast = round((time.time() - t0) * 1000, 1)

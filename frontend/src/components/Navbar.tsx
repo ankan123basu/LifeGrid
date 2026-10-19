@@ -331,16 +331,6 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
                         <User className="w-3.5 h-3.5" />
                         <span>Profile &amp; Requests</span>
                       </Link>
-                      {user.role === "ADMIN" && (
-                        <Link
-                          href="/admin/dev-tools"
-                          className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-purple-700 hover:bg-purple-50 transition-colors"
-                          onClick={() => setAvatarMenuOpen(false)}
-                        >
-                          <ShieldAlert className="w-3.5 h-3.5" />
-                          <span>Admin &amp; RBAC DevTools</span>
-                        </Link>
-                      )}
                       <button
                         onClick={() => {
                           setAvatarMenuOpen(false);

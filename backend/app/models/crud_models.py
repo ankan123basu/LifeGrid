@@ -1,6 +1,6 @@
 """
 LifeGrid - CRUD Pydantic Schemas
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Pydantic schemas for request validation and response serialization across
 Hospitals, Blood Inventory, Blood Requests, and Donations.

@@ -1,6 +1,6 @@
 """
 LifeGrid - Real-time WebSocket Connection & Room Manager
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Handles WebSocket connections, authentication, room-based message routing,
 and broadcasting for real-time live events.

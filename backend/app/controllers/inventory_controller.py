@@ -1,6 +1,6 @@
 """
 LifeGrid - Blood Inventory Controller (C)
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Demonstrates Advanced PyMongo Update & Concurrency Operations:
 1. find_one_and_update: Race-condition safe atomic reservation ($inc available & reserved)

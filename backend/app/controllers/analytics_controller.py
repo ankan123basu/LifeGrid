@@ -1,6 +1,6 @@
 """
 LifeGrid - Aggregation Pipelines & Analytics Controller (C)
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Contains all 15 university-grade MongoDB Aggregation Pipelines:
 1. Blood stock by group across all hospitals (heatmap / inventory summary)

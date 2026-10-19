@@ -1,6 +1,6 @@
 """
 LifeGrid - Users & Donors Controller (C)
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Demonstrates core PyMongo CRUD operations:
 - Read: find with filter/projection/sort/skip/limit pagination, count_documents, distinct, $near geospatial

@@ -1,6 +1,6 @@
 """
 LifeGrid Aggregation Pipeline 6: Nearest Eligible Compatible Donors ($geoNear)
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Problem:
 When an emergency occurs, locate nearby available donors who match blood

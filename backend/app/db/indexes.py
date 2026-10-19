@@ -1,6 +1,6 @@
 """
 LifeGrid - MongoDB Index Definitions & Creation
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Defines and builds all indexes across LifeGrid collections.
 Includes: Unique, 2dsphere (Geospatial), Compound, Text Search, TTL (Time-To-Live),

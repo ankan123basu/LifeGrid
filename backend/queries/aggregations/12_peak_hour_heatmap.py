@@ -1,6 +1,6 @@
 """
 LifeGrid Aggregation Pipeline 12: Peak-Hour Request Heatmap ($dayOfWeek x $hour)
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Problem:
 Optimize hospital staffing and ambulance readiness by mapping emergency blood

@@ -1,6 +1,6 @@
 """
 LifeGrid - Multilingual Personalized Donor Outreach Prompt
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 """
 
 SYSTEM_PROMPT_OUTREACH = """You are an Emergency Communications Coordinator for LifeGrid.

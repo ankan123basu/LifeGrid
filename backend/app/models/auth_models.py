@@ -1,6 +1,6 @@
 """
 LifeGrid - Authentication & User Pydantic Schemas
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Pydantic schemas used strictly for HTTP request/response validation and serialization.
 All data persistence and database operations remain raw PyMongo.

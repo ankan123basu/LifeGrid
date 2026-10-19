@@ -1,6 +1,6 @@
 """
 LifeGrid - Real-time Change Stream & Event Listener
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Monitors MongoDB collections for real-time mutations.
 - In Replica Set mode: Uses native MongoDB Change Streams (`watch()`) with resume token tracking.

@@ -1,6 +1,6 @@
 """
 LifeGrid Aggregation Pipeline 1: Blood Stock by Group Across All Hospitals
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Problem:
 Hospitals and emergency dispatchers need a consolidated view of live unreserved

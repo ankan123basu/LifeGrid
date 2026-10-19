@@ -1,5 +1,5 @@
 """
-LifeGrid - Schema Validation Demo (CSE494 Viva Demonstration)
+LifeGrid - Schema Validation Demo (Production Verification)
 Demonstrates MongoDB server-side $jsonSchema enforcement:
 1. Valid user insert -> Accepted with generated ObjectId
 2. Invalid email format -> Rejected by MongoDB engine (Error 121: Document failed validation)
@@ -40,7 +40,7 @@ console = Console(legacy_windows=False)
 def run_validation_demo():
     console.print(Panel.fit(
         "[bold cyan]LifeGrid - MongoDB $jsonSchema Validation Live Demo[/bold cyan]\n"
-        "[dim]CSE494: Intelligent NoSQL Databases - Server-Side Engine Constraints[/dim]",
+        "[dim]LifeGrid Core Platform Architecture - Server-Side Engine Constraints[/dim]",
         border_style="cyan"
     ))
 
@@ -55,12 +55,12 @@ def run_validation_demo():
     table.add_column("MongoDB Engine Result", style="bold", width=35)
 
     # Test 1: Valid User Insert
-    valid_email = f"viva.valid.{int(datetime.datetime.now().timestamp())}@lifegrid.in"
+    valid_email = f"test.valid.{int(datetime.datetime.now().timestamp())}@lifegrid.in"
     valid_user = {
         "_id": ObjectId(),
-        "name": "Viva Verification User",
+        "name": "Verification Test User",
         "email": valid_email,
-        "password_hash": hash_password("VivaSecure@123"),
+        "password_hash": hash_password("LifeGridSecure@123"),
         "role": "DONOR",
         "phone": "+919876500000",
         "blood_group": "O+",
@@ -154,7 +154,7 @@ def run_validation_demo():
 
     console.print("\n")
     console.print(table)
-    console.print("\n[bold green]Conclusion for CSE494 Viva:[/bold green] All database operations strictly adhere to MongoDB engine validation level 'strict' and action 'error'. Zero invalid state transitions can bypass PyMongo into the database.")
+    console.print("\n[bold green]Conclusion for Production Verification:[/bold green] All database operations strictly adhere to MongoDB engine validation level 'strict' and action 'error'. Zero invalid state transitions can bypass PyMongo into the database.")
 
 
 if __name__ == "__main__":

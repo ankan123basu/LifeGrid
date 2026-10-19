@@ -1,6 +1,6 @@
 """
 LifeGrid - MongoDB Client & Connection Management
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Provides a thread-safe singleton MongoClient instance with connection pooling,
 topology verification, and fallback handling for single-node replica set vs standalone.

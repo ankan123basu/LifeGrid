@@ -1,5 +1,5 @@
 """
-LifeGrid - Index Performance & Query Explain Demo (CSE494 Viva)
+LifeGrid - Index Performance & Query Explain Demo (Production Verification)
 Demonstrates .explain("executionStats") proving index usage:
 1. 2dsphere Geospatial Index (users.location & hospitals.location) -> IXSCAN
 2. Unique Index (users.email & hospitals.registration_no) -> IXSCAN
@@ -36,7 +36,7 @@ console = Console(legacy_windows=False)
 def run_explain_demonstration():
     console.print(Panel.fit(
         "[bold cyan]LifeGrid - MongoDB Index Explain & ExecutionStats Live Demo[/bold cyan]\n"
-        "[dim]CSE494: Intelligent NoSQL Databases - Proving Zero Collection Scans (COLLSCAN)[/dim]",
+        "[dim]LifeGrid Core Platform Architecture - Proving Zero Collection Scans (COLLSCAN)[/dim]",
         border_style="cyan"
     ))
 

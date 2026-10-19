@@ -1,6 +1,6 @@
 """
 LifeGrid Aggregation Pipeline 10: City-Wise Demand vs Supply Ratio
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Problem:
 Identify regional blood deficit hot-spots by comparing total blood units requested

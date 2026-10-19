@@ -1,6 +1,6 @@
 """
 LifeGrid - Security & Password Hashing Utilities
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Handles bcrypt password hashing and token generation.
 """

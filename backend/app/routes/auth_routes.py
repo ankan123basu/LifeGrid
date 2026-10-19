@@ -1,6 +1,6 @@
 """
 LifeGrid - Authentication Routes (V/Router)
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Thin router mapping HTTP requests to Auth & Audit controllers:
 - /register: Account creation with input sanitization

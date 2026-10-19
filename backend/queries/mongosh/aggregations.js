@@ -1,6 +1,6 @@
 // ============================================================
 // LifeGrid - Aggregation Pipelines for MongoDB Compass / mongosh
-// CSE494: Intelligent NoSQL Databases
+// LifeGrid Core Platform Architecture
 // ============================================================
 
 use('lifegrid_db');

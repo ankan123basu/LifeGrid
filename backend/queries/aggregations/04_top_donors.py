@@ -1,6 +1,6 @@
 """
 LifeGrid Aggregation Pipeline 4: Top 10 Donors with Badge Tier
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Problem:
 Recognize and incentivize top voluntary donors by computing lifetime volume

@@ -1,6 +1,6 @@
 """
 LifeGrid - Notifications API Router
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 """
 
 from fastapi import APIRouter, Depends, Query, status

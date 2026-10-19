@@ -1,6 +1,6 @@
 """
 LifeGrid Aggregation Pipeline 7: Multi-Dimensional Request Funnel ($facet)
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Problem:
 Compute a comprehensive emergency request funnel dashboard in a single query pass

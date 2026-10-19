@@ -1,6 +1,6 @@
 """
 LifeGrid - Blood Requests API Router
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 """
 
 from typing import Optional, List

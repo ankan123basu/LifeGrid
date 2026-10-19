@@ -1,6 +1,6 @@
 """
 LifeGrid Aggregation Pipeline 8: Hospital Leaderboard (Fulfilment Rate & Activity)
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Problem:
 Evaluate hospital network performance by measuring request fulfilment rate percentage

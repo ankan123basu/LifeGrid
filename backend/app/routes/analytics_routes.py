@@ -1,18 +1,15 @@
 """
-LifeGrid - Analytics & Query Lab API Router
-CSE494: Intelligent NoSQL Databases
+LifeGrid - Analytics API Router
 
-Exposes all 15 aggregation pipelines and the Query Lab live execution engine:
+Exposes all 15 operational aggregation pipelines:
 - Dedicated REST endpoints for visual charts & dashboards
-- Query Lab executor: runs arbitrary aggregation pipelines with explain('executionStats')
-- Read-only safety guard blocking $out / $merge unless sandbox mode is enabled
+- Materialized views and historical trends
 """
 
 import time
 import logging
 from typing import Dict, Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from pydantic import BaseModel, Field
 from pymongo.database import Database
 
 from app.db.client import get_db
@@ -23,13 +20,6 @@ from app.middleware.auth_deps import get_current_user, require_roles
 logger = logging.getLogger("lifegrid.analytics_routes")
 
 router = APIRouter(prefix="/api/analytics", tags=["Analytics & Aggregations"])
-
-
-class QueryLabExecutionRequest(BaseModel):
-    collection_name: str
-    pipeline: List[Dict[str, Any]]
-    explain: bool = False
-    sandbox: bool = False
 
 
 # -------------------------------------------------------------
@@ -148,62 +138,3 @@ def get_ai_usage(db: Database = Depends(get_db)):
     data = analytics_controller.pipeline_ai_usage_report(db)
     return {"success": True, "data": data, "error": None, "meta": {"pipeline": 15}}
 
-
-# -------------------------------------------------------------
-# Query Lab Execution & Presets
-# -------------------------------------------------------------
-FORBIDDEN_STAGES = ["$out", "$merge", "$accumulator", "$function", "$where"]
-
-
-@router.post("/query-lab/execute", dependencies=[Depends(require_roles("ADMIN"))])
-def execute_custom_pipeline(req: QueryLabExecutionRequest, db: Database = Depends(get_db)):
-    """
-    Executes an arbitrary aggregation pipeline live during viva demonstrations.
-    Includes security guards blocking write stages ($out / $merge) unless sandbox is enabled.
-    Supports .explain('executionStats') to show index usage.
-    """
-    if req.collection_name not in db.list_collection_names():
-        raise HTTPException(status_code=400, detail=f"Invalid collection: '{req.collection_name}' does not exist.")
-
-    # Security check: Read-only guard
-    if not req.sandbox:
-        for stage in req.pipeline:
-            for op in stage.keys():
-                if op in FORBIDDEN_STAGES:
-                    raise HTTPException(
-                        status_code=400,
-                        detail=f"Safety Violation: Stage '{op}' modifies database state and is forbidden unless 'sandbox' mode is toggled on."
-                    )
-
-    coll = db[req.collection_name]
-    t0 = time.time()
-
-    explain_data = None
-    if req.explain:
-        try:
-            explain_data = db.command(
-                "explain",
-                {"aggregate": req.collection_name, "pipeline": req.pipeline, "cursor": {}},
-                verbosity="executionStats"
-            )
-            explain_data = serialize_doc(explain_data)
-        except Exception as exc:
-            logger.warning(f"Explain command failed: {exc}")
-            explain_data = {"error": str(exc)}
-
-    # Run actual aggregation
-    cursor = coll.aggregate(req.pipeline, maxTimeMS=15000)
-    results = [serialize_doc(doc) for doc in cursor]
-    elapsed_ms = round((time.time() - t0) * 1000, 2)
-
-    return {
-        "success": True,
-        "data": {
-            "results": results,
-            "count": len(results),
-            "execution_time_ms": elapsed_ms,
-            "explain": explain_data
-        },
-        "error": None,
-        "meta": {"collection": req.collection_name}
-    }

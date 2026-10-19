@@ -1,6 +1,6 @@
 """
 LifeGrid Aggregation Pipeline 14: Materialized Daily Summary via $merge
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Problem:
 Build an incremental materialized view inside `analytics_daily` collection to power

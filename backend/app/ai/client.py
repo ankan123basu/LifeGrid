@@ -1,6 +1,6 @@
 """
 LifeGrid - Groq AI Client Singleton & Telemetry Logger
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Manages Groq SDK client instances, chat completions, token usage tracking,
 and persistent telemetry logging into MongoDB `ai_usage_logs` collection.

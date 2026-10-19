@@ -1,6 +1,6 @@
 """
 LifeGrid - Multi-Turn AI Agent with Groq Function Calling & Tool Loop
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Handles multi-turn clinical & database guidance conversations, executes
 raw PyMongo database tools, and persists conversation histories in `ai_conversations`.

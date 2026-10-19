@@ -1,6 +1,6 @@
 """
 LifeGrid - Donations & ACID Transactions Controller (C)
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Demonstrates Multi-Document ACID Transactions (start_session / with_transaction):
 When a blood donation is completed, the following 5 operations execute all-or-nothing:

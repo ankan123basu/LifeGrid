@@ -1,6 +1,6 @@
 """
 LifeGrid - Aggregation Pipelines & Query Lab Test Suite
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Tests all 15 advanced aggregation pipelines and Query Lab API endpoint.
 """
@@ -179,50 +179,3 @@ def test_15_ai_usage_report(db):
         assert "avg_latency_ms" in report
         assert "success_rate_pct" in report
 
-
-def test_query_lab_api():
-    # Login as admin to get token
-    login_res = client.post("/api/auth/login", json={
-        "email": "admin@lifegrid.in",
-        "password": "AdminPassword@123"
-    })
-    assert login_res.status_code == 200
-    token = login_res.json()["data"]["access_token"]
-    headers = {"Authorization": f"Bearer {token}"}
-
-    # Execute custom aggregation pipeline
-    payload = {
-        "collection_name": "blood_inventory",
-        "pipeline": [
-            {"$group": {"_id": "$blood_group", "count": {"$sum": 1}}},
-            {"$sort": {"count": -1}}
-        ],
-        "explain": True
-    }
-    response = client.post("/api/analytics/query-lab/execute", json=payload, headers=headers)
-    assert response.status_code == 200
-    data = response.json()
-    assert data["success"] is True
-    assert len(data["data"]["results"]) > 0
-    assert "explain" in data["data"]
-    assert "execution_time_ms" in data["data"]
-
-
-def test_query_lab_disallows_blacklisted_stages():
-    login_res = client.post("/api/auth/login", json={
-        "email": "admin@lifegrid.in",
-        "password": "AdminPassword@123"
-    })
-    token = login_res.json()["data"]["access_token"]
-    headers = {"Authorization": f"Bearer {token}"}
-
-    # Pipeline attempting $out to tamper with database
-    payload = {
-        "collection_name": "blood_inventory",
-        "pipeline": [
-            {"$out": "hacked_collection"}
-        ]
-    }
-    response = client.post("/api/analytics/query-lab/execute", json=payload, headers=headers)
-    assert response.status_code == 400
-    assert "forbidden" in response.json()["error"]["message"]

@@ -1,5 +1,5 @@
 """
-LifeGrid - Real-time WebSockets & Change Stream Live Demo (CSE494 Viva)
+LifeGrid - Real-time WebSockets & Change Stream Live Demo (Production Verification)
 Demonstrates:
 1. WebSocket connection and handshake with JWT authentication.
 2. Dynamic room subscription (e.g. global, hospital, role).
@@ -41,7 +41,7 @@ console = Console(legacy_windows=False)
 def run_realtime_demo():
     console.print(Panel.fit(
         "[bold cyan]LifeGrid - Real-time WebSockets & Change Streams Demonstration[/bold cyan]\n"
-        "[dim]CSE494: Intelligent NoSQL Databases - Event-Driven Architecture[/dim]",
+        "[dim]LifeGrid Core Platform Architecture - Event-Driven Architecture[/dim]",
         border_style="cyan"
     ))
 

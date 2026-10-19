@@ -67,7 +67,7 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 - Built unified API client in `src/lib/api.ts` connecting Next.js to FastAPI backend (`http://localhost:8000`) with JWT storage and typed endpoints.
 - Built real-time browser WebSocket client in `src/lib/socket.ts` with auto-reconnection and room pub/sub support.
 - Configured Zustand state management in `src/lib/store.ts` for authentication and real-time live alerts.
-- Created core layout components: `Navbar.tsx` (with live WebSocket indicator), `Footer.tsx` (with database specs), and `AuthModal.tsx` (with one-click viva role pre-fills).
+- Created core layout components: `Navbar.tsx` (with live WebSocket indicator), `Footer.tsx` (with database specs), and `AuthModal.tsx` (with one-click test role pre-fills).
 - Built Homepage in `src/app/page.tsx` featuring the fluid shader hero, real-time blood stock heatmap, AI emergency forward parser playground, and database architecture showcase.
 
 ## [0.6.0] - Phase 6: AI Backend (Groq Integration & Tool Calling)
@@ -80,7 +80,7 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
   * `get_hospital_capacity` (hospital bed and blood bank contacts)
   * `get_critical_shortages` (acute deficit alerts)
 - Specialized clinical and database system prompts in `app/ai/prompts/`:
-  * `assistant_prompt.py`: Clinical triage & CSE494 viva guidance tutor
+  * `assistant_prompt.py`: Clinical triage & LifeGrid test guidance tutor
   * `parser_prompt.py`: Emergency text/WhatsApp distress message parser
   * `query_gen_prompt.py`: Natural language to MongoDB aggregation pipeline generator
   * `forecast_prompt.py`: 7-14 day inventory shortage predictor
@@ -109,7 +109,7 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 - Bidirectional WebSocket endpoint `/ws/live` supporting JWT query token authentication, dynamic room join/leave commands, and heartbeat ping/pong protocol.
 - Real-time telemetry REST endpoint `GET /api/realtime/stats` returning active sockets, room distribution, and broadcast counters.
 - Reactive event emission hooks in `requests_controller.py`, `inventory_controller.py`, and `notifications_controller.py`.
-- Standalone viva demonstration script in `backend/queries/realtime_demo.py`.
+- Standalone test demonstration script in `backend/queries/realtime_demo.py`.
 - Automated test suite in `tests/test_realtime.py` (6 tests, 100% pass rate).
 
 ## [0.4.0] - Phase 4: Advanced Aggregation Pipelines & Query Lab
@@ -132,7 +132,7 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
   15. Groq AI LLM inference telemetry & token usage report (`ai_usage_logs`)
 - Exposed all 15 analytical endpoints and interactive Query Lab runner at `/api/analytics/*`.
 - Built safe interactive Query Lab sandbox supporting pipeline execution with `explain("executionStats")` and read-only enforcement.
-- Created 15 standalone viva demonstration scripts in `backend/queries/aggregations/` (01 to 15).
+- Created 15 standalone test demonstration scripts in `backend/queries/aggregations/` (01 to 15).
 - Created index explainability analyzer in `backend/queries/index_explain_demo.py` proving IXSCAN execution.
 - Added comprehensive integration test suite in `tests/test_aggregations.py` (17 tests, 100% pass).
 
@@ -144,7 +144,7 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 - High performance batch inventory synchronization using `bulk_write(UpdateOne)`.
 - Full-text search on hospitals utilizing compound text index on `name` and `address.city`.
 - Multi-document ACID transactions committing all-or-nothing across 5 collections (`donations`, `blood_inventory`, `users`, `blood_requests`, and `notifications`).
-- Standalone viva demonstration scripts: `queries/crud_demo.py` and `queries/transactions_demo.py`.
+- Standalone test demonstration scripts: `queries/crud_demo.py` and `queries/transactions_demo.py`.
 - Automated integration test suite in `tests/test_crud.py` with 100% pass rate.
 
 ## [0.2.0] - Phase 2: Authentication, Authorization (RBAC) & Security Middleware

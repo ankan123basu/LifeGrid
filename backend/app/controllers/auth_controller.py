@@ -1,6 +1,6 @@
 """
 LifeGrid - Authentication Controller
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Implements all user authentication and token rotation flows using RAW PyMongo:
 - User registration with strict password hashing and duplicate detection

@@ -1,6 +1,6 @@
 """
 LifeGrid - JWT Token Generation & Verification
-CSE494: Intelligent NoSQL Databases
+LifeGrid Core Platform Architecture
 
 Handles creation, decoding, and hashing for short-lived access tokens (15 mins)
 and rotating refresh tokens.
